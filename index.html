@@ -2,603 +2,618 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>아랍어 자음 · 모음 · 단어 필기 연습</title>
+  <title>Arabic Practice – Letters, Words & Sentences</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
+    :root {
+      --bg: #f9fafb;
+      --bg-panel: #ffffff;
+      --border: #e5e7eb;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --text: #111827;
+      --text-soft: #4b5563;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+    }
     * {
       box-sizing: border-box;
     }
-
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         sans-serif;
-      background: #0f172a;
-      color: #0f172a;
-    }
-
-    .app {
-      max-width: 1400px;
-      margin: 0 auto;
-      min-height: 100vh;
-      background: #f9fafb;
-      display: flex;
-      flex-direction: column;
+      background: var(--bg);
+      color: var(--text);
     }
 
     header {
-      padding: 16px 24px 12px;
-      border-bottom: 1px solid #e5e7eb;
-      background: linear-gradient(135deg, #0f172a, #111827);
-      color: #f9fafb;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(249, 250, 251, 0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
     }
-
-    header h1 {
-      font-size: 20px;
-      margin: 0 0 4px;
-      font-weight: 700;
-    }
-
-    header p {
-      margin: 0;
-      font-size: 13px;
-      opacity: 0.85;
-    }
-
-    main {
-      display: grid;
-      grid-template-columns: 260px 1fr;
-      gap: 0;
-      padding: 0;
-      height: calc(100vh - 64px);
-      max-height: 1000px;
-    }
-
-    @media (max-width: 960px) {
-      main {
-        grid-template-columns: 1fr;
-        height: auto;
-      }
-    }
-
-    /* 왼쪽 패널 */
-
-    .left-panel {
-      border-right: 1px solid #e5e7eb;
-      background: #f3f4f6;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
-
-    .tab-row {
-      display: flex;
-      gap: 8px;
-      padding: 10px 12px 8px;
-      border-bottom: 1px solid #e5e7eb;
-      background: #f9fafb;
-    }
-
-    .tab-btn {
-      flex: 1;
-      padding: 8px 0;
-      font-size: 13px;
-      border-radius: 999px;
-      border: none;
-      background: #e5e7eb;
-      color: #374151;
-      cursor: pointer;
-      font-weight: 500;
-      transition: background 0.15s, color 0.15s, transform 0.05s;
-    }
-
-    .tab-btn.active {
-      background: #111827;
-      color: #f9fafb;
-    }
-
-    .tab-btn:active {
-      transform: translateY(1px);
-    }
-
-    .category-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      padding: 8px 10px 4px;
-      border-bottom: 1px solid #e5e7eb;
-      background: #f9fafb;
-    }
-
-    .category-btn {
-      padding: 4px 9px;
-      border-radius: 999px;
-      border: none;
-      background: #e5e7eb;
-      font-size: 11px;
-      color: #374151;
-      cursor: pointer;
-      transition: background 0.15s, color 0.15s;
-      white-space: nowrap;
-    }
-
-    .category-btn.active {
-      background: #111827;
-      color: #f9fafb;
-    }
-
-    .add-word-panel {
-      padding: 8px 10px;
-      border-bottom: 1px solid #e5e7eb;
-      background: #f9fafb;
-      font-size: 11px;
-    }
-
-    .add-word-panel label {
-      font-size: 10px;
-      color: #4b5563;
-    }
-
-    .add-word-inputs {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      margin-top: 4px;
-    }
-
-    .add-word-inputs input,
-    .add-word-inputs select {
-      width: 100%;
-      padding: 5px 7px;
-      border-radius: 8px;
-      border: 1px solid #d1d5db;
-      font-size: 11px;
-    }
-
-    .add-word-row {
-      display: flex;
-      gap: 4px;
-      margin-top: 4px;
-    }
-
-    .add-word-btn {
-      padding: 5px 8px;
-      border-radius: 8px;
-      border: none;
-      font-size: 11px;
-      background: #111827;
-      color: #f9fafb;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .add-word-hint {
-      margin-top: 2px;
-      font-size: 10px;
-      color: #6b7280;
-    }
-
-    .list-panel {
-      flex: 1;
-      overflow: auto;
-      padding: 8px 10px 10px;
-    }
-
-    .letter-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 6px;
-    }
-
-    .letter-card {
-      background: #f9fafb;
-      border-radius: 10px;
-      padding: 6px 4px 4px;
-      cursor: pointer;
-      border: 1px solid transparent;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.15s, border-color 0.15s, transform 0.1s;
-      text-align: center;
-      min-height: 64px;
-      overflow: visible;
-    }
-
-    .letter-card:hover {
-      background: #e5e7eb;
-    }
-
-    .letter-card.active {
-      border-color: #111827;
-      background: #e5e7eb;
-    }
-
-    .letter-card.word-card {
-      min-height: 110px;
-      padding: 10px 6px 8px;
-    }
-
-    .letter-symbol {
-      font-size: 24px;
-      margin-bottom: 2px;
-      font-family: "Noto Naskh Arabic", "Scheherazade New", "Amiri",
-        "Times New Roman", serif;
-      direction: rtl;
-      white-space: nowrap;
-      line-height: 1.4;
-    }
-
-    .letter-card.word-card .letter-symbol {
-      font-size: 20px;
-      white-space: normal;
-      line-height: 1.6;
-      word-break: break-word;
-      text-align: center;
-    }
-
-    .letter-card.word-card.long-word .letter-symbol {
-      font-size: 18px;
-    }
-
-    .letter-card.word-card.very-long-word .letter-symbol {
-      font-size: 16px;
-    }
-
-    .letter-name {
-      font-size: 11px;
-      color: #4b5563;
-      margin-bottom: 1px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 100%;
-    }
-
-    .letter-extra {
-      font-size: 10px;
-      color: #9ca3af;
-      white-space: nowrap;
-      max-width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* 오른쪽 패널 */
-
-    .right-panel {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
-
-    .info-row {
-      padding: 10px 18px;
-      border-bottom: 1px solid #e5e7eb;
+    .header-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 10px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
-      background: #f9fafb;
+      gap: 10px;
     }
-
-    .info-text {
-      min-width: 0;
-    }
-
-    .info-title {
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .info-sub {
-      font-size: 12px;
-      color: #4b5563;
-      margin-bottom: 4px;
-    }
-
-    .info-meta {
-      font-size: 11px;
-      color: #6b7280;
-    }
-
-    .info-roman {
-      font-size: 11px;
-      color: #6b7280;
-      margin-left: 6px;
-    }
-
-    .info-arabic-big {
-      font-family: "Noto Naskh Arabic", "Scheherazade New", "Amiri",
-        "Times New Roman", serif;
-      font-size: 32px;
-      direction: rtl;
-    }
-
-    .info-controls {
+    .logo {
       display: flex;
       align-items: center;
       gap: 8px;
+      font-weight: 700;
+      font-size: 1rem;
     }
-
-    .pill {
-      font-size: 11px;
-      padding: 4px 8px;
+    .logo-badge {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #1d4ed8, #22c55e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 0.9rem;
+    }
+    .nav-tabs {
+      display: flex;
+      gap: 4px;
+      padding: 2px;
       border-radius: 999px;
       background: #e5e7eb;
-      color: #374151;
     }
-
-    .play-btn {
-      padding: 6px 10px;
-      border-radius: 999px;
+    .nav-tab {
       border: none;
-      background: #111827;
-      color: #f9fafb;
-      font-size: 11px;
+      background: transparent;
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      border-radius: 999px;
       cursor: pointer;
-      display: inline-flex;
+      color: #4b5563;
+      display: flex;
       align-items: center;
       gap: 4px;
+      white-space: nowrap;
+    }
+    .nav-tab.active {
+      background: #ffffff;
+      color: #111827;
+      box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.6);
     }
 
-    .play-btn span {
-      font-size: 13px;
-    }
-
-    .canvas-row {
-      flex: 1;
+    main {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 10px 10px 16px;
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      border-top: 1px solid #e5e7eb;
+      grid-template-columns: 260px 1fr;
+      gap: 8px;
+      min-height: calc(100vh - 64px);
     }
 
-    @media (max-width: 960px) {
-      .canvas-row {
-        grid-template-columns: 1fr;
-        height: 640px;
-      }
+    .side-panel {
+      background: var(--bg-panel);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .panel-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .panel-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      margin: 0 0 6px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+    .chip {
+      border: 1px solid #e5e7eb;
+      background: #f3f4f6;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .chip.active {
+      background: var(--accent-soft);
+      color: #1d4ed8;
+      border-color: #bfdbfe;
+    }
+
+    .list-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+      gap: 6px;
+      max-height: 210px;
+      overflow-y: auto;
+      padding: 4px 2px 2px;
+    }
+    .list-item {
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      padding: 6px 4px;
+      text-align: center;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.12s ease, transform 0.06s ease,
+        box-shadow 0.12s ease;
+    }
+    .list-item:hover {
+      background: #eef2ff;
+      box-shadow: 0 1px 4px rgba(148, 163, 184, 0.4);
+      transform: translateY(-1px);
+    }
+    .list-item.small-text {
+      font-size: 0.9rem;
+      padding: 6px;
+    }
+
+    .word-list {
+      max-height: 210px;
+      overflow-y: auto;
+      padding: 4px 2px 2px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .word-card {
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      padding: 6px 8px;
+      font-size: 0.82rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      cursor: pointer;
+      transition: background 0.12s ease, transform 0.06s ease,
+        box-shadow 0.12s ease;
+    }
+    .word-card:hover {
+      background: #eef2ff;
+      box-shadow: 0 1px 4px rgba(148, 163, 184, 0.4);
+      transform: translateY(-1px);
+    }
+    .word-main-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .word-ar {
+      font-size: 1.05rem;
+      direction: rtl;
+    }
+    .word-meta {
+      font-size: 0.75rem;
+      color: #6b7280;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .sentence-list {
+      max-height: 230px;
+      overflow-y: auto;
+      padding: 4px 2px 2px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .sentence-card {
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      padding: 6px 8px;
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      cursor: pointer;
+      transition: background 0.12s ease, box-shadow 0.12s ease,
+        transform 0.06s ease;
+    }
+    .sentence-card:hover {
+      background: #eef2ff;
+      box-shadow: 0 1px 4px rgba(148, 163, 184, 0.4);
+      transform: translateY(-1px);
+    }
+    .sentence-ar {
+      direction: rtl;
+      font-size: 0.95rem;
+    }
+    .sentence-kr {
+      font-size: 0.75rem;
+      color: var(--text-soft);
+    }
+
+    .small-label {
+      font-size: 0.72rem;
+      color: #6b7280;
+    }
+
+    .form-section {
+      margin-top: 6px;
+      border-top: 1px dashed #e5e7eb;
+      padding-top: 6px;
+    }
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+    .form-row label {
+      font-size: 0.7rem;
+      color: #6b7280;
+    }
+    .form-row input {
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      padding: 5px 7px;
+      font-size: 0.78rem;
+      width: 100%;
+    }
+    .btn-small {
+      border-radius: 999px;
+      border: none;
+      padding: 5px 10px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      background: #111827;
+      color: #f9fafb;
+    }
+    .btn-small.secondary {
+      background: #e5e7eb;
+      color: #111827;
     }
 
     .canvas-panel {
       display: flex;
       flex-direction: column;
-      border-left: 1px solid #e5e7eb;
-      background: #f9fafb;
-    }
-
-    .canvas-panel:first-child {
-      border-left: none;
-    }
-
-    .canvas-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 14px 6px;
-      font-size: 12px;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .canvas-header-title {
-      font-weight: 600;
-    }
-
-    .canvas-tools {
-      display: flex;
-      align-items: center;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: var(--bg-panel);
+      padding: 8px 10px 10px;
       gap: 8px;
-      font-size: 11px;
-      color: #6b7280;
     }
 
-    .slider {
-      width: 80px;
+    .sentence-practice {
+      border-radius: 14px;
+      border: 1px solid #e5e7eb;
+      background: #f3f4ff;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
-
-    .small-btn {
-      padding: 3px 8px;
+    .sentence-practice-title {
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: #1f2937;
+    }
+    .sentence-practice-ar {
+      direction: rtl;
+      font-size: 1.15rem;
+      margin-top: 2px;
+    }
+    .sentence-practice-kr {
+      font-size: 0.8rem;
+      color: #4b5563;
+    }
+    .sentence-practice-actions {
+      margin-top: 4px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .btn-ghost {
       border-radius: 999px;
-      border: 1px solid #d1d5db;
-      background: #f9fafb;
-      font-size: 11px;
+      border: 1px solid #cbd5f5;
+      background: #e0ebff;
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
       cursor: pointer;
     }
 
     .canvas-wrapper {
       flex: none;
       height: 260px;
-      padding: 8px 14px 12px;
+      padding: 6px 8px 8px;
+      border-radius: 14px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
-    @media (max-width: 960px) {
-     .canvas-wrapper {
-       height: 220px;
-     }
+    .canvas-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 0.82rem;
+      color: #374151;
     }
-    
     canvas {
       width: 100%;
       height: 100%;
-      background: #ffffff;
       border-radius: 12px;
-      box-shadow: 0 0 0 1px #e5e7eb inset;
+      border: 1px dashed #d1d5db;
+      background: #ffffff;
       touch-action: none;
     }
 
-    .canvas-footer {
-      font-size: 11px;
-      color: #6b7280;
-      padding: 0 14px 10px;
+    .draw-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 4px;
+      gap: 6px;
+    }
+
+    .record-panel {
+      border-radius: 14px;
+      border: 1px solid #e5e7eb;
+      background: #fefce8;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .record-title {
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: #44403c;
+    }
+    .record-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 2px;
+      margin-bottom: 2px;
+    }
+    .btn-record {
+      border-radius: 999px;
+      border: 1px solid #f97316;
+      background: #ffedd5;
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      color: #9a3412;
+    }
+    .btn-record.stop {
+      border-color: #ef4444;
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .record-hint {
+      font-size: 0.72rem;
+      color: #78716c;
+      margin: 0;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 960px) {
+      main {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .side-panel {
+        order: 1;
+      }
+      .canvas-panel {
+        order: 2;
+      }
+      .canvas-wrapper {
+        height: 220px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <header>
-      <h1>아랍어 자음 · 모음 · 단어 필기 연습</h1>
-      <p>글자와 단어를 선택하고, 위 칸에서 따라 쓰고 아래 칸에서 직접 써 보세요.</p>
-    </header>
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-badge">ا</div>
+        <span>Arabic Practice Lab</span>
+      </div>
+      <div class="nav-tabs">
+        <button class="nav-tab active" data-tab="letters" onclick="setTab('letters')">
+          자음
+        </button>
+        <button class="nav-tab" data-tab="vowels" onclick="setTab('vowels')">
+          모음
+        </button>
+        <button class="nav-tab" data-tab="words" onclick="setTab('words')">
+          단어
+        </button>
+        <button class="nav-tab" data-tab="sentences" onclick="setTab('sentences')">
+          문장
+        </button>
+      </div>
+    </div>
+  </header>
 
-    <main>
-      <!-- 왼쪽 패널 -->
-      <section class="left-panel">
-        <div class="tab-row">
-          <button class="tab-btn active" data-tab="letters">자음</button>
-          <button class="tab-btn" data-tab="vowels">모음</button>
-          <button class="tab-btn" data-tab="words">단어</button>
+  <main>
+    <!-- 왼쪽 패널 -->
+    <aside class="side-panel">
+      <!-- 자음 패널 -->
+      <section id="panel-letters" class="panel-section">
+        <div class="panel-title">
+          <span>아랍어 자음</span>
         </div>
+        <p class="panel-subtitle">자음을 눌러 모양과 발음을 연습해 보세요.</p>
+        <div class="list-grid" id="lettersList"></div>
+      </section>
 
-        <!-- 단어 카테고리 영역 (단어 탭에서만 보이도록 JS에서 제어) -->
-        <div class="category-row" id="wordCategoryRow" style="display: none;">
-          <button class="category-btn active" data-category="all">전체</button>
-          <button class="category-btn" data-category="color">색깔</button>
-          <button class="category-btn" data-category="weather">날씨</button>
-          <button class="category-btn" data-category="fruit">과일</button>
-          <button class="category-btn" data-category="vegetable">야채</button>
-          <button class="category-btn" data-category="transport">교통수단</button>
-          <button class="category-btn" data-category="animal">동물</button>
-          <button class="category-btn" data-category="family">가족</button>
-          <button class="category-btn" data-category="custom">내 단어</button>
+      <!-- 모음 패널 -->
+      <section id="panel-vowels" class="panel-section hidden">
+        <div class="panel-title">
+          <span>모음 기호</span>
         </div>
+        <p class="panel-subtitle">짧은 모음, 긴 모음, 수쿤 등을 연습해 보세요.</p>
+        <div class="list-grid" id="vowelsList"></div>
+      </section>
 
-        <!-- 단어 직접 추가 -->
-        <div class="add-word-panel" id="addWordPanel" style="display: none;">
-          <div><strong>단어 직접 추가</strong> <span style="color:#9ca3af;">(내 단어 카테고리)</span></div>
-          <div class="add-word-inputs">
-            <div>
-              <label>아랍어 단어 (모음 포함)</label>
-              <input id="customArabicInput" placeholder="예: كِتَابٌ" dir="rtl" />
-            </div>
-            <div>
-              <label>뜻 (한국어)</label>
-              <input id="customKoreanInput" placeholder="예: 책" />
-            </div>
+      <!-- 단어 패널 -->
+      <section id="panel-words" class="panel-section hidden">
+        <div class="panel-title">
+          <span>단어 연습</span>
+        </div>
+        <p class="panel-subtitle">카테고리를 선택하고 단어를 골라 써 보세요.</p>
+        <div class="chip-row" id="wordCategoryChips"></div>
+        <div class="word-list" id="wordList"></div>
+
+        <div class="form-section">
+          <div class="panel-title">
+            <span>내 단어 추가</span>
           </div>
-          <div class="add-word-row">
-            <button class="add-word-btn" id="addWordBtn">추가</button>
-            <div class="add-word-hint">
-              추가한 단어는 왼쪽 리스트의 <strong>내 단어</strong> 카테고리에 저장돼요.
-            </div>
+          <div class="form-row">
+            <label>아랍어 단어</label>
+            <input id="customWordArabic" placeholder="예: قَهْوَةٌ" />
           </div>
-        </div>
-
-        <!-- 글자 / 단어 목록 -->
-        <div class="list-panel">
-          <div class="letter-grid" id="letterGrid"></div>
+          <div class="form-row">
+            <label>한국어 뜻</label>
+            <input id="customWordKorean" placeholder="예: 커피" />
+          </div>
+          <div class="form-row">
+            <label>발음(선택)</label>
+            <input id="customWordRoman" placeholder="예: qahwa" />
+          </div>
+          <button class="btn-small" onclick="addCustomWord()">커스텀 단어 저장</button>
+          <p class="record-hint">추가한 단어는 ‘커스텀’ 카테고리에서 확인할 수 있어요.</p>
         </div>
       </section>
 
-      <!-- 오른쪽 패널 -->
-      <section class="right-panel">
-        <div class="info-row">
-          <div class="info-text">
-            <div class="info-title" id="infoTitle">글자를 선택해 주세요.</div>
-            <div class="info-sub" id="infoSub">
-              왼쪽에서 자음, 모음 또는 단어를 누르면 정보가 여기 나옵니다.
-            </div>
-            <div class="info-meta" id="infoMeta"></div>
-          </div>
-          <div class="info-controls">
-            <div class="pill">
-              <span id="infoKind">타입: -</span>
-            </div>
-            <button class="play-btn" id="playBtn" disabled>
-              <span>▶</span> 발음 듣기
-            </button>
-            <div class="info-arabic-big" id="infoArabicBig">ـ</div>
-          </div>
+      <!-- 문장 패널 -->
+      <section id="panel-sentences" class="panel-section hidden">
+        <div class="panel-title">
+          <span>문장 학습</span>
         </div>
+        <p class="panel-subtitle">일상 회화 문장을 고르고, 듣고·쓰고·말해 보세요.</p>
 
-        <div class="canvas-row">
-          <!-- 따라 쓰기 -->
-          <div class="canvas-panel">
-            <div class="canvas-header">
-              <div class="canvas-header-title">1. 따라 쓰기</div>
-              <div class="canvas-tools">
-                선 두께
-                <input type="range" min="1" max="16" value="6" class="slider" id="traceThickness" />
-                <button class="small-btn" id="traceClearBtn">지우기</button>
-              </div>
-            </div>
-            <div class="canvas-wrapper">
-              <canvas id="traceCanvas"></canvas>
-            </div>
-            <div class="canvas-footer">
-              흐릿한 글자를 보면서 모양을 따라 그려 보세요. (마우스 또는 손가락)
-            </div>
-          </div>
+        <div class="chip-row" id="sentenceCategoryChips"></div>
 
-          <!-- 직접 써 보기 -->
-          <div class="canvas-panel">
-            <div class="canvas-header">
-              <div class="canvas-header-title">2. 직접 써 보기</div>
-              <div class="canvas-tools">
-                선 두께
-                <input type="range" min="1" max="16" value="6" class="slider" id="freeThickness" />
-                <button class="small-btn" id="freeClearBtn">지우기</button>
-              </div>
-            </div>
-            <div class="canvas-wrapper">
-              <canvas id="freeCanvas"></canvas>
-            </div>
-            <div class="canvas-footer">
-              빈 칸에 기억나는 대로 자유롭게 연습해 보세요.
-            </div>
-          </div>
-        </div>
+        <div class="sentence-list" id="sentenceList"></div>
       </section>
-    </main>
-  </div>
+    </aside>
+
+    <!-- 오른쪽 패널: 캔버스 + 연습 -->
+    <section class="canvas-panel">
+      <div id="sentencePracticeBox" class="sentence-practice hidden">
+        <div class="sentence-practice-title">선택한 문장</div>
+        <div id="practiceSentenceAr" class="sentence-practice-ar"></div>
+        <div id="practiceSentenceKr" class="sentence-practice-kr"></div>
+        <div class="sentence-practice-actions">
+          <button class="btn-ghost" type="button" onclick="playCurrentSentence()">
+            🔊 문장 발음 듣기
+          </button>
+          <button class="btn-ghost" type="button" onclick="scrollToTraceCanvas()">
+            ✏️ 이 문장 따라 쓰기
+          </button>
+        </div>
+      </div>
+
+      <div class="canvas-wrapper">
+        <div class="canvas-title-row">
+          <span>따라 쓰기 (연한 글자를 따라 그려보세요)</span>
+          <span class="small-label" id="currentTextLabel">선택된 글자/단어/문장 없음</span>
+        </div>
+        <canvas id="traceCanvas"></canvas>
+      </div>
+
+      <div class="canvas-wrapper">
+        <div class="canvas-title-row">
+          <span>직접 쓰기 (자유 연습)</span>
+        </div>
+        <canvas id="drawCanvas"></canvas>
+        <div class="draw-actions">
+          <button class="btn-small secondary" type="button" onclick="clearDrawCanvas()">
+            지우기
+          </button>
+        </div>
+      </div>
+
+      <div id="recordPanel" class="record-panel hidden">
+        <div class="record-title">내 발음 연습</div>
+        <p class="record-hint">
+          선택한 문장을 보고 스스로 읽어 본 뒤, 녹음해서 다시 들어보세요.
+        </p>
+        <div class="record-controls">
+          <button class="btn-record" type="button" onclick="startRecording()">
+            🎤 녹음 시작
+          </button>
+          <button class="btn-record stop" type="button" onclick="stopRecording()">
+            ⏹ 정지
+          </button>
+        </div>
+        <audio id="myPronunciationAudio" controls></audio>
+        <p class="record-hint">
+          * 브라우저에서 마이크 사용 허용이 필요해요. (아이패드도 지원됩니다.)
+        </p>
+      </div>
+    </section>
+  </main>
 
   <script>
-    // ===== 데이터 정의 =====
+    // ====== 기본 데이터 ======
 
-    const letters = [
-      { letter: "ا", name: "alif (اَلِف)", roman: "a / ʾa", kind: "자음", desc: "모음 역할도 하는 자음" },
-      { letter: "ب", name: "bā’ (بَاء)", roman: "b", kind: "자음", desc: "입술 소리, 한국어 ㅂ과 비슷" },
-      { letter: "ت", name: "tā’ (تَاء)", roman: "t", kind: "자음", desc: "무성 치음, 한국어 ㅌ 사이" },
-      { letter: "ث", name: "thā’ (ثَاء)", roman: "th", kind: "자음", desc: "영어 thank 의 th" },
-      { letter: "ج", name: "jīm (جِيم)", roman: "j", kind: "자음", desc: "지역에 따라 [j]/[g]" },
-      { letter: "ح", name: "ḥā’ (حَاء)", roman: "ḥ", kind: "자음", desc: "목에서 나는 강한 h" },
-      { letter: "خ", name: "khā’ (خَاء)", roman: "kh", kind: "자음", desc: "목 가래 긁는 소리" },
-      { letter: "د", name: "dāl (دَال)", roman: "d", kind: "자음", desc: "한국어 ㄷ과 비슷" },
-      { letter: "ذ", name: "dhāl (ذَال)", roman: "dh", kind: "자음", desc: "영어 this 의 th" },
-      { letter: "ر", name: "rā’ (رَاء)", roman: "r", kind: "자음", desc: "가볍게 혀를 떠는 r" },
-      { letter: "ز", name: "zāy (زَاي)", roman: "z", kind: "자음", desc: "영어 z" },
-      { letter: "س", name: "sīn (سِين)", roman: "s", kind: "자음", desc: "한국어 ㅅ" },
-      { letter: "ش", name: "shīn (شِين)", roman: "sh", kind: "자음", desc: "영어 sh" },
-      { letter: "ص", name: "ṣād (صَاد)", roman: "ṣ", kind: "자음", desc: "강한 s (굵게)" },
-      { letter: "ض", name: "ḍād (ضَاد)", roman: "ḍ", kind: "자음", desc: "아랍어 특유의 강한 d" },
-      { letter: "ط", name: "ṭā’ (طَاء)", roman: "ṭ", kind: "자음", desc: "강한 t" },
-      { letter: "ظ", name: "ẓā’ (ظَاء)", roman: "ẓ", kind: "자음", desc: "강한 dh" },
-      { letter: "ع", name: "ʿayn (عَيْن)", roman: "ʿ", kind: "자음", desc: "목 깊은 곳에서 나는 소리" },
-      { letter: "غ", name: "ghayn (غَيْن)", roman: "gh", kind: "자음", desc: "프랑스어 r 비슷" },
-      { letter: "ف", name: "fā’ (فَاء)", roman: "f", kind: "자음", desc: "입술 사이 f" },
-      { letter: "ق", name: "qāf (قَاف)", roman: "q", kind: "자음", desc: "목 안쪽 k" },
-      { letter: "ك", name: "kāf (كَاف)", roman: "k", kind: "자음", desc: "한국어 ㅋ" },
-      { letter: "ل", name: "lām (لَام)", roman: "l", kind: "자음", desc: "한국어 ㄹ/ㄴ 사이" },
-      { letter: "م", name: "mīm (مِيم)", roman: "m", kind: "자음", desc: "입 다문 m" },
-      { letter: "ن", name: "nūn (نُون)", roman: "n", kind: "자음", desc: "혓바닥 n" },
-      { letter: "ه", name: "hā’ (هَاء)", roman: "h", kind: "자음", desc: "가벼운 h" },
-      { letter: "و", name: "wāw (وَاو)", roman: "w / ū", kind: "자음", desc: "자음 w, 모음 u" },
-      { letter: "ي", name: "yā’ (يَاء)", roman: "y / ī", kind: "자음", desc: "자음 y, 모음 i" }
+    const consonants = [
+      "ا","ب","ت","ث","ج","ح","خ","د","ذ","ر","ز","س","ش",
+      "ص","ض","ط","ظ","ع","غ","ف","ق","ك","ل","م","ن","ه","و","ي"
     ];
 
     const vowels = [
-      { letter: "َ", name: "fatḥa (فَتْحَة)", roman: "a", kind: "단모음", desc: "짧은 a 소리 (예: بَ = ba)" },
-      { letter: "ِ", name: "kasra (كَسْرَة)", roman: "i", kind: "단모음", desc: "짧은 i 소리 (예: بِ = bi)" },
-      { letter: "ُ", name: "ḍamma (ضَمَّة)", roman: "u", kind: "단모음", desc: "짧은 u 소리 (예: بُ = bu)" },
-      { letter: "ْ", name: "sukūn (سُكُون)", roman: "∅", kind: "정지", desc: "모음 없이 자음만 발음" },
-      { letter: "ّ", name: "shadda (شَدَّة)", roman: "자음 2번", kind: "표식", desc: "자음을 한 번 더 길게" },
-      { letter: "ً", name: "tanwīn fatḥ (تَنوِين فَتْح)", roman: "an", kind: "어말 모음", desc: "어말 -an 소리" },
-      { letter: "ٍ", name: "tanwīn kasr (تَنوِين كَسْر)", roman: "in", kind: "어말 모음", desc: "어말 -in 소리" },
-      { letter: "ٌ", name: "tanwīn ḍamm (تَنوِين ضَمّ)", roman: "un", kind: "어말 모음", desc: "어말 -un 소리" }
+      { mark: "َ", name: "파타하", desc: "a (짧은 a 소리)" },
+      { mark: "ِ", name: "카스라", desc: "i (짧은 i 소리)" },
+      { mark: "ُ", name: "담마", desc: "u (짧은 u 소리)" },
+      { mark: "ً", name: "탄윈 파타하", desc: "an" },
+      { mark: "ٍ", name: "탄윈 카스라", desc: "in" },
+      { mark: "ٌ", name: "탄윈 담마", desc: "un" },
+      { mark: "ْ", name: "수쿤", desc: "자음만 발음" },
+      { mark: "ا", name: "알리프", desc: "긴 a" },
+      { mark: "و", name: "와우 (모음)", desc: "긴 u" },
+      { mark: "ي", name: "야 (모음)", desc: "긴 i" }
     ];
 
+    // === 단어 데이터 (이전 단계에서 만들었던 확장 단어들) ===
     const baseWords = [
-      /* ========== 🎨 색깔 (Colors) ========== */
+      /* 색깔 */
       { letter: "أَحْمَرُ", name: "ʾaḥmar", korean: "빨간색", roman: "aḥmar", kind: "단어", category: "color" },
       { letter: "أَزْرَقُ", name: "ʾazraq", korean: "파란색", roman: "azraq", kind: "단어", category: "color" },
       { letter: "أَخْضَرُ", name: "ʾakhḍar", korean: "초록색", roman: "akhḍar", kind: "단어", category: "color" },
@@ -615,9 +630,9 @@
       { letter: "سَمَاوِيٌّ", name: "samāwiyy", korean: "하늘색", roman: "samāwiyy", kind: "단어", category: "color" },
       { letter: "كُحْلِيٌّ", name: "kuḥliyy", korean: "네이비색", roman: "kuḥliyy", kind: "단어", category: "color" },
 
-      /* ========== ⛅ 날씨 (Weather) ========== */
+      /* 날씨 */
       { letter: "مَطَرٌ", name: "maṭar", korean: "비", roman: "maṭar", kind: "단어", category: "weather" },
-      { letter: "ثَلْجٌ", name: "thalj", korean: "눈 (snow)", roman: "thalj", kind: "단어", category: "weather" },
+      { letter: "ثَلْجٌ", name: "thalj", korean: "눈", roman: "thalj", kind: "단어", category: "weather" },
       { letter: "رِيحٌ", name: "rīḥ", korean: "바람", roman: "rīḥ", kind: "단어", category: "weather" },
       { letter: "جَوٌّ حَارٌّ", name: "jaww ḥārr", korean: "더운 날씨", roman: "jaww ḥārr", kind: "단어", category: "weather" },
       { letter: "جَوٌّ بَارِدٌ", name: "jaww bārid", korean: "추운 날씨", roman: "jaww bārid", kind: "단어", category: "weather" },
@@ -629,7 +644,7 @@
       { letter: "عَاصِفٌ", name: "ʿāṣif", korean: "바람이 강한", roman: "ʿāṣif", kind: "단어", category: "weather" },
       { letter: "عَاصِفَةٌ رَعْدِيَّةٌ", name: "ʿāṣifa raʿdiyya", korean: "뇌우, 천둥 번개", roman: "ʿāṣifa raʿdiyya", kind: "단어", category: "weather" },
 
-      /* ========== 🍎 과일 (Fruits) ========== */
+      /* 과일 */
       { letter: "تُفَّاحَةٌ", name: "tuffāḥa", korean: "사과", roman: "tuffāḥa", kind: "단어", category: "fruit" },
       { letter: "مَوْزَةٌ", name: "mawza", korean: "바나나", roman: "mawza", kind: "단어", category: "fruit" },
       { letter: "عِنَبٌ", name: "ʿinab", korean: "포도", roman: "ʿinab", kind: "단어", category: "fruit" },
@@ -643,12 +658,12 @@
       { letter: "كِيْوِي", name: "kīwī", korean: "키위", roman: "kiwi", kind: "단어", category: "fruit" },
       { letter: "رُمَّانٌ", name: "rummān", korean: "석류", roman: "rummān", kind: "단어", category: "fruit" },
       { letter: "خَوْخٌ", name: "khawkh", korean: "복숭아", roman: "khawkh", kind: "단어", category: "fruit" },
-      { letter: "كُمَّثْرَى", name: "kummathrā", korean: "배 (서양배)", roman: "kummathrā", kind: "단어", category: "fruit" },
+      { letter: "كُمَّثْرَى", name: "kummathrā", korean: "배(서양배)", roman: "kummathrā", kind: "단어", category: "fruit" },
       { letter: "تُوتٌ", name: "tūt", korean: "베리, 산딸기", roman: "tūt", kind: "단어", category: "fruit" },
       { letter: "تِينٌ", name: "tīn", korean: "무화과", roman: "tīn", kind: "단어", category: "fruit" },
       { letter: "مِشْمِشٌ", name: "mishmish", korean: "살구", roman: "mishmish", kind: "단어", category: "fruit" },
 
-      /* ========== 🥕 야채 (Vegetables) ========== */
+      /* 야채 */
       { letter: "جَزَرٌ", name: "jazar", korean: "당근", roman: "jazar", kind: "단어", category: "vegetable" },
       { letter: "بَطَاطِسُ", name: "baṭāṭis", korean: "감자", roman: "baṭāṭis", kind: "단어", category: "vegetable" },
       { letter: "طَمَاطِمُ", name: "ṭamāṭim", korean: "토마토", roman: "ṭamāṭim", kind: "단어", category: "vegetable" },
@@ -662,9 +677,9 @@
       { letter: "ثَوْمٌ", name: "thawm", korean: "마늘", roman: "thawm", kind: "단어", category: "vegetable" },
       { letter: "زَنْجَبِيلٌ", name: "zanjabīl", korean: "생강", roman: "zanjabīl", kind: "단어", category: "vegetable" },
       { letter: "فُطْرٌ", name: "fuṭr", korean: "버섯", roman: "fuṭr", kind: "단어", category: "vegetable" },
-      { letter: "فَاصُولْيَا", name: "fāṣūlyā", korean: "강낭콩류", roman: "fāṣūlyā", kind: "단어", category: "vegetable" },
+      { letter: "فَاصُولْيَا", name: "fāṣūlyā", korean: "강낭콩", roman: "fāṣūlyā", kind: "단어", category: "vegetable" },
 
-      /* ========== 🚇 교통수단 (Transport) ========== */
+      /* 교통수단 */
       { letter: "سَيَّارَةٌ", name: "sayyāra", korean: "자동차", roman: "sayyāra", kind: "단어", category: "transport" },
       { letter: "حَافِلَةٌ", name: "ḥāfila", korean: "버스", roman: "ḥāfila", kind: "단어", category: "transport" },
       { letter: "حَافِلَةٌ صَغِيرَةٌ", name: "ḥāfila ṣaghīra", korean: "미니버스", roman: "ḥāfila ṣaghīra", kind: "단어", category: "transport" },
@@ -672,14 +687,14 @@
       { letter: "قِطَارٌ سَرِيعٌ", name: "qiṭār sarīʿ", korean: "고속열차", roman: "qiṭār sarīʿ", kind: "단어", category: "transport" },
       { letter: "مِتْرُو", name: "mitrū", korean: "지하철", roman: "mitrū", kind: "단어", category: "transport" },
       { letter: "طَائِرَةٌ", name: "ṭāʾira", korean: "비행기", roman: "ṭāʾira", kind: "단어", category: "transport" },
-      { letter: "سَفِينَةٌ", name: "safīna", korean: "배, 선박", roman: "safīna", kind: "단어", category: "transport" },
-      { letter: "قَارِبٌ", name: "qārib", korean: "작은 배, 보트", roman: "qārib", kind: "단어", category: "transport" },
+      { letter: "سَفِينَةٌ", name: "safīna", korean: "배", roman: "safīna", kind: "단어", category: "transport" },
+      { letter: "قَارِبٌ", name: "qārib", korean: "보트", roman: "qārib", kind: "단어", category: "transport" },
       { letter: "دَرَّاجَةٌ", name: "darrāja", korean: "자전거", roman: "darrāja", kind: "단어", category: "transport" },
       { letter: "دَرَّاجَةٌ نَارِيَّةٌ", name: "darrāja nāriyya", korean: "오토바이", roman: "darrāja nāriyya", kind: "단어", category: "transport" },
       { letter: "سَيَّارَةُ أُجْرَةٍ", name: "sayyārat ʾujra", korean: "택시", roman: "sayyārat ʾujra", kind: "단어", category: "transport" },
       { letter: "شَاحِنَةٌ", name: "shāḥina", korean: "트럭", roman: "shāḥina", kind: "단어", category: "transport" },
 
-      /* ========== 🐾 동물 (Animals) ========== */
+      /* 동물 */
       { letter: "قِطَّةٌ", name: "qiṭṭa", korean: "고양이", roman: "qiṭṭa", kind: "단어", category: "animal" },
       { letter: "كَلْبٌ", name: "kalb", korean: "개", roman: "kalb", kind: "단어", category: "animal" },
       { letter: "حِصَانٌ", name: "ḥiṣān", korean: "말", roman: "ḥiṣān", kind: "단어", category: "animal" },
@@ -688,13 +703,13 @@
       { letter: "سَمَكَةٌ", name: "samaka", korean: "물고기", roman: "samaka", kind: "단어", category: "animal" },
       { letter: "طَائِرٌ", name: "ṭāʾir", korean: "새", roman: "ṭāʾir", kind: "단어", category: "animal" },
       { letter: "أَسَدٌ", name: "ʾasad", korean: "사자", roman: "ʾasad", kind: "단어", category: "animal" },
-      { letter: "نَمِرٌ", name: "namir", korean: "호랑이, 표범계", roman: "namir", kind: "단어", category: "animal" },
+      { letter: "نَمِرٌ", name: "namir", korean: "호랑이/표범", roman: "namir", kind: "단어", category: "animal" },
       { letter: "فِيلٌ", name: "fīl", korean: "코끼리", roman: "fīl", kind: "단어", category: "animal" },
       { letter: "دُبٌّ", name: "dubb", korean: "곰", roman: "dubb", kind: "단어", category: "animal" },
       { letter: "أَرْنَبٌ", name: "ʾarnab", korean: "토끼", roman: "ʾarnab", kind: "단어", category: "animal" },
       { letter: "قِرْدٌ", name: "qird", korean: "원숭이", roman: "qird", kind: "단어", category: "animal" },
 
-      /* ========== 👨‍👩‍👧‍👦 가족/사람 (Family & People) ========== */
+      /* 가족 */
       { letter: "أُمٌّ", name: "ʾumm", korean: "엄마", roman: "ʾumm", kind: "단어", category: "family" },
       { letter: "أَبٌ", name: "ʾab", korean: "아빠", roman: "ʾab", kind: "단어", category: "family" },
       { letter: "أَخٌ", name: "ʾakh", korean: "형/오빠/남동생", roman: "ʾakh", kind: "단어", category: "family" },
@@ -713,478 +728,539 @@
       { letter: "صَدِيقَةٌ", name: "ṣadīqa", korean: "친구(여)", roman: "ṣadīqa", kind: "단어", category: "family" }
     ];
 
-    const STORAGE_KEY = "arabic_practice_custom_words_v1";
+    const wordCategories = [
+      { id: "color", label: "색깔" },
+      { id: "weather", label: "날씨" },
+      { id: "fruit", label: "과일" },
+      { id: "vegetable", label: "야채" },
+      { id: "transport", label: "교통수단" },
+      { id: "animal", label: "동물" },
+      { id: "family", label: "가족/사람" },
+      { id: "custom", label: "커스텀" }
+    ];
 
-    function loadCustomWords() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return [];
-        const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : [];
-      } catch {
-        return [];
-      }
-    }
+    let customWords = [];
 
-    function saveCustomWords(words) {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(words));
-      } catch {
-        // ignore
-      }
-    }
+    // === 문장 데이터 (50문장) ===
+    const sentenceCategories = [
+      { id: "greeting", label: "인사/기본" },
+      { id: "feeling", label: "감정/상태" },
+      { id: "direction", label: "길 묻기" },
+      { id: "shopping", label: "쇼핑" },
+      { id: "daily", label: "일상" }
+    ];
 
-    let customWords = loadCustomWords();
+    const sentencesData = [
+      // 인사/기본 (10)
+      { text: "مَرْحَبًا!", korean: "안녕하세요!", category: "greeting" },
+      { text: "أَهْلًا وَسَهْلًا.", korean: "환영합니다.", category: "greeting" },
+      { text: "السَّلَامُ عَلَيْكُمْ.", korean: "평안이 있기를(안부 인사).", category: "greeting" },
+      { text: "كَيْفَ حَالُكَ؟", korean: "어떻게 지내?", category: "greeting" },
+      { text: "أَنَا بِخَيْرٍ، شُكْرًا.", korean: "저는 잘 지내요, 고마워요.", category: "greeting" },
+      { text: "مَا اسْمُكَ؟", korean: "이름이 뭐야?", category: "greeting" },
+      { text: "أَنَا اِسْمِي جِيهُون.", korean: "제 이름은 지훈이에요.", category: "greeting" },
+      { text: "مِنْ أَيْنَ أَنْتَ؟", korean: "어디에서 왔어?", category: "greeting" },
+      { text: "أَنَا مِنْ كُورِيَا.", korean: "저는 한국에서 왔어요.", category: "greeting" },
+      { text: "تَشَرَّفْتُ بِلِقَائِكَ.", korean: "만나서 반가워요.", category: "greeting" },
 
-    // ===== 상태 =====
+      // 감정/상태 (10)
+      { text: "أَنَا تَعْبَانُ قَلِيلًا.", korean: "저는 조금 피곤해요.", category: "feeling" },
+      { text: "أَنَا مَرِيضٌ قَلِيلًا.", korean: "저는 조금 아파요.", category: "feeling" },
+      { text: "أَنَا جَائِعٌ.", korean: "저는 배고파요.", category: "feeling" },
+      { text: "أَنَا عَطْشَانُ.", korean: "저는 목말라요.", category: "feeling" },
+      { text: "أَنَا مَشْغُولٌ اليَوْمَ.", korean: "저는 오늘 바빠요.", category: "feeling" },
+      { text: "أَنَا مَبْسُوطٌ جِدًّا.", korean: "저는 정말 기뻐요.", category: "feeling" },
+      { text: "لَا بَأْسَ، شُكْرًا.", korean: "괜찮아요, 고마워요.", category: "feeling" },
+      { text: "لَا أَدْرِي.", korean: "저는 잘 모르겠어요.", category: "feeling" },
+      { text: "لَا أَفْهَمُ.", korean: "이해하지 못했어요.", category: "feeling" },
+      { text: "مُمْكِنْ تُعِيدُ مِنْ فَضْلِكَ؟", korean: "다시 말해 줄 수 있어?", category: "feeling" },
 
-    let currentTab = "letters"; // letters | vowels | words
-    let currentCategory = "all"; // words category
-    let currentData = letters;
-    let currentItem = null;
-    let currentSampleText = "ا";
+      // 길 묻기 (10)
+      { text: "أَيْنَ الحَمَّامُ؟", korean: "화장실이 어디예요?", category: "direction" },
+      { text: "أَيْنَ المَطْعَمُ؟", korean: "식당이 어디예요?", category: "direction" },
+      { text: "أَيْنَ المَتْرُو؟", korean: "지하철은 어디예요?", category: "direction" },
+      { text: "أَيْنَ المَخْرَجُ؟", korean: "출구가 어디예요?", category: "direction" },
+      { text: "هَلْ هُوَ قَرِيبٌ؟", korean: "그것은 가까워요?", category: "direction" },
+      { text: "أُرِيدُ أَنْ أَذْهَبَ إِلَى المَوْلِ.", korean: "쇼핑몰에 가고 싶어요.", category: "direction" },
+      { text: "هَلْ يُمْكِنُكَ مُسَاعَدَتِي؟", korean: "저를 도와줄 수 있어요?", category: "direction" },
+      { text: "لَوْ سَمَحْتَ، أَنَا سَائِحٌ.", korean: "실례합니다, 저는 관광객이에요.", category: "direction" },
+      { text: "مِنْ فَضْلِكَ، كَيْفَ أَذْهَبُ إِلَى هُنَاكَ؟", korean: "저기로 어떻게 가나요?", category: "direction" },
+      { text: "هَلْ هَذَا الطَّرِيقُ صَحِيحٌ؟", korean: "이 길이 맞나요?", category: "direction" },
 
-    const letterGrid = document.getElementById("letterGrid");
-    const tabButtons = document.querySelectorAll(".tab-btn");
-    const wordCategoryRow = document.getElementById("wordCategoryRow");
-    const addWordPanel = document.getElementById("addWordPanel");
-    const categoryButtons = document.querySelectorAll(".category-btn");
+      // 쇼핑 (10)
+      { text: "كَمِ السِّعْرُ؟", korean: "가격이 얼마예요?", category: "shopping" },
+      { text: "غَالِي جِدًّا.", korean: "너무 비싸요.", category: "shopping" },
+      { text: "هَلْ لَدَيْكَ خَصْمٌ؟", korean: "할인 있나요?", category: "shopping" },
+      { text: "أُرِيدُ هَذَا.", korean: "이거 사고 싶어요.", category: "shopping" },
+      { text: "لَا أُرِيدُ. شُكْرًا.", korean: "괜찮아요, 필요 없어요.", category: "shopping" },
+      { text: "هَلْ يَوْجَدُ مَقَاسٌ آخَرُ؟", korean: "다른 사이즈가 있나요?", category: "shopping" },
+      { text: "أُرِيدُ نَفْسَ الشَّيْءِ بِلَوْنٍ آخَرَ.", korean: "같은 상품을 다른 색으로 원해요.", category: "shopping" },
+      { text: "هَلْ تَقْبَلُونَ البِطَاقَةَ؟", korean: "카드 결제 되나요?", category: "shopping" },
+      { text: "أَيْنَ الصُّنْدُوقُ؟", korean: "계산대가 어디예요?", category: "shopping" },
+      { text: "شُكْرًا عَلَى خِدْمَتِكُمْ.", korean: "응대해 주셔서 감사합니다.", category: "shopping" },
 
-    const infoTitle = document.getElementById("infoTitle");
-    const infoSub = document.getElementById("infoSub");
-    const infoMeta = document.getElementById("infoMeta");
-    const infoKind = document.getElementById("infoKind");
-    const infoArabicBig = document.getElementById("infoArabicBig");
-    const playBtn = document.getElementById("playBtn");
+      // 일상 (10)
+      { text: "مَاذَا تَفْعَلُ اليَوْمَ؟", korean: "오늘 뭐 할 거야?", category: "daily" },
+      { text: "أَنَا ذَاهِبٌ إِلَى الجَامِعَةِ.", korean: "나 오늘 대학교에 가.", category: "daily" },
+      { text: "أَنَا أَدْرُسُ العَرَبِيَّةَ.", korean: "나는 아랍어를 공부하고 있어.", category: "daily" },
+      { text: "أَنَا أُحِبُّ القَهْوَةَ.", korean: "나는 커피를 좋아해.", category: "daily" },
+      { text: "أُرِيدُ قَهْوَةً مِنْ فَضْلِكَ.", korean: "커피 한 잔 주세요.", category: "daily" },
+      { text: "الطَّقْسُ جَمِيلٌ اليَوْمَ.", korean: "오늘 날씨가 좋아.", category: "daily" },
+      { text: "الجَوُّ حَارٌّ جِدًّا.", korean: "날씨가 너무 더워.", category: "daily" },
+      { text: "الجَوُّ بَارِدٌ اليَوْمَ.", korean: "오늘은 날씨가 추워.", category: "daily" },
+      { text: "هَلْ عِنْدَكَ وَقْتٌ قَلِيلٌ؟", korean: "잠깐 시간 있어?", category: "daily" },
+      { text: "أَرَاكَ لَاحِقًا!", korean: "나중에 또 보자!", category: "daily" }
+    ];
 
-    const customArabicInput = document.getElementById("customArabicInput");
-    const customKoreanInput = document.getElementById("customKoreanInput");
-    const addWordBtn = document.getElementById("addWordBtn");
+    // ====== 상태 변수 ======
+    let currentTab = "letters";
+    let currentCategoryWord = "color";
+    let currentCategorySentence = "greeting";
+    let currentTraceText = "";
+    let currentSentence = null;
 
-    // 캔버스
-    const traceCanvas = document.getElementById("traceCanvas");
-    const freeCanvas = document.getElementById("freeCanvas");
-    const traceThickness = document.getElementById("traceThickness");
-    const freeThickness = document.getElementById("freeThickness");
-    const traceClearBtn = document.getElementById("traceClearBtn");
-    const freeClearBtn = document.getElementById("freeClearBtn");
+    let traceCanvas, drawCanvas;
+    let isDrawing = false;
+    let lastX = 0, lastY = 0;
 
-    let traceCtx, freeCtx;
-    let isTraceDrawing = false;
-    let isFreeDrawing = false;
-    let lastTracePos = null;
-    let lastFreePos = null;
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let lastAudioUrl = null;
 
-    // ===== 유틸 =====
+    // ====== 초기화 ======
+    document.addEventListener("DOMContentLoaded", () => {
+      traceCanvas = document.getElementById("traceCanvas");
+      drawCanvas = document.getElementById("drawCanvas");
 
-    function getCurrentWords() {
-      const all = baseWords.concat(customWords);
-      if (currentCategory === "all") return all;
-      if (currentCategory === "custom")
-        return all.filter((w) => w.category === "custom");
-      return all.filter((w) => w.category === currentCategory);
-    }
+      initLetters();
+      initVowels();
+      initWordCategories();
+      renderWordList();
+      initSentenceCategories();
+      renderSentenceList();
 
-    function renderGrid() {
-      letterGrid.innerHTML = "";
-      let data;
-      if (currentTab === "letters") {
-        currentData = letters;
-      } else if (currentTab === "vowels") {
-        currentData = vowels;
+      setupDrawCanvasEvents();
+      resizeAllCanvases();
+
+      window.addEventListener("resize", () => {
+        resizeAllCanvases();
+        if (currentTraceText) {
+          drawTraceSample(currentTraceText);
+        }
+      });
+    });
+
+    // ====== 탭 전환 ======
+    function setTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll(".nav-tab").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.tab === tab);
+      });
+
+      document.getElementById("panel-letters").classList.toggle("hidden", tab !== "letters");
+      document.getElementById("panel-vowels").classList.toggle("hidden", tab !== "vowels");
+      document.getElementById("panel-words").classList.toggle("hidden", tab !== "words");
+      document.getElementById("panel-sentences").classList.toggle("hidden", tab !== "sentences");
+
+      // 문장 탭일 때 발음 연습 패널 보이기
+      const recordPanel = document.getElementById("recordPanel");
+      if (tab === "sentences") {
+        recordPanel.classList.remove("hidden");
       } else {
-        currentData = getCurrentWords();
+        recordPanel.classList.add("hidden");
       }
-      data = currentData;
+    }
 
-      data.forEach((item, index) => {
-        const card = document.createElement("button");
-        card.className = "letter-card";
-        if (currentTab === "words") {
-          card.classList.add("word-card");
+    // ====== 자음/모음 초기화 ======
+    function initLetters() {
+      const container = document.getElementById("lettersList");
+      container.innerHTML = "";
+      consonants.forEach((ch) => {
+        const div = document.createElement("div");
+        div.className = "list-item";
+        div.textContent = ch;
+        div.onclick = () => {
+          setTraceText(ch, "자음");
+          speakArabic(ch);
+        };
+        container.appendChild(div);
+      });
+    }
 
-          const length = item.letter.replace(/\s+/g, "").length;
-          if (length >= 12) card.classList.add("very-long-word");
-          else if (length >= 8) card.classList.add("long-word");
-        }
-        card.dataset.index = index;
+    function initVowels() {
+      const container = document.getElementById("vowelsList");
+      container.innerHTML = "";
+      vowels.forEach((v) => {
+        const div = document.createElement("div");
+        div.className = "list-item small-text";
+        div.textContent = v.mark;
+        div.title = v.name + " - " + v.desc;
+        div.onclick = () => {
+          setTraceText(v.mark, "모음 " + v.name);
+          speakArabic(v.mark);
+        };
+        container.appendChild(div);
+      });
+    }
 
-        const symbol = document.createElement("div");
-        symbol.className = "letter-symbol";
-        symbol.textContent = item.letter;
-
-        const name = document.createElement("div");
-        name.className = "letter-name";
-        if (currentTab === "words") {
-          name.textContent = item.korean || "";
-        } else {
-          name.textContent = item.name || "";
-        }
-
-        const extra = document.createElement("div");
-        extra.className = "letter-extra";
-        if (currentTab === "words") {
-          let catLabel = "";
-          switch (item.category) {
-            case "color":
-              catLabel = "색깔";
-              break;
-            case "weather":
-              catLabel = "날씨";
-              break;
-            case "fruit":
-              catLabel = "과일";
-              break;
-            case "vegetable":
-              catLabel = "야채";
-              break;
-            case "transport":
-              catLabel = "교통";
-              break;
-            case "animal":
-              catLabel = "동물";
-              break;
-            case "family":
-              catLabel = "가족";
-              break;
-            case "custom":
-              catLabel = "내 단어";
-              break;
-          }
-          extra.textContent = (item.roman || "") + (catLabel ? " · " + catLabel : "");
-        } else {
-          extra.textContent = item.roman || "";
-        }
-
-        card.appendChild(symbol);
-        card.appendChild(name);
-        card.appendChild(extra);
-
-        card.addEventListener("click", () => {
+    // ====== 단어 영역 ======
+    function initWordCategories() {
+      const wrap = document.getElementById("wordCategoryChips");
+      wrap.innerHTML = "";
+      wordCategories.forEach((cat) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chip" + (cat.id === currentCategoryWord ? " active" : "");
+        btn.textContent = cat.label;
+        btn.onclick = () => {
+          currentCategoryWord = cat.id;
           document
-            .querySelectorAll(".letter-card")
+            .querySelectorAll("#wordCategoryChips .chip")
             .forEach((c) => c.classList.remove("active"));
-          card.classList.add("active");
-          currentItem = item;
-          updateInfo();
-          updateSampleText();
-        });
-
-        letterGrid.appendChild(card);
+          btn.classList.add("active");
+          renderWordList();
+        };
+        wrap.appendChild(btn);
       });
     }
 
-    function updateInfo() {
-      if (!currentItem) {
-        infoTitle.textContent = "글자를 선택해 주세요.";
-        infoSub.textContent = "왼쪽에서 자음, 모음 또는 단어를 누르면 정보가 여기 나옵니다.";
-        infoMeta.textContent = "";
-        infoKind.textContent = "타입: -";
-        infoArabicBig.textContent = "ـ";
-        playBtn.disabled = true;
+    function renderWordList() {
+      const list = document.getElementById("wordList");
+      list.innerHTML = "";
+      const all = [...baseWords, ...customWords];
+      const filtered = all.filter((w) => w.category === currentCategoryWord);
+      if (filtered.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "small-label";
+        empty.textContent = currentCategoryWord === "custom"
+          ? "아직 추가한 단어가 없어요."
+          : "이 카테고리의 단어가 없습니다.";
+        list.appendChild(empty);
         return;
       }
+      filtered.forEach((w) => {
+        const card = document.createElement("div");
+        card.className = "word-card";
+        card.onclick = () => {
+          setTraceText(w.letter, "단어: " + (w.korean ?? ""));
+          speakArabic(w.letter);
+        };
 
-      if (currentTab === "words") {
-        infoTitle.textContent = `${currentItem.letter} (${currentItem.korean})`;
-        infoSub.textContent = `로마자: ${currentItem.name || ""} (${currentItem.roman || ""})`;
-        infoMeta.textContent = `카테고리: ${currentItem.category === "custom" ? "내 단어" : currentItem.category}`;
-        infoKind.textContent = "타입: 단어";
-      } else if (currentTab === "letters") {
-        infoTitle.textContent = currentItem.name || "";
-        infoSub.textContent = `발음: ${currentItem.roman || ""}`;
-        infoMeta.textContent = currentItem.desc || "";
-        infoKind.textContent = "타입: 자음";
-      } else {
-        infoTitle.textContent = currentItem.name || "";
-        infoSub.textContent = `기본 소리: ${currentItem.roman || ""}`;
-        infoMeta.textContent = currentItem.desc || "";
-        infoKind.textContent = "타입: 모음";
-      }
+        const row = document.createElement("div");
+        row.className = "word-main-row";
 
-      infoArabicBig.textContent = currentItem.letter;
-      playBtn.disabled = false;
+        const arSpan = document.createElement("div");
+        arSpan.className = "word-ar";
+        arSpan.textContent = w.letter;
+
+        const koSpan = document.createElement("div");
+        koSpan.style.fontSize = "0.8rem";
+        koSpan.textContent = w.korean ?? "";
+
+        row.appendChild(arSpan);
+        row.appendChild(koSpan);
+
+        const meta = document.createElement("div");
+        meta.className = "word-meta";
+        if (w.roman) {
+          const r = document.createElement("span");
+          r.textContent = w.roman;
+          meta.appendChild(r);
+        }
+        const cat = document.createElement("span");
+        cat.textContent =
+          wordCategories.find((c) => c.id === w.category)?.label ?? "";
+        meta.appendChild(cat);
+
+        card.appendChild(row);
+        card.appendChild(meta);
+        list.appendChild(card);
+      });
     }
 
-    function updateSampleText() {
-      if (!currentItem) return;
-      currentSampleText = currentItem.letter;
-      drawTraceSample(currentSampleText);
-    }
-
-    // ===== 탭 전환 =====
-
-    tabButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        tabButtons.forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        currentTab = btn.dataset.tab;
-
-        if (currentTab === "words") {
-          wordCategoryRow.style.display = "flex";
-          addWordPanel.style.display = "block";
-        } else {
-          wordCategoryRow.style.display = "none";
-          addWordPanel.style.display = "none";
-        }
-
-        currentItem = null;
-        updateInfo();
-        renderGrid();
-        // 새로운 데이터에서 첫 번째 아이템 자동 선택 (있다면)
-        const firstCard = letterGrid.querySelector(".letter-card");
-        if (firstCard) {
-          firstCard.click();
-        } else {
-          drawTraceSample("ا");
-        }
-      });
-    });
-
-    categoryButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        categoryButtons.forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        currentCategory = btn.dataset.category;
-        currentItem = null;
-        renderGrid();
-        const firstCard = letterGrid.querySelector(".letter-card");
-        if (firstCard) firstCard.click();
-      });
-    });
-
-    // ===== 단어 추가 =====
-
-    addWordBtn.addEventListener("click", () => {
-      const ar = (customArabicInput.value || "").trim();
-      const ko = (customKoreanInput.value || "").trim();
+    function addCustomWord() {
+      const ar = document.getElementById("customWordArabic").value.trim();
+      const ko = document.getElementById("customWordKorean").value.trim();
+      const ro = document.getElementById("customWordRoman").value.trim();
       if (!ar || !ko) {
-        alert("아랍어 단어와 뜻을 모두 입력해 주세요.");
+        alert("아랍어 단어와 한국어 뜻은 필수입니다.");
         return;
       }
-      const newWord = {
+      const word = {
         letter: ar,
-        name: ar,
         korean: ko,
-        roman: "",
+        roman: ro,
+        name: ro || ko,
         kind: "단어",
         category: "custom"
       };
-      customWords.push(newWord);
-      saveCustomWords(customWords);
-      customArabicInput.value = "";
-      customKoreanInput.value = "";
-      if (currentTab === "words") {
-        renderGrid();
+      customWords.push(word);
+      document.getElementById("customWordArabic").value = "";
+      document.getElementById("customWordKorean").value = "";
+      document.getElementById("customWordRoman").value = "";
+
+      if (currentCategoryWord !== "custom") {
+        currentCategoryWord = "custom";
+        document
+          .querySelectorAll("#wordCategoryChips .chip")
+          .forEach((c) => c.classList.remove("active"));
+        const customChip = Array.from(
+          document.querySelectorAll("#wordCategoryChips .chip")
+        ).find((c) => c.textContent.includes("커스텀"));
+        if (customChip) customChip.classList.add("active");
       }
-    });
+      renderWordList();
+    }
 
-    // ===== 발음 (Web Speech API) =====
+    // ====== 문장 영역 ======
+    function initSentenceCategories() {
+      const wrap = document.getElementById("sentenceCategoryChips");
+      wrap.innerHTML = "";
+      sentenceCategories.forEach((cat) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className =
+          "chip" + (cat.id === currentCategorySentence ? " active" : "");
+        btn.textContent = cat.label;
+        btn.onclick = () => {
+          currentCategorySentence = cat.id;
+          document
+            .querySelectorAll("#sentenceCategoryChips .chip")
+            .forEach((c) => c.classList.remove("active"));
+          btn.classList.add("active");
+          renderSentenceList();
+        };
+        wrap.appendChild(btn);
+      });
+    }
 
+    function renderSentenceList() {
+      const list = document.getElementById("sentenceList");
+      list.innerHTML = "";
+      const filtered = sentencesData.filter(
+        (s) => s.category === currentCategorySentence
+      );
+      if (filtered.length === 0) {
+        const p = document.createElement("p");
+        p.className = "small-label";
+        p.textContent = "이 카테고리에 문장이 없습니다.";
+        list.appendChild(p);
+        return;
+      }
+      filtered.forEach((s) => {
+        const card = document.createElement("div");
+        card.className = "sentence-card";
+        card.onclick = () => {
+          selectSentence(s);
+        };
+        const ar = document.createElement("div");
+        ar.className = "sentence-ar";
+        ar.textContent = s.text;
+        const kr = document.createElement("div");
+        kr.className = "sentence-kr";
+        kr.textContent = s.korean;
+        card.appendChild(ar);
+        card.appendChild(kr);
+        list.appendChild(card);
+      });
+    }
+
+    function selectSentence(s) {
+      currentSentence = s;
+      const box = document.getElementById("sentencePracticeBox");
+      const ar = document.getElementById("practiceSentenceAr");
+      const kr = document.getElementById("practiceSentenceKr");
+      box.classList.remove("hidden");
+      ar.textContent = s.text;
+      kr.textContent = s.korean;
+      setTraceText(s.text, "문장 연습");
+      // 문장 탭이 아니더라도, 선택 시 발음 연습 패널 보여주기
+      document.getElementById("recordPanel").classList.remove("hidden");
+    }
+
+    function playCurrentSentence() {
+      if (!currentSentence) return;
+      speakArabic(currentSentence.text);
+    }
+
+    function scrollToTraceCanvas() {
+      if (!traceCanvas) return;
+      traceCanvas.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    // ====== TTS ======
     function speakArabic(text) {
       if (!("speechSynthesis" in window)) {
-        alert("이 브라우저에서는 음성 재생을 지원하지 않습니다.");
+        alert("이 브라우저에서는 발음 재생을 지원하지 않아요.");
         return;
       }
       const utter = new SpeechSynthesisUtterance(text);
       utter.lang = "ar-SA";
-      utter.rate = 0.9;
-      utter.pitch = 1.0;
+      utter.rate = 1;
+      utter.pitch = 1;
       window.speechSynthesis.cancel();
       window.speechSynthesis.speak(utter);
     }
 
-    playBtn.addEventListener("click", () => {
-      if (!currentItem) return;
-      speakArabic(currentItem.letter);
-    });
-
-    // ===== 캔버스 설정 =====
-
-    function resizeCanvases() {
-      [traceCanvas, freeCanvas].forEach((canvas) => {
-        const rect = canvas.getBoundingClientRect();
-        const ratio = window.devicePixelRatio || 1;
-        canvas.width = rect.width * ratio;
-        canvas.height = rect.height * ratio;
-        const ctx = canvas.getContext("2d");
-        ctx.scale(ratio, ratio);
-        ctx.lineCap = "round";
-        ctx.lineJoin = "round";
-      });
-      traceCtx = traceCanvas.getContext("2d");
-      freeCtx = freeCanvas.getContext("2d");
-      // 다시 샘플 그리기
-      drawTraceSample(currentSampleText || "ا");
-    }
-
-    window.addEventListener("resize", () => {
-      resizeCanvases();
-    });
-
-    function clearCanvas(ctx, canvas) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-
-    traceClearBtn.addEventListener("click", () => {
-      clearCanvas(traceCtx, traceCanvas);
-      drawTraceSample(currentSampleText || "ا");
-    });
-
-    freeClearBtn.addEventListener("click", () => {
-      clearCanvas(freeCtx, freeCanvas);
-    });
-
-    // 좌표 계산
-    function getCanvasPos(canvas, evt) {
+    // ====== 캔버스 관련 ======
+    function resizeCanvasElement(canvas) {
       const rect = canvas.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
-      if (evt.touches && evt.touches.length > 0) {
-        const t = evt.touches[0];
-        return {
-          x: (t.clientX - rect.left),
-          y: (t.clientY - rect.top)
-        };
-      } else {
-        return {
-          x: (evt.clientX - rect.left),
-          y: (evt.clientY - rect.top)
-        };
-      }
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, rect.width, rect.height);
     }
 
-    function setupDrawing(canvas, ctxRef, thicknessInput, isDrawingRef, lastPosRefSetter) {
-      const isTouch = "ontouchstart" in window;
-
-      const start = (evt) => {
-        evt.preventDefault();
-        const pos = getCanvasPos(canvas, evt);
-        lastPosRefSetter(pos);
-        ctxRef().lineWidth = Number(thicknessInput.value);
-        ctxRef().strokeStyle = "#111827";
-        isDrawingRef(true);
-      };
-
-      const move = (evt) => {
-        if (!isDrawingRef()) return;
-        evt.preventDefault();
-        const pos = getCanvasPos(canvas, evt);
-        const last = lastPosRefSetter();
-        ctxRef().beginPath();
-        ctxRef().moveTo(last.x, last.y);
-        ctxRef().lineTo(pos.x, pos.y);
-        ctxRef().stroke();
-        lastPosRefSetter(pos);
-      };
-
-      const end = (evt) => {
-        if (!isDrawingRef()) return;
-        evt.preventDefault();
-        isDrawingRef(false);
-      };
-
-      const opts = { passive: false };
-
-      if (isTouch) {
-        canvas.addEventListener("touchstart", start, opts);
-        canvas.addEventListener("touchmove", move, opts);
-        canvas.addEventListener("touchend", end, opts);
-        canvas.addEventListener("touchcancel", end, opts);
-      } else {
-        canvas.addEventListener("mousedown", start);
-        canvas.addEventListener("mousemove", move);
-        window.addEventListener("mouseup", end);
-      }
+    function resizeAllCanvases() {
+      if (!traceCanvas || !drawCanvas) return;
+      resizeCanvasElement(traceCanvas);
+      resizeCanvasElement(drawCanvas);
     }
 
-    // 상태 래퍼 (클로저용)
-    let _isTrace = false;
-    let _isFree = false;
-    let _lastTrace = null;
-    let _lastFree = null;
-
-    function isTrace(v) {
-      if (typeof v === "boolean") _isTrace = v;
-      return _isTrace;
-    }
-    function isFree(v) {
-      if (typeof v === "boolean") _isFree = v;
-      return _isFree;
-    }
-    function lastTracePosFunc(v) {
-      if (v) _lastTrace = v;
-      return _lastTrace;
-    }
-    function lastFreePosFunc(v) {
-      if (v) _lastFree = v;
-      return _lastFree;
+    function setTraceText(text, labelSource) {
+      currentTraceText = text;
+      const label = document.getElementById("currentTextLabel");
+      label.textContent = labelSource
+        ? labelSource + " · " + text
+        : text || "선택된 글자/단어/문장 없음";
+      drawTraceSample(text);
     }
 
-    // 따라쓰기 샘플 그리기 (자동 크기 조절)
     function drawTraceSample(text) {
       if (!traceCanvas) return;
-      const canvas = traceCanvas;
-      const ctx = canvas.getContext("2d");
-      const rect = canvas.getBoundingClientRect();
-
+      const ctx = traceCanvas.getContext("2d");
+      const rect = traceCanvas.getBoundingClientRect();
       ctx.clearRect(0, 0, rect.width, rect.height);
 
+      if (!text) return;
+
       ctx.save();
-      ctx.fillStyle = "rgba(0,0,0,0.05)";
+      ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
+      ctx.direction = "rtl";
 
-      const maxWidth = rect.width * 0.85;
-      const maxHeight = rect.height * 0.7;
-      let fontSize = Math.min(rect.width, rect.height); // 크게 시작
-
-      while (fontSize > 10) {
-        ctx.font =
-          fontSize +
-          "px 'Noto Naskh Arabic', 'Scheherazade New', 'Amiri', 'Times New Roman', serif";
-        const metrics = ctx.measureText(text);
-        const textWidth = metrics.width;
-        const textHeight = fontSize;
-
-        if (textWidth <= maxWidth && textHeight <= maxHeight) {
-          break;
-        }
-        fontSize -= 4;
-      }
+      const maxWidth = rect.width * 0.8;
+      const base = Math.min(rect.width, rect.height);
+      let fontSize = base * 0.5;
+      if (fontSize < 20) fontSize = 20;
 
       ctx.font =
         fontSize +
         "px 'Noto Naskh Arabic', 'Scheherazade New', 'Amiri', 'Times New Roman', serif";
-      ctx.fillText(text, rect.width / 2, rect.height / 2);
 
+      let width = ctx.measureText(text).width;
+      while (width > maxWidth && fontSize > 18) {
+        fontSize -= 2;
+        ctx.font =
+          fontSize +
+          "px 'Noto Naskh Arabic', 'Scheherazade New', 'Amiri', 'Times New Roman', serif";
+        width = ctx.measureText(text).width;
+      }
+
+      ctx.fillText(text, rect.width / 2, rect.height / 2);
       ctx.restore();
     }
 
-    // ===== 초기화 =====
+    function setupDrawCanvasEvents() {
+      const c = drawCanvas;
+      if (!c) return;
+      const ctx = c.getContext("2d");
 
-    function init() {
-      renderGrid();
-      const firstCard = letterGrid.querySelector(".letter-card");
-      if (firstCard) firstCard.click();
-      resizeCanvases();
+      const getPos = (e) => {
+        const rect = c.getBoundingClientRect();
+        if (e.touches && e.touches[0]) {
+          return {
+            x: e.touches[0].clientX - rect.left,
+            y: e.touches[0].clientY - rect.top
+          };
+        }
+        return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      };
 
-      setupDrawing(
-        traceCanvas,
-        () => traceCtx,
-        traceThickness,
-        isTrace,
-        lastTracePosFunc
-      );
-      setupDrawing(
-        freeCanvas,
-        () => freeCtx,
-        freeThickness,
-        isFree,
-        lastFreePosFunc
-      );
+      const start = (e) => {
+        e.preventDefault();
+        isDrawing = true;
+        const pos = getPos(e);
+        lastX = pos.x;
+        lastY = pos.y;
+      };
+      const move = (e) => {
+        if (!isDrawing) return;
+        e.preventDefault();
+        const pos = getPos(e);
+        ctx.lineWidth = 3;
+        ctx.lineCap = "round";
+        ctx.strokeStyle = "#111827";
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        lastX = pos.x;
+        lastY = pos.y;
+      };
+      const end = () => {
+        isDrawing = false;
+      };
+
+      c.addEventListener("mousedown", start);
+      c.addEventListener("mousemove", move);
+      window.addEventListener("mouseup", end);
+
+      c.addEventListener("touchstart", start, { passive: false });
+      c.addEventListener("touchmove", move, { passive: false });
+      window.addEventListener("touchend", end);
+      window.addEventListener("touchcancel", end);
     }
 
-    window.addEventListener("load", init);
+    function clearDrawCanvas() {
+      if (!drawCanvas) return;
+      const ctx = drawCanvas.getContext("2d");
+      const rect = drawCanvas.getBoundingClientRect();
+      ctx.clearRect(0, 0, rect.width, rect.height);
+    }
+
+    // ====== 녹음 기능 ======
+    async function startRecording() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert("이 브라우저에서는 녹음을 지원하지 않아요.");
+        return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        recordedChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) {
+            recordedChunks.push(e.data);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: "audio/webm" });
+          if (lastAudioUrl) {
+            URL.revokeObjectURL(lastAudioUrl);
+          }
+          lastAudioUrl = URL.createObjectURL(blob);
+          const audio = document.getElementById("myPronunciationAudio");
+          audio.src = lastAudioUrl;
+        };
+
+        mediaRecorder.start();
+      } catch (err) {
+        console.error(err);
+        alert("마이크 사용이 허용되지 않았거나 오류가 발생했습니다.");
+      }
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+      }
+    }
   </script>
 </body>
 </html>
