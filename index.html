@@ -43,7 +43,7 @@
       max-height: calc(100vh - 64px);
     }
 
-    /* 왼쪽 패널: 글자/단어 목록 */
+    /* 왼쪽 패널 */
     .sidebar {
       width: 280px;
       background: white;
@@ -74,6 +74,29 @@
     .tab-button.active {
       background: #111827;
       color: white;
+    }
+
+    .category-filter {
+      display: none;
+      gap: 6px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .category-chip {
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      font-size: 11px;
+      padding: 4px 10px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .category-chip.active {
+      background: #111827;
+      color: white;
+      border-color: #111827;
     }
 
     .list-title {
@@ -326,7 +349,7 @@
 
       .sidebar {
         width: 100%;
-        max-height: 220px;
+        max-height: 240px;
       }
 
       .canvas-row {
@@ -356,6 +379,17 @@
       <button class="tab-button" data-tab="vowels">모음</button>
       <button class="tab-button" data-tab="words">단어</button>
     </div>
+
+    <!-- 단어 탭에서만 보이는 카테고리 필터 -->
+    <div class="category-filter" id="categoryFilter">
+      <button class="category-chip active" data-category="전체">전체</button>
+      <button class="category-chip" data-category="색깔">색깔</button>
+      <button class="category-chip" data-category="날씨">날씨</button>
+      <button class="category-chip" data-category="과일">과일</button>
+      <button class="category-chip" data-category="야채">야채</button>
+      <button class="category-chip" data-category="교통수단">교통수단</button>
+    </div>
+
     <div class="list-title" id="listTitle">아랍어 자음 (알파벳) 목록</div>
     <div class="letter-grid" id="letterGrid">
       <!-- JS로 채움 -->
@@ -771,7 +805,7 @@
     }
   ];
 
-  // 색깔 / 날씨 / 과일 / 야채 / 교통수단 단어들
+  // 단어 목록: 색깔 / 날씨 / 과일 / 야채 / 교통수단
   const words = [
     // 색깔
     {
@@ -810,6 +844,18 @@
       category: "색깔",
       tts: "أَسْوَدُ"
     },
+    {
+      letter: "بُنِّيٌّ",
+      meaning: "갈색",
+      category: "색깔",
+      tts: "بُنِّيٌّ"
+    },
+    {
+      letter: "بَنَفْسَجِيٌّ",
+      meaning: "보라색",
+      category: "색깔",
+      tts: "بَنَفْسَجِيٌّ"
+    },
 
     // 날씨
     {
@@ -835,6 +881,18 @@
       meaning: "바람",
       category: "날씨",
       tts: "رِيحٌ"
+    },
+    {
+      letter: "سَحَابٌ",
+      meaning: "구름",
+      category: "날씨",
+      tts: "سَحَابٌ"
+    },
+    {
+      letter: "ضَبَابٌ",
+      meaning: "안개",
+      category: "날씨",
+      tts: "ضَبَابٌ"
     },
     {
       letter: "جَوٌّ حَارٌّ",
@@ -880,6 +938,18 @@
       category: "과일",
       tts: "فَرَاوِلَةٌ"
     },
+    {
+      letter: "بَطِّيخٌ",
+      meaning: "수박",
+      category: "과일",
+      tts: "بَطِّيخٌ"
+    },
+    {
+      letter: "كُمَّثْرَى",
+      meaning: "배",
+      category: "과일",
+      tts: "كُمَّثْرَى"
+    },
 
     // 야채
     {
@@ -911,6 +981,18 @@
       meaning: "양파",
       category: "야채",
       tts: "بَصَلٌ"
+    },
+    {
+      letter: "فُلْفُلٌ أَخْضَرُ",
+      meaning: "피망 / 파프리카",
+      category: "야채",
+      tts: "فُلْفُلٌ أَخْضَرُ"
+    },
+    {
+      letter: "خَسٌّ",
+      meaning: "상추",
+      category: "야채",
+      tts: "خَسٌّ"
     },
 
     // 교통수단
@@ -949,12 +1031,25 @@
       meaning: "비행기",
       category: "교통수단",
       tts: "طَائِرَةٌ"
+    },
+    {
+      letter: "سَفِينَةٌ",
+      meaning: "배 (ship)",
+      category: "교통수단",
+      tts: "سَفِينَةٌ"
+    },
+    {
+      letter: "تَاكْسِي",
+      meaning: "택시",
+      category: "교통수단",
+      tts: "تَاكْسِي"
     }
   ];
 
   let currentTab = "consonants";
   let currentLetterObj = null;
   let currentForm = "isolated";
+  let currentCategory = "전체";
 
   const tabButtons = document.querySelectorAll(".tab-button");
   const letterGrid = document.getElementById("letterGrid");
@@ -971,6 +1066,9 @@
   const formMedial = document.getElementById("formMedial");
   const formFinal = document.getElementById("formFinal");
   const speakBtn = document.getElementById("speakBtn");
+
+  const categoryFilter = document.getElementById("categoryFilter");
+  const categoryChips = document.querySelectorAll(".category-chip");
 
   function getCurrentGlyph() {
     if (!currentLetterObj) return "";
@@ -1043,17 +1141,23 @@
   function renderLetterGrid() {
     letterGrid.innerHTML = "";
     let data;
-    if (currentTab === "consonants") data = consonants;
-    else if (currentTab === "vowels") data = vowels;
-    else data = words;
 
     if (currentTab === "consonants") {
+      data = consonants;
       listTitle.textContent = "아랍어 자음 (알파벳) 목록";
+      categoryFilter.style.display = "none";
     } else if (currentTab === "vowels") {
+      data = vowels;
       listTitle.textContent = "아랍어 모음 기호 (하라카트) 목록";
+      categoryFilter.style.display = "none";
     } else {
+      // words
+      categoryFilter.style.display = "flex";
       listTitle.textContent =
         "단어 연습 (색깔 · 날씨 · 과일 · 야채 · 교통수단)";
+      data = words.filter(
+        (w) => currentCategory === "전체" || w.category === currentCategory
+      );
     }
 
     // 자음일 때만 형태 연습 보이기
@@ -1113,187 +1217,4 @@
       drawGuideLetter();
       clearCanvas(traceCtx, traceCanvas);
       clearCanvas(freeCtx, freeCanvas);
-    }
-  }
-
-  tabButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      if (btn.dataset.tab === currentTab) return;
-      currentTab = btn.dataset.tab;
-      tabButtons.forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      renderLetterGrid();
-    });
-  });
-
-  // 형태 버튼
-  formButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      if (!currentLetterObj) return;
-      currentForm = btn.dataset.form;
-      formButtons.forEach((b) => b.classList.remove("selected"));
-      btn.classList.add("selected");
-      updateInfoPanel(currentLetterObj);
-      drawGuideLetter();
-    });
-  });
-
-  // 발음(TTS) 버튼
-  speakBtn.addEventListener("click", () => {
-    if (!currentLetterObj) return;
-    if (!("speechSynthesis" in window)) {
-      alert("브라우저가 음성 합성을 지원하지 않습니다.");
-      return;
-    }
-    const text =
-      currentLetterObj.tts ||
-      currentLetterObj.example ||
-      currentLetterObj.letter;
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = "ar-SA";
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utter);
-  });
-
-  // 캔버스 세팅
-  const traceCanvas = document.getElementById("traceCanvas");
-  const freeCanvas = document.getElementById("freeCanvas");
-  const traceCtx = traceCanvas.getContext("2d");
-  const freeCtx = freeCanvas.getContext("2d");
-
-  function resizeCanvas() {
-    [traceCanvas, freeCanvas].forEach((c) => {
-      const rect = c.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      c.width = rect.width * dpr;
-      c.height = rect.height * dpr;
-      const ctx = c.getContext("2d");
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-      ctx.strokeStyle = "#111827";
-      ctx.lineWidth = 5;
-    });
-
-    drawGuideLetter();
-  }
-
-  function clearCanvas(ctx, canvas) {
-    const rect = canvas.getBoundingClientRect();
-    ctx.clearRect(0, 0, rect.width, rect.height);
-    if (canvas === traceCanvas) {
-      drawGuideLetter();
-    }
-  }
-
-  function drawGuideLetter() {
-    if (!currentLetterObj) return;
-    const ctx = traceCtx;
-    const canvas = traceCanvas;
-    const rect = canvas.getBoundingClientRect();
-    ctx.clearRect(0, 0, rect.width, rect.height);
-
-    const guide = getCurrentGlyph();
-
-    ctx.save();
-    ctx.globalAlpha = 0.12;
-    ctx.fillStyle = "#111827";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-
-    const size = Math.min(rect.width, rect.height) * 0.55;
-    ctx.font =
-      "normal " +
-      size +
-      "px 'Noto Naskh Arabic','Scheherazade New','Amiri','Times New Roman',serif";
-    ctx.fillText(guide, rect.width / 2, rect.height / 2);
-    ctx.restore();
-  }
-
-  window.addEventListener("resize", resizeCanvas);
-
-  // 그리기 로직
-  function enableDrawing(canvas, ctx, widthInput) {
-    let drawing = false;
-    let lastX = 0;
-    let lastY = 0;
-
-    function getPos(e) {
-      const rect = canvas.getBoundingClientRect();
-      const point =
-        e.touches && e.touches[0]
-          ? e.touches[0]
-          : e.changedTouches && e.changedTouches[0]
-          ? e.changedTouches[0]
-          : e;
-      return {
-        x: point.clientX - rect.left,
-        y: point.clientY - rect.top
-      };
-    }
-
-    function start(e) {
-      e.preventDefault();
-      drawing = true;
-      const pos = getPos(e);
-      lastX = pos.x;
-      lastY = pos.y;
-    }
-
-    function move(e) {
-      if (!drawing) return;
-      e.preventDefault();
-      const pos = getPos(e);
-      ctx.beginPath();
-      ctx.moveTo(lastX, lastY);
-      ctx.lineTo(pos.x, pos.y);
-      ctx.stroke();
-      lastX = pos.x;
-      lastY = pos.y;
-    }
-
-    function end(e) {
-      if (!drawing) return;
-      e.preventDefault();
-      drawing = false;
-    }
-
-    canvas.addEventListener("mousedown", start);
-    canvas.addEventListener("mousemove", move);
-    window.addEventListener("mouseup", end);
-
-    canvas.addEventListener("touchstart", start, { passive: false });
-    canvas.addEventListener("touchmove", move, { passive: false });
-    canvas.addEventListener("touchend", end, { passive: false });
-    canvas.addEventListener("touchcancel", end, { passive: false });
-
-    if (widthInput) {
-      widthInput.addEventListener("input", () => {
-        ctx.lineWidth = Number(widthInput.value);
-      });
-    }
-  }
-
-  const traceWidthInput = document.getElementById("traceWidth");
-  const freeWidthInput = document.getElementById("freeWidth");
-  const clearTraceBtn = document.getElementById("clearTrace");
-  const clearFreeBtn = document.getElementById("clearFree");
-
-  setTimeout(() => {
-    resizeCanvas();
-    enableDrawing(traceCanvas, traceCtx, traceWidthInput);
-    enableDrawing(freeCanvas, freeCtx, freeWidthInput);
-  }, 0);
-
-  clearTraceBtn.addEventListener("click", () =>
-    clearCanvas(traceCtx, traceCanvas)
-  );
-  clearFreeBtn.addEventListener("click", () =>
-    clearCanvas(freeCtx, freeCanvas)
-  );
-
-  // 처음 렌더링
-  renderLetterGrid();
-</script>
-</body>
-</html>
+    } else {
