@@ -408,10 +408,16 @@
     }
 
     .canvas-wrapper {
-      flex: 1;
+      flex: none;
+      height: 260px;
       padding: 8px 14px 12px;
     }
-
+    @media (max-width: 960px) {
+     .canvas-wrapper {
+       height: 220px;
+     }
+    }
+    
     canvas {
       width: 100%;
       height: 100%;
