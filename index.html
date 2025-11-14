@@ -433,19 +433,18 @@
       .canvas-panel { order: 2; }
       .canvas-wrapper { height: 220px; }
     }
-    
-    .letter-card-letter {
+    /* 자음 카드용 텍스트 스타일 */
+  .letter-card-letter {
   font-size: 1.4rem;
   margin-bottom: 2px;
 }
-    .letter-card-sub {
+
+.letter-card-sub {
   font-size: 0.65rem;
   color: #4b5563;
   line-height: 1.15;
 }
-    
-  
-    
+
   </style>
 </head>
 <body>
@@ -599,7 +598,7 @@
   <script>
     // ====== 기본 데이터 ======
 
-    const consonants = [
+   const consonants = [
   { char: "ا", name: "alif", sound: "a / ā" },
   { char: "ب", name: "bāʼ", sound: "b" },
   { char: "ت", name: "tāʼ", sound: "t" },
@@ -629,38 +628,6 @@
   { char: "و", name: "wāw", sound: "w" },
   { char: "ي", name: "yāʼ", sound: "y" }
 ];
-
-function initLetters() {
-  const container = document.getElementById("lettersList");
-  container.innerHTML = "";
-  consonants.forEach((letter) => {
-    const div = document.createElement("div");
-    div.className = "list-item";
-
-    const big = document.createElement("div");
-    big.className = "letter-card-letter";
-    big.textContent = letter.char;
-
-    const nameLine = document.createElement("div");
-    nameLine.className = "letter-card-sub";
-    nameLine.textContent = letter.name;
-
-    const soundLine = document.createElement("div");
-    soundLine.className = "letter-card-sub";
-    soundLine.textContent = letter.sound;
-
-    div.appendChild(big);
-    div.appendChild(nameLine);
-    div.appendChild(soundLine);
-
-    div.onclick = () => {
-      setTraceText(letter.char, "자음: " + letter.name);
-      speakArabic(letter.char);
-    };
-
-    container.appendChild(div);
-  });
-}
 
     const vowels = [
       { mark: "َ", name: "파타하", desc: "a (짧은 a 소리)" },
@@ -911,4 +878,453 @@ function initLetters() {
 
       window.addEventListener("resize", () => {
         resizeAllCanvases();
-        if (currentTraceText) 
+        if (currentTraceText) {
+          drawTraceSample(currentTraceText);
+        }
+      });
+    });
+
+    // ====== 탭 전환 ======
+   function setTab(tab) {
+  currentTab = tab;
+
+  // 상단 탭 활성화
+  document.querySelectorAll(".nav-tab").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.tab === tab);
+  });
+
+  // 왼쪽 패널 표시/숨기기
+  document.getElementById("panel-letters").classList.toggle("hidden", tab !== "letters");
+  document.getElementById("panel-vowels").classList.toggle("hidden", tab !== "vowels");
+  document.getElementById("panel-words").classList.toggle("hidden", tab !== "words");
+  document.getElementById("panel-sentences").classList.toggle("hidden", tab !== "sentences");
+
+  // 문장 박스 & 녹음 패널 처리
+  const recordPanel = document.getElementById("recordPanel");
+  const sentenceBox = document.getElementById("sentencePracticeBox");
+
+  if (tab === "sentences") {
+    recordPanel.classList.remove("hidden");
+    if (currentSentence) {
+      sentenceBox.classList.remove("hidden");
+    }
+  } else {
+    // 다른 탭에선 문장 박스, 녹음 패널 모두 숨김
+    recordPanel.classList.add("hidden");
+    sentenceBox.classList.add("hidden");
+  }
+}
+
+
+    // ====== 자음/모음 초기화 ======
+   function initLetters() {
+  const container = document.getElementById("lettersList");
+  container.innerHTML = "";
+  consonants.forEach((letter) => {
+    const div = document.createElement("div");
+    div.className = "list-item";
+
+    const big = document.createElement("div");
+    big.className = "letter-card-letter";
+    big.textContent = letter.char;
+
+    const nameLine = document.createElement("div");
+    nameLine.className = "letter-card-sub";
+    nameLine.textContent = letter.name;
+
+    const soundLine = document.createElement("div");
+    soundLine.className = "letter-card-sub";
+    soundLine.textContent = letter.sound;
+
+    div.appendChild(big);
+    div.appendChild(nameLine);
+    div.appendChild(soundLine);
+
+    div.onclick = () => {
+      setTraceText(letter.char, "자음: " + letter.name);
+      speakArabic(letter.char);
+    };
+
+    container.appendChild(div);
+  });
+}
+
+    function initVowels() {
+      const container = document.getElementById("vowelsList");
+      container.innerHTML = "";
+      vowels.forEach((v) => {
+        const div = document.createElement("div");
+        div.className = "list-item small-text";
+        div.textContent = v.mark;
+        div.title = v.name + " - " + v.desc;
+        div.onclick = () => {
+          setTraceText(v.mark, "모음 " + v.name);
+          speakArabic(v.mark);
+        };
+        container.appendChild(div);
+      });
+    }
+
+    // ====== 단어 영역 ======
+    function initWordCategories() {
+      const wrap = document.getElementById("wordCategoryChips");
+      wrap.innerHTML = "";
+      wordCategories.forEach((cat) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chip" + (cat.id === currentCategoryWord ? " active" : "");
+        btn.textContent = cat.label;
+        btn.onclick = () => {
+          currentCategoryWord = cat.id;
+          document
+            .querySelectorAll("#wordCategoryChips .chip")
+            .forEach((c) => c.classList.remove("active"));
+          btn.classList.add("active");
+          renderWordList();
+        };
+        wrap.appendChild(btn);
+      });
+    }
+
+    function renderWordList() {
+      const list = document.getElementById("wordList");
+      list.innerHTML = "";
+      const all = [...baseWords, ...customWords];
+      const filtered = all.filter((w) => w.category === currentCategoryWord);
+      if (filtered.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "small-label";
+        empty.textContent =
+          currentCategoryWord === "custom"
+            ? "아직 추가한 단어가 없어요."
+            : "이 카테고리의 단어가 없습니다.";
+        list.appendChild(empty);
+        return;
+      }
+      filtered.forEach((w) => {
+        const card = document.createElement("div");
+        card.className = "word-card";
+        card.onclick = () => {
+          setTraceText(w.letter, "단어: " + (w.korean ?? ""));
+          speakArabic(w.letter);
+        };
+
+        const row = document.createElement("div");
+        row.className = "word-main-row";
+
+        const arSpan = document.createElement("div");
+        arSpan.className = "word-ar";
+        arSpan.textContent = w.letter;
+
+        const koSpan = document.createElement("div");
+        koSpan.style.fontSize = "0.8rem";
+        koSpan.textContent = w.korean ?? "";
+
+        row.appendChild(arSpan);
+        row.appendChild(koSpan);
+
+        const meta = document.createElement("div");
+        meta.className = "word-meta";
+        if (w.roman) {
+          const r = document.createElement("span");
+          r.textContent = w.roman;
+          meta.appendChild(r);
+        }
+        const cat = document.createElement("span");
+        cat.textContent =
+          wordCategories.find((c) => c.id === w.category)?.label ?? "";
+        meta.appendChild(cat);
+
+        card.appendChild(row);
+        card.appendChild(meta);
+        list.appendChild(card);
+      });
+    }
+
+    function addCustomWord() {
+      const ar = document.getElementById("customWordArabic").value.trim();
+      const ko = document.getElementById("customWordKorean").value.trim();
+      const ro = document.getElementById("customWordRoman").value.trim();
+      if (!ar || !ko) {
+        alert("아랍어 단어와 한국어 뜻은 필수입니다.");
+        return;
+      }
+      const word = {
+        letter: ar,
+        korean: ko,
+        roman: ro,
+        name: ro || ko,
+        kind: "단어",
+        category: "custom"
+      };
+      customWords.push(word);
+      document.getElementById("customWordArabic").value = "";
+      document.getElementById("customWordKorean").value = "";
+      document.getElementById("customWordRoman").value = "";
+
+      if (currentCategoryWord !== "custom") {
+        currentCategoryWord = "custom";
+        document
+          .querySelectorAll("#wordCategoryChips .chip")
+          .forEach((c) => c.classList.remove("active"));
+        const customChip = Array.from(
+          document.querySelectorAll("#wordCategoryChips .chip")
+        ).find((c) => c.textContent.includes("커스텀"));
+        if (customChip) customChip.classList.add("active");
+      }
+      renderWordList();
+    }
+
+    // ====== 문장 영역 ======
+    function initSentenceCategories() {
+      const wrap = document.getElementById("sentenceCategoryChips");
+      wrap.innerHTML = "";
+      sentenceCategories.forEach((cat) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className =
+          "chip" + (cat.id === currentCategorySentence ? " active" : "");
+        btn.textContent = cat.label;
+        btn.onclick = () => {
+          currentCategorySentence = cat.id;
+          document
+            .querySelectorAll("#sentenceCategoryChips .chip")
+            .forEach((c) => c.classList.remove("active"));
+          btn.classList.add("active");
+          renderSentenceList();
+        };
+        wrap.appendChild(btn);
+      });
+    }
+
+    function renderSentenceList() {
+      const list = document.getElementById("sentenceList");
+      list.innerHTML = "";
+      const filtered = sentencesData.filter(
+        (s) => s.category === currentCategorySentence
+      );
+      if (filtered.length === 0) {
+        const p = document.createElement("p");
+        p.className = "small-label";
+        p.textContent = "이 카테고리에 문장이 없습니다.";
+        list.appendChild(p);
+        return;
+      }
+      filtered.forEach((s) => {
+        const card = document.createElement("div");
+        card.className = "sentence-card";
+        card.onclick = () => {
+          selectSentence(s);
+        };
+        const ar = document.createElement("div");
+        ar.className = "sentence-ar";
+        ar.textContent = s.text;
+        const kr = document.createElement("div");
+        kr.className = "sentence-kr";
+        kr.textContent = s.korean;
+        card.appendChild(ar);
+        card.appendChild(kr);
+        list.appendChild(card);
+      });
+    }
+
+    function selectSentence(s) {
+      currentSentence = s;
+      const box = document.getElementById("sentencePracticeBox");
+      const ar = document.getElementById("practiceSentenceAr");
+      const kr = document.getElementById("practiceSentenceKr");
+      box.classList.remove("hidden");
+      ar.textContent = s.text;
+      kr.textContent = s.korean;
+      setTraceText(s.text, "문장 연습");
+      document.getElementById("recordPanel").classList.remove("hidden");
+    }
+
+    function playCurrentSentence() {
+      if (!currentSentence) return;
+      speakArabic(currentSentence.text);
+    }
+
+    function scrollToTraceCanvas() {
+      if (!traceCanvas) return;
+      traceCanvas.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    // ====== TTS ======
+    function speakArabic(text) {
+      if (!("speechSynthesis" in window)) {
+        alert("이 브라우저에서는 발음 재생을 지원하지 않아요.");
+        return;
+      }
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "ar-SA";
+      utter.rate = 1;
+      utter.pitch = 1;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utter);
+    }
+
+    // ====== 캔버스 관련 ======
+    function resizeCanvasElement(canvas) {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, rect.width, rect.height);
+    }
+
+    function resizeAllCanvases() {
+      if (!traceCanvas || !drawCanvas) return;
+      resizeCanvasElement(traceCanvas);
+      resizeCanvasElement(drawCanvas);
+    }
+
+    function setTraceText(text, labelSource) {
+      currentTraceText = text;
+      const label = document.getElementById("currentTextLabel");
+      label.textContent = labelSource
+        ? labelSource + " · " + text
+        : text || "선택된 글자/단어/문장 없음";
+      drawTraceSample(text);
+    }
+
+    function drawTraceSample(text) {
+      if (!traceCanvas) return;
+      const ctx = traceCanvas.getContext("2d");
+      const rect = traceCanvas.getBoundingClientRect();
+      ctx.clearRect(0, 0, rect.width, rect.height);
+
+      if (!text) return;
+
+      ctx.save();
+      ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.direction = "rtl";
+
+      const maxWidth = rect.width * 0.8;
+      const base = Math.min(rect.width, rect.height);
+      let fontSize = base * 0.5;
+      if (fontSize < 20) fontSize = 20;
+
+      ctx.font =
+        fontSize +
+        "px 'Noto Naskh Arabic', 'Scheherazade New', 'Amiri', 'Times New Roman', serif";
+
+      let width = ctx.measureText(text).width;
+      while (width > maxWidth && fontSize > 18) {
+        fontSize -= 2;
+        ctx.font =
+          fontSize +
+          "px 'Noto Naskh Arabic', 'Scheherazade New', 'Amiri', 'Times New Roman', serif";
+        width = ctx.measureText(text).width;
+      }
+
+      ctx.fillText(text, rect.width / 2, rect.height / 2);
+      ctx.restore();
+    }
+
+    // 두 캔버스 모두에서 쓸 수 있도록 공용 그리기 함수
+    function setupCanvasDrawing(c) {
+      if (!c) return;
+      const ctx = c.getContext("2d");
+
+      const getPos = (e) => {
+        const rect = c.getBoundingClientRect();
+        if (e.touches && e.touches[0]) {
+          return {
+            x: e.touches[0].clientX - rect.left,
+            y: e.touches[0].clientY - rect.top
+          };
+        }
+        return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      };
+
+      const start = (e) => {
+        e.preventDefault();
+        isDrawing = true;
+        const pos = getPos(e);
+        lastX = pos.x;
+        lastY = pos.y;
+      };
+
+      const move = (e) => {
+        if (!isDrawing) return;
+        e.preventDefault();
+        const pos = getPos(e);
+        ctx.lineWidth = 3;
+        ctx.lineCap = "round";
+        ctx.strokeStyle = "#111827";
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        lastX = pos.x;
+        lastY = pos.y;
+      };
+
+      const end = () => {
+        isDrawing = false;
+      };
+
+      c.addEventListener("mousedown", start);
+      c.addEventListener("mousemove", move);
+      window.addEventListener("mouseup", end);
+
+      c.addEventListener("touchstart", start, { passive: false });
+      c.addEventListener("touchmove", move, { passive: false });
+      window.addEventListener("touchend", end);
+      window.addEventListener("touchcancel", end);
+    }
+
+    function clearDrawCanvas() {
+      if (!drawCanvas) return;
+      const ctx = drawCanvas.getContext("2d");
+      const rect = drawCanvas.getBoundingClientRect();
+      ctx.clearRect(0, 0, rect.width, rect.height);
+    }
+
+    // ====== 녹음 기능 ======
+    async function startRecording() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert("이 브라우저에서는 녹음을 지원하지 않아요.");
+        return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        recordedChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) {
+            recordedChunks.push(e.data);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: "audio/webm" });
+          if (lastAudioUrl) {
+            URL.revokeObjectURL(lastAudioUrl);
+          }
+          lastAudioUrl = URL.createObjectURL(blob);
+          const audio = document.getElementById("myPronunciationAudio");
+          audio.src = lastAudioUrl;
+        };
+
+        mediaRecorder.start();
+      } catch (err) {
+        console.error(err);
+        alert("마이크 사용이 허용되지 않았거나 오류가 발생했습니다.");
+      }
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+      }
+    }
+  </script>
+</body>
+</html>
