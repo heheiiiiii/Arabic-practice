@@ -1095,12 +1095,21 @@
       card.className = "letter-card";
       if (currentTab === "words") {
         card.classList.add("word-card");
+
+        // 공백 빼고 글자 길이 계산 (모음부호 포함)
+        const length = item.letter.replace(/\s+/g, "").length;
+        if (length >= 12) {
+          card.classList.add("very-long-word");
+        } else if (length >= 8) {
+          card.classList.add("long-word");
+        }
       }
       card.dataset.index = index;
 
       const symbol = document.createElement("div");
       symbol.className = "letter-symbol";
       symbol.textContent = item.letter;
+
 
       const name = document.createElement("div");
       name.className = "letter-name";
