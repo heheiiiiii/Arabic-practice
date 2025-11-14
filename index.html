@@ -433,8 +433,9 @@
       .canvas-panel { order: 2; }
       .canvas-wrapper { height: 220px; }
     }
+
     /* 자음 카드용 텍스트 스타일 */
-  .letter-card-letter {
+.letter-card-letter {
   font-size: 1.4rem;
   margin-bottom: 2px;
 }
@@ -444,32 +445,6 @@
   color: #4b5563;
   line-height: 1.15;
 }
-    .selected-info {
-  margin-bottom: 10px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-}
-
-.selected-type {
-  font-size: 0.85rem;
-  color: #6b7280;
-  margin-bottom: 4px;
-}
-
-.selected-arabic {
-  font-size: 1.5rem;
-  direction: rtl;
-  text-align: right;
-  margin-bottom: 4px;
-}
-
-.selected-extra {
-  font-size: 0.8rem;
-  color: #4b5563;
-}
-
 
   </style>
 </head>
@@ -605,8 +580,6 @@
         </div>
         <canvas id="traceCanvas"></canvas>
       </div>
-<!-- 연습 영역 (선택한 항목 + 따라 쓰기 + 직접 쓰기) -->
-<div class="practice-area">
 
       <!-- 자유 쓰기 캔버스 -->
       <div class="canvas-wrapper">
@@ -619,43 +592,7 @@
             지우기
           </button>
         </div>
-  <!-- 🔹 선택한 항목 정보 박스 -->
-  <div id="selectedInfo" class="selected-info">
-    <div id="selectedType" class="selected-type">
-      연습할 자음 / 모음 / 단어 / 문장을 선택해 주세요.
-    </div>
-    <div id="selectedArabic" class="selected-arabic"></div>
-    <div id="selectedExtra" class="selected-extra"></div>
-  </div>
-
-  <!-- 🔹 1. 따라 쓰기 -->
-  <div class="canvas-block">
-    <div class="canvas-header">
-      <span>1. 따라 쓰기</span>
-      <div class="canvas-controls">
-        <label for="traceWidth">선 두께</label>
-        <input id="traceWidth" type="range" min="1" max="20" value="6" />
-        <button id="traceClear" type="button">지우기</button>
       </div>
-    </div>
-    <canvas id="traceCanvas"></canvas>
-  </div>
-
-  <!-- 🔹 2. 직접 쓰기 -->
-  <div class="canvas-block">
-    <div class="canvas-header">
-      <span>2. 직접 써 보기</span>
-      <div class="canvas-controls">
-        <label for="freeWidth">선 두께</label>
-        <input id="freeWidth" type="range" min="1" max="20" value="6" />
-        <button id="freeClear" type="button">지우기</button>
-      </div>
-    </div>
-    <canvas id="freeCanvas"></canvas>
-  </div>
-
-</div>
-
     </section>
   </main>
 
@@ -949,7 +886,7 @@
     });
 
     // ====== 탭 전환 ======
-   function setTab(tab) {
+    function setTab(tab) {
   currentTab = tab;
 
   // 상단 탭 활성화
@@ -981,7 +918,7 @@
 
 
     // ====== 자음/모음 초기화 ======
-   function initLetters() {
+    function initLetters() {
   const container = document.getElementById("lettersList");
   container.innerHTML = "";
   consonants.forEach((letter) => {
@@ -1008,13 +945,6 @@
       setTraceText(letter.char, "자음: " + letter.name);
       speakArabic(letter.char);
     };
-   div.onclick = () => {
-  // label: "자음 연습", extra: "alif · 발음: a / ā" 이런 느낌
-  const extra = `${letter.name} · 발음: ${letter.sound}`;
-  setTraceText(letter.char, "자음 연습", extra);
-  speakArabic(letter.char);
-};
-
 
     container.appendChild(div);
   });
@@ -1260,43 +1190,6 @@
         : text || "선택된 글자/단어/문장 없음";
       drawTraceSample(text);
     }
-   // text: 따라 쓸 아랍어, label: 어떤 연습인지(자음/단어/문장 등), extra: 뜻/발음
-function setTraceText(text, label = "", extra = "") {
-  currentTraceText = text || "";
-
-  // ===== 선택 정보 박스 업데이트 =====
-  const typeEl = document.getElementById("selectedType");
-  const arEl   = document.getElementById("selectedArabic");
-  const extraEl = document.getElementById("selectedExtra");
-
-  if (currentTraceText) {
-    typeEl.textContent  = label || "연습 중인 항목";
-    arEl.textContent    = currentTraceText;
-    extraEl.textContent = extra || "";
-  } else {
-    typeEl.textContent  = "연습할 자음 / 모음 / 단어 / 문장을 선택해 주세요.";
-    arEl.textContent    = "";
-    extraEl.textContent = "";
-  }
-
-  // ===== 따라쓰기 캔버스에 흐릿한 글자 그리기 (기존 로직) =====
-  const ctx = traceCanvas.getContext("2d");
-  ctx.clearRect(0, 0, traceCanvas.width, traceCanvas.height);
-  if (!currentTraceText) return;
-
-  ctx.save();
-  ctx.globalAlpha = 0.06;
-  ctx.fillStyle = "#111827";
-  ctx.font = "160px 'Noto Naskh Arabic', 'Scheherazade', system-ui, sans-serif";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-
-  const x = traceCanvas.width / 2;
-  const y = traceCanvas.height / 2;
-  ctx.direction = "rtl";
-  ctx.fillText(currentTraceText, x + 150, y); // 기존에 쓰던 위치 그대로
-  ctx.restore();
-}
 
     function drawTraceSample(text) {
       if (!traceCanvas) return;
