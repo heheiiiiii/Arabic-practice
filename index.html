@@ -433,6 +433,19 @@
       .canvas-panel { order: 2; }
       .canvas-wrapper { height: 220px; }
     }
+
+    /* 자음 카드용 텍스트 스타일 */
+.letter-card-letter {
+  font-size: 1.4rem;
+  margin-bottom: 2px;
+}
+
+.letter-card-sub {
+  font-size: 0.65rem;
+  color: #4b5563;
+  line-height: 1.15;
+}
+    
   </style>
 </head>
 <body>
@@ -587,9 +600,67 @@
     // ====== 기본 데이터 ======
 
     const consonants = [
-      "ا","ب","ت","ث","ج","ح","خ","د","ذ","ر","ز","س","ش",
-      "ص","ض","ط","ظ","ع","غ","ف","ق","ك","ل","م","ن","ه","و","ي"
-    ];
+  { char: "ا", name: "alif", sound: "a / ā" },
+  { char: "ب", name: "bāʼ", sound: "b" },
+  { char: "ت", name: "tāʼ", sound: "t" },
+  { char: "ث", name: "thāʼ", sound: "th" },
+  { char: "ج", name: "jīm", sound: "j" },
+  { char: "ح", name: "ḥāʼ", sound: "ḥ" },
+  { char: "خ", name: "khāʼ", sound: "kh" },
+  { char: "د", name: "dāl", sound: "d" },
+  { char: "ذ", name: "dhāl", sound: "dh" },
+  { char: "ر", name: "rāʼ", sound: "r" },
+  { char: "ز", name: "zāy", sound: "z" },
+  { char: "س", name: "sīn", sound: "s" },
+  { char: "ش", name: "shīn", sound: "sh" },
+  { char: "ص", name: "ṣād", sound: "ṣ" },
+  { char: "ض", name: "ḍād", sound: "ḍ" },
+  { char: "ط", name: "ṭāʼ", sound: "ṭ" },
+  { char: "ظ", name: "ẓāʼ", sound: "ẓ" },
+  { char: "ع", name: "ʿayn", sound: "ʿ" },
+  { char: "غ", name: "ghayn", sound: "gh" },
+  { char: "ف", name: "fāʼ", sound: "f" },
+  { char: "ق", name: "qāf", sound: "q" },
+  { char: "ك", name: "kāf", sound: "k" },
+  { char: "ل", name: "lām", sound: "l" },
+  { char: "م", name: "mīm", sound: "m" },
+  { char: "ن", name: "nūn", sound: "n" },
+  { char: "ه", name: "hāʼ", sound: "h" },
+  { char: "و", name: "wāw", sound: "w" },
+  { char: "ي", name: "yāʼ", sound: "y" }
+];
+
+function initLetters() {
+  const container = document.getElementById("lettersList");
+  container.innerHTML = "";
+  consonants.forEach((letter) => {
+    const div = document.createElement("div");
+    div.className = "list-item";
+
+    const big = document.createElement("div");
+    big.className = "letter-card-letter";
+    big.textContent = letter.char;
+
+    const nameLine = document.createElement("div");
+    nameLine.className = "letter-card-sub";
+    nameLine.textContent = letter.name;
+
+    const soundLine = document.createElement("div");
+    soundLine.className = "letter-card-sub";
+    soundLine.textContent = letter.sound;
+
+    div.appendChild(big);
+    div.appendChild(nameLine);
+    div.appendChild(soundLine);
+
+    div.onclick = () => {
+      setTraceText(letter.char, "자음: " + letter.name);
+      speakArabic(letter.char);
+    };
+
+    container.appendChild(div);
+  });
+}
 
     const vowels = [
       { mark: "َ", name: "파타하", desc: "a (짧은 a 소리)" },
@@ -848,22 +919,34 @@
 
     // ====== 탭 전환 ======
     function setTab(tab) {
-      currentTab = tab;
-      document.querySelectorAll(".nav-tab").forEach((btn) => {
-        btn.classList.toggle("active", btn.dataset.tab === tab);
-      });
+    function setTab(tab) {
+  currentTab = tab;
 
-      document.getElementById("panel-letters").classList.toggle("hidden", tab !== "letters");
-      document.getElementById("panel-vowels").classList.toggle("hidden", tab !== "vowels");
-      document.getElementById("panel-words").classList.toggle("hidden", tab !== "words");
-      document.getElementById("panel-sentences").classList.toggle("hidden", tab !== "sentences");
+  // 상단 탭 활성화
+  document.querySelectorAll(".nav-tab").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.tab === tab);
+  });
 
-      const recordPanel = document.getElementById("recordPanel");
-      if (tab === "sentences") {
-        recordPanel.classList.remove("hidden");
-      } else {
-        recordPanel.classList.add("hidden");
-      }
+  // 왼쪽 패널 표시/숨기기
+  document.getElementById("panel-letters").classList.toggle("hidden", tab !== "letters");
+  document.getElementById("panel-vowels").classList.toggle("hidden", tab !== "vowels");
+  document.getElementById("panel-words").classList.toggle("hidden", tab !== "words");
+  document.getElementById("panel-sentences").classList.toggle("hidden", tab !== "sentences");
+
+  // 문장 박스 & 녹음 패널 처리
+  const recordPanel = document.getElementById("recordPanel");
+  const sentenceBox = document.getElementById("sentencePracticeBox");
+
+  if (tab === "sentences") {
+    recordPanel.classList.remove("hidden");
+    if (currentSentence) {
+      sentenceBox.classList.remove("hidden");
+    }
+  } else {
+    // 다른 탭에선 문장 박스, 녹음 패널 모두 숨김
+    recordPanel.classList.add("hidden");
+    sentenceBox.classList.add("hidden");
+  }
     }
 
     // ====== 자음/모음 초기화 ======
