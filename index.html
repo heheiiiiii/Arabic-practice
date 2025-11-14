@@ -121,8 +121,7 @@
       margin-bottom: 4px;
     }
 
-    .custom-row input,
-    .custom-row select {
+    .custom-row input {
       flex: 1;
       font-size: 11px;
       padding: 4px 6px;
@@ -162,6 +161,12 @@
       justify-content: center;
       transition: background 0.15s, border-color 0.15s, transform 0.1s;
       text-align: center;
+      min-height: 64px;
+    }
+
+    .letter-card.word-card {
+      min-height: 72px;
+      padding-top: 4px;
     }
 
     .letter-card:hover {
@@ -180,6 +185,13 @@
       font-family: "Noto Naskh Arabic", "Scheherazade New", "Amiri",
         "Times New Roman", serif;
       direction: rtl;
+      white-space: nowrap;
+    }
+
+    .letter-card.word-card .letter-symbol {
+      font-size: 20px;
+      white-space: normal;
+      line-height: 1.3;
     }
 
     .letter-name {
@@ -425,27 +437,23 @@
       <button class="category-chip" data-category="과일">과일</button>
       <button class="category-chip" data-category="야채">야채</button>
       <button class="category-chip" data-category="교통수단">교통수단</button>
+      <button class="category-chip" data-category="동물">동물</button>
+      <button class="category-chip" data-category="가족">가족</button>
+      <button class="category-chip" data-category="내 단어">내 단어</button>
     </div>
 
     <!-- 단어 직접 추가 -->
     <div class="custom-word-box" id="customWordBox">
-      <div class="custom-title">단어 직접 추가</div>
+      <div class="custom-title">단어 직접 추가 (내 단어 카테고리)</div>
       <div class="custom-row">
         <input type="text" id="customArabic" placeholder="아랍어 단어 (모음 포함)" />
         <input type="text" id="customMeaning" placeholder="뜻 (한국어)" />
       </div>
       <div class="custom-row">
-        <select id="customCategory">
-          <option value="색깔">색깔</option>
-          <option value="날씨">날씨</option>
-          <option value="과일">과일</option>
-          <option value="야채">야채</option>
-          <option value="교통수단">교통수단</option>
-        </select>
         <button class="btn" id="addWordBtn">추가</button>
       </div>
       <div class="custom-hint">
-        이 페이지를 새로고침하면 직접 추가한 단어는 사라져요.
+        추가한 단어는 <strong>‘내 단어’</strong> 카테고리에 저장됩니다. 이 페이지를 새로고침하면 사라져요.
       </div>
     </div>
 
@@ -864,7 +872,7 @@
     }
   ];
 
-  // 단어 목록: 색깔 / 날씨 / 과일 / 야채 / 교통수단
+  // 단어 목록
   const words = [
     // 색깔
     { letter: "أَحْمَرُ", meaning: "빨간색", category: "색깔", tts: "أَحْمَرُ" },
@@ -912,12 +920,7 @@
     { letter: "بَطَاطِسُ", meaning: "감자", category: "야채", tts: "بَطَاطِسُ" },
     { letter: "خِيَارٌ", meaning: "오이", category: "야채", tts: "خِيَارٌ" },
     { letter: "بَصَلٌ", meaning: "양파", category: "야채", tts: "بَصَلٌ" },
-    {
-      letter: "فُلْفُلٌ أَخْضَرُ",
-      meaning: "피망 / 파프리카",
-      category: "야채",
-      tts: "فُلْفُلٌ أَخْضَرُ"
-    },
+    { letter: "فُلْفُلٌ أَخْضَرُ", meaning: "피망 / 파프리카", category: "야채", tts: "فُلْفُلٌ أَخْضَرُ" },
     { letter: "خَسٌّ", meaning: "상추", category: "야채", tts: "خَسٌّ" },
     { letter: "ذُرَةٌ", meaning: "옥수수", category: "야채", tts: "ذُرَةٌ" },
     { letter: "بَاذِنْجَانٌ", meaning: "가지", category: "야채", tts: "بَاذِنْجَانٌ" },
@@ -934,13 +937,23 @@
     { letter: "سَفِينَةٌ", meaning: "배 (ship)", category: "교통수단", tts: "سَفِينَةٌ" },
     { letter: "تَاكْسِي", meaning: "택시", category: "교통수단", tts: "تَاكْسِي" },
     { letter: "شَاحِنَةٌ", meaning: "트럭", category: "교통수단", tts: "شَاحِنَةٌ" },
-    {
-      letter: "دَرَّاجَةٌ نَارِيَّةٌ",
-      meaning: "오토바이",
-      category: "교통수단",
-      tts: "دَرَّاجَةٌ نَارِيَّةٌ"
-    },
-    { letter: "تِرَام", meaning: "트램 / 노면전차", category: "교통수단", tts: "تِرَام" }
+    { letter: "دَرَّاجَةٌ نَارِيَّةٌ", meaning: "오토바이", category: "교통수단", tts: "دَرَّاجَةٌ نَارِيَّةٌ" },
+    { letter: "تِرَام", meaning: "트램 / 노면전차", category: "교통수단", tts: "تِرَام" },
+
+    // 동물
+    { letter: "قِطٌّ", meaning: "고양이", category: "동물", tts: "قِطٌّ" },
+    { letter: "كَلْبٌ", meaning: "개", category: "동물", tts: "كَلْبٌ" },
+    { letter: "سَمَكَةٌ", meaning: "물고기", category: "동물", tts: "سَمَكَةٌ" },
+    { letter: "طَيْرٌ", meaning: "새", category: "동물", tts: "طَيْرٌ" },
+    { letter: "دَجَاجَةٌ", meaning: "닭", category: "동물", tts: "دَجَاجَةٌ" },
+
+    // 가족
+    { letter: "أَبٌ", meaning: "아버지", category: "가족", tts: "أَبٌ" },
+    { letter: "أُمٌّ", meaning: "어머니", category: "가족", tts: "أُمٌّ" },
+    { letter: "أَخٌ", meaning: "형/오빠/남동생", category: "가족", tts: "أَخٌ" },
+    { letter: "أُخْتٌ", meaning: "언니/누나/여동생", category: "가족", tts: "أُخْتٌ" },
+    { letter: "جَدٌّ", meaning: "할아버지", category: "가족", tts: "جَدٌّ" },
+    { letter: "جَدَّةٌ", meaning: "할머니", category: "가족", tts: "جَدَّةٌ" }
   ];
 
   let currentTab = "consonants";
@@ -970,7 +983,6 @@
   const customWordBox = document.getElementById("customWordBox");
   const customArabicInput = document.getElementById("customArabic");
   const customMeaningInput = document.getElementById("customMeaning");
-  const customCategorySelect = document.getElementById("customCategory");
   const addWordBtn = document.getElementById("addWordBtn");
 
   function getCurrentGlyph() {
@@ -1071,6 +1083,9 @@
     data.forEach((item, index) => {
       const card = document.createElement("button");
       card.className = "letter-card";
+      if (currentTab === "words") {
+        card.classList.add("word-card");
+      }
       card.dataset.index = index;
 
       const symbol = document.createElement("div");
@@ -1185,11 +1200,11 @@
     window.speechSynthesis.speak(utter);
   });
 
-  // 단어 직접 추가
+  // 단어 직접 추가 (내 단어 카테고리)
   addWordBtn.addEventListener("click", () => {
     const arabic = customArabicInput.value.trim();
     const meaning = customMeaningInput.value.trim();
-    const cat = customCategorySelect.value;
+    const customCategory = "내 단어";
 
     if (!arabic || !meaning) {
       alert("아랍어 단어와 뜻을 모두 입력해 주세요.");
@@ -1199,23 +1214,29 @@
     words.push({
       letter: arabic,
       meaning: meaning,
-      category: cat,
+      category: customCategory,
       tts: arabic
     });
 
-    // 현재 카테고리와 다르면 전체로 전환
-    if (currentCategory !== "전체" && currentCategory !== cat) {
-      currentCategory = "전체";
-      categoryChips.forEach((chip) => {
-        chip.classList.toggle(
-          "active",
-          chip.dataset.category === "전체"
-        );
+    customArabicInput.value = "";
+    customMeaningInput.value = "";
+
+    // 내 단어 카테고리로 자동 전환
+    currentCategory = customCategory;
+    categoryChips.forEach((chip) => {
+      chip.classList.toggle(
+        "active",
+        chip.dataset.category === customCategory
+      );
+    });
+
+    if (currentTab !== "words") {
+      currentTab = "words";
+      tabButtons.forEach((b) => {
+        b.classList.toggle("active", b.dataset.tab === "words");
       });
     }
 
-    customArabicInput.value = "";
-    customMeaningInput.value = "";
     renderLetterGrid();
   });
 
