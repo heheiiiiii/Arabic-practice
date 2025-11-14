@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>아랍어 자음 · 모음 필기 연습</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: #f4f4f7;
+      color: #111827;
+    }
+
+    header {
+      padding: 16px 24px;
+      background: #1f2937;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    header span {
+      font-size: 13px;
+      opacity: 0.85;
+    }
+
+    .container {
+      display: flex;
+      gap: 16px;
+      padding: 16px;
+      height: calc(100vh - 64px);
+      max-height: calc(100vh - 64px);
+    }
+
+    /* 왼쪽 패널: 글자 목록 */
+    .sidebar {
+      width: 280px;
+      background: white;
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.04);
+    }
+
+    .tab-buttons {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .tab-button {
+      flex: 1;
+      padding: 8px 0;
+      border-radius: 999px;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      background: #e5e7eb;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .tab-button.active {
+      background: #111827;
+      color: white;
+    }
+
+    .list-title {
+      font-size: 13px;
+      color: #6b7280;
+      margin: 4px 0 8px;
+    }
+
+    .letter-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .letter-card {
+      background: #f9fafb;
+      border-radius: 10px;
+      padding: 6px 4px 4px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+      text-align: center;
+    }
+
+    .letter-card:hover {
+      background: #eef2ff;
+      transform: translateY(-1px);
+    }
+
+    .letter-card.selected {
+      border-color: #4f46e5;
+      background: #eef2ff;
+    }
+
+    .letter-symbol {
+      font-size: 26px;
+      margin-bottom: 2px;
+      font-family: "Noto Naskh Arabic", "Scheherazade New", "Amiri",
+        "Times New Roman", serif;
+      direction: rtl;
+    }
+
+    .letter-name {
+      font-size: 11px;
+      color: #4b5563;
+    }
+
+    /* 오른쪽 메인 패널 */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .info-panel {
+      background: white;
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.04);
+    }
+
+    .info-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .info-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .info-detail {
+      font-size: 13px;
+      color: #4b5563;
+    }
+
+    .big-letter {
+      font-size: 70px;
+      font-family: "Noto Naskh Arabic", "Scheherazade New", "Amiri",
+        "Times New Roman", serif;
+      direction: rtl;
+      padding: 4px 12px;
+      border-radius: 10px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+    }
+
+    .canvas-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .canvas-card {
+      background: white;
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.04);
+    }
+
+    .canvas-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      gap: 6px;
+    }
+
+    .canvas-title {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .canvas-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .canvas-controls input[type="range"] {
+      width: 70px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: none;
+      padding: 3px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      background: #e5e7eb;
+      color: #111827;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background: #d1d5db;
+    }
+
+    .canvas-wrapper {
+      flex: 1;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      position: relative;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+
+    .hint-text {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 960px) {
+      .container {
+        flex-direction: column;
+        height: auto;
+        max-height: none;
+      }
+
+      .sidebar {
+        width: 100%;
+        max-height: 220px;
+      }
+
+      .canvas-row {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+
+      .canvas-card {
+        height: 260px;
+      }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>아랍어 자음 · 모음 필기 연습</h1>
+    <span>글자를 선택하고, 위 칸에서 따라 쓰고 아래 칸에서 직접 써 보세요.</span>
+  </div>
+</header>
+
+<div class="container">
+  <!-- 왼쪽: 자음/모음 목록 -->
+  <aside class="sidebar">
+    <div class="tab-buttons">
+      <button class="tab-button active" data-tab="consonants">자음</button>
+      <button class="tab-button" data-tab="vowels">모음</button>
+    </div>
+    <div class="list-title" id="listTitle">아랍어 자음 (알파벳) 목록</div>
+    <div class="letter-grid" id="letterGrid">
+      <!-- JS로 채움 -->
+    </div>
+  </aside>
+
+  <!-- 오른쪽: 정보 + 캔버스 -->
+  <main class="main">
+    <section class="info-panel">
+      <div class="info-left">
+        <div class="info-title" id="infoTitle">글자를 선택해 주세요.</div>
+        <div class="info-detail" id="infoDetail">
+          왼쪽에서 자음 또는 모음을 누르면 이름과 소리가 여기 나옵니다.
+        </div>
+      </div>
+      <div class="big-letter" id="bigLetter">ا</div>
+    </section>
+
+    <section class="canvas-row">
+      <!-- 따라 쓰기 -->
+      <div class="canvas-card">
+        <div class="canvas-header">
+          <div class="canvas-title">1. 글자 따라 쓰기</div>
+          <div class="canvas-controls">
+            선 두께
+            <input type="range" min="2" max="12" value="5" id="traceWidth" />
+            <button class="btn" id="clearTrace">지우기</button>
+          </div>
+        </div>
+        <div class="canvas-wrapper">
+          <canvas id="traceCanvas"></canvas>
+        </div>
+        <div class="hint-text">
+          흐릿한 글자를 보면서 모양을 따라 그려 보세요. (마우스 또는 손가락으로)
+        </div>
+      </div>
+
+      <!-- 직접 써 보기 -->
+      <div class="canvas-card">
+        <div class="canvas-header">
+          <div class="canvas-title">2. 직접 써 보기</div>
+          <div class="canvas-controls">
+            선 두께
+            <input type="range" min="2" max="12" value="5" id="freeWidth" />
+            <button class="btn" id="clearFree">지우기</button>
+          </div>
+        </div>
+        <div class="canvas-wrapper">
+          <canvas id="freeCanvas"></canvas>
+        </div>
+        <div class="hint-text">
+          빈 칸에 글자 모양을 떠올리면서 자유롭게 연습해 보세요.
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  // ===== 데이터: 자음 / 모음 =====
+  const consonants = [
+    { letter: "ا", name: "alif (أَلِف)", sound: "긴 a / ʔa" },
+    { letter: "ب", name: "bāʼ (بَاء)", sound: "b" },
+    { letter: "ت", name: "tāʼ (تَاء)", sound: "t" },
+    { letter: "ث", name: "thāʼ (ثَاء)", sound: "th (무성, 영어 think)" },
+    { letter: "ج", name: "jīm (جِيم)", sound: "j / ʤ" },
+    { letter: "ح", name: "ḥāʼ (حَاء)", sound: "강한 h (목에서)" },
+    { letter: "خ", name: "khāʼ (خَاء)", sound: "kh (독일어 ch 비슷)" },
+    { letter: "د", name: "dāl (دَال)", sound: "d" },
+    { letter: "ذ", name: "dhāl (ذَال)", sound: "dh (영어 this 의 th)" },
+    { letter: "ر", name: "rāʼ (رَاء)", sound: "굴리는 r" },
+    { letter: "ز", name: "zāy (زَاي)", sound: "z" },
+    { letter: "س", name: "sīn (سِين)", sound: "s" },
+    { letter: "ش", name: "shīn (شِين)", sound: "sh" },
+    { letter: "ص", name: "ṣād (صَاد)", sound: "강한 s (emphatic)" },
+    { letter: "ض", name: "ḍād (ضَاد)", sound: "강한 d" },
+    { letter: "ط", name: "ṭāʼ (طَاء)", sound: "강한 t" },
+    { letter: "ظ", name: "ẓāʼ (ظَاء)", sound: "강한 dh" },
+    { letter: "ع", name: "ʿayn (عَيْن)", sound: "목에서 나는 소리" },
+    { letter: "غ", name: "ghayn (غَيْن)", sound: "gh (프랑스어 r 비슷)" },
+    { letter: "ف", name: "fāʼ (فَاء)", sound: "f" },
+    { letter: "ق", name: "qāf (قَاف)", sound: "뒤쪽 k (q)" },
+    { letter: "ك", name: "kāf (كَاف)", sound: "k" },
+    { letter: "ل", name: "lām (لَام)", sound: "l" },
+    { letter: "م", name: "mīm (مِيم)", sound: "m" },
+    { letter: "ن", name: "nūn (نُون)", sound: "n" },
+    { letter: "ه", name: "hāʼ (هَاء)", sound: "h" },
+    { letter: "و", name: "wāw (وَاو)", sound: "w / 긴 u" },
+    { letter: "ي", name: "yāʼ (يَاء)", sound: "y / 긴 i" }
+  ];
+
+  const vowels = [
+    {
+      letter: "َ",
+      name: "fatḥa (فَتْحَة)",
+      sound: "a",
+      desc: "자음 위에 쓰는 짧은 a 소리"
+    },
+    {
+      letter: "ِ",
+      name: "kasra (كَسْرَة)",
+      sound: "i",
+      desc: "자음 아래에 쓰는 짧은 i 소리"
+    },
+    {
+      letter: "ُ",
+      name: "ḍamma (ضَمَّة)",
+      sound: "u",
+      desc: "자음 위에 쓰는 짧은 u 소리"
+    },
+    {
+      letter: "ْ",
+      name: "sukūn (سُكُون)",
+      sound: "자음만 발음",
+      desc: "뒤에 모음 없음"
+    },
+    {
+      letter: "ّ",
+      name: "shadda (شَدَّة)",
+      sound: "자음이 2번",
+      desc: "자음을 겹쳐 발음"
+    },
+    {
+      letter: "ً",
+      name: "tanwīn fatḥ (تَنْوِين فَتْح)",
+      sound: "an",
+      desc: "단어 끝에서 an 소리"
+    },
+    {
+      letter: "ٍ",
+      name: "tanwīn kasr (تَنْوِين كَسْر)",
+      sound: "in",
+      desc: "단어 끝에서 in 소리"
+    },
+    {
+      letter: "ٌ",
+      name: "tanwīn ḍamm (تَنْوِين ضَمّ)",
+      sound: "un",
+      desc: "단어 끝에서 un 소리"
+    }
+  ];
+
+  let currentTab = "consonants";
+  let currentLetterObj = null;
+
+  const tabButtons = document.querySelectorAll(".tab-button");
+  const letterGrid = document.getElementById("letterGrid");
+  const listTitle = document.getElementById("listTitle");
+  const infoTitle = document.getElementById("infoTitle");
+  const infoDetail = document.getElementById("infoDetail");
+  const bigLetter = document.getElementById("bigLetter");
+
+  // ===== 글자 목록 렌더링 =====
+  function renderLetterGrid() {
+    letterGrid.innerHTML = "";
+    const data = currentTab === "consonants" ? consonants : vowels;
+
+    listTitle.textContent =
+      currentTab === "consonants"
+        ? "아랍어 자음 (알파벳) 목록"
+        : "아랍어 모음 기호 (하라카트) 목록";
+
+    data.forEach((item, index) => {
+      const card = document.createElement("button");
+      card.className = "letter-card";
+      card.dataset.index = index;
+
+      const symbol = document.createElement("div");
+      symbol.className = "letter-symbol";
+      symbol.textContent = item.letter;
+
+      const name = document.createElement("div");
+      name.className = "letter-name";
+      name.textContent =
+        currentTab === "consonants"
+          ? item.name
+          : item.name.split(" ")[0] + " / " + item.sound;
+
+      card.appendChild(symbol);
+      card.appendChild(name);
+
+      card.addEventListener("click", () => {
+        document
+          .querySelectorAll(".letter-card")
+          .forEach((c) => c.classList.remove("selected"));
+        card.classList.add("selected");
+        selectLetter(item);
+      });
+
+      letterGrid.appendChild(card);
+    });
+
+    // 기본 선택: 첫 글자
+    if (data.length > 0) {
+      const first = data[0];
+      currentLetterObj = first;
+      bigLetter.textContent = first.letter;
+      infoTitle.textContent = first.name;
+      infoDetail.textContent =
+        currentTab === "consonants"
+          ? "발음: " + first.sound
+          : `발음: ${first.sound} (${first.desc})`;
+      if (letterGrid.firstChild) {
+        letterGrid.firstChild.classList.add("selected");
+      }
+      drawGuideLetter();
+      clearCanvas(traceCtx, traceCanvas);
+      clearCanvas(freeCtx, freeCanvas);
+    }
+  }
+
+  function selectLetter(item) {
+    currentLetterObj = item;
+    bigLetter.textContent = item.letter;
+    if (currentTab === "consonants") {
+      infoTitle.textContent = item.name;
+      infoDetail.textContent = "발음: " + item.sound;
+    } else {
+      infoTitle.textContent = item.name;
+      infoDetail.textContent = `발음: ${item.sound} — ${item.desc}`;
+    }
+    drawGuideLetter();
+    clearCanvas(traceCtx, traceCanvas);
+    clearCanvas(freeCtx, freeCanvas);
+  }
+
+  tabButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (btn.dataset.tab === currentTab) return;
+      currentTab = btn.dataset.tab;
+      tabButtons.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderLetterGrid();
+    });
+  });
+
+  // ===== 캔버스 세팅 =====
+  const traceCanvas = document.getElementById("traceCanvas");
+  const freeCanvas = document.getElementById("freeCanvas");
+  const traceCtx = traceCanvas.getContext("2d");
+  const freeCtx = freeCanvas.getContext("2d");
+
+  function resizeCanvas() {
+    // 실제 픽셀 크기를 요소 크기와 맞추기
+    [traceCanvas, freeCanvas].forEach((c) => {
+      const rect = c.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      c.width = rect.width * dpr;
+      c.height = rect.height * dpr;
+      const ctx = c.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = "#111827";
+      ctx.lineWidth = 5;
+    });
+
+    drawGuideLetter();
+  }
+
+  function clearCanvas(ctx, canvas) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (canvas === traceCanvas) {
+      drawGuideLetter();
+    }
+  }
+
+  function drawGuideLetter() {
+    if (!currentLetterObj) return;
+    const ctx = traceCtx;
+    const canvas = traceCanvas;
+    const rect = canvas.getBoundingClientRect();
+    ctx.clearRect(0, 0, rect.width, rect.height);
+
+    const guide = currentLetterObj.letter;
+    ctx.save();
+    ctx.globalAlpha = 0.12;
+    ctx.fillStyle = "#111827";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    const size = Math.min(rect.width, rect.height) * 0.7;
+    ctx.font =
+      "normal " +
+      size +
+      "px 'Noto Naskh Arabic','Scheherazade New','Amiri','Times New Roman',serif";
+    // 오른쪽에서 왼쪽 글자지만 가운데 정렬로 충분
+    ctx.fillText(guide, rect.width / 2, rect.height / 2);
+    ctx.restore();
+  }
+
+  window.addEventListener("resize", resizeCanvas);
+
+  // ===== 그리기 로직 (마우스 + 터치 공통) =====
+  function enableDrawing(canvas, ctx, widthInput) {
+    let drawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const point =
+        e.touches && e.touches[0]
+          ? e.touches[0]
+          : e.changedTouches && e.changedTouches[0]
+          ? e.changedTouches[0]
+          : e;
+      return {
+        x: point.clientX - rect.left,
+        y: point.clientY - rect.top
+      };
+    }
+
+    function start(e) {
+      e.preventDefault();
+      drawing = true;
+      const pos = getPos(e);
+      lastX = pos.x;
+      lastY = pos.y;
+    }
+
+    function move(e) {
+      if (!drawing) return;
+      e.preventDefault();
+      const pos = getPos(e);
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+      lastX = pos.x;
+      lastY = pos.y;
+    }
+
+    function end(e) {
+      if (!drawing) return;
+      e.preventDefault();
+      drawing = false;
+    }
+
+    canvas.addEventListener("mousedown", start);
+    canvas.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", end);
+
+    canvas.addEventListener("touchstart", start, { passive: false });
+    canvas.addEventListener("touchmove", move, { passive: false });
+    canvas.addEventListener("touchend", end, { passive: false });
+    canvas.addEventListener("touchcancel", end, { passive: false });
+
+    if (widthInput) {
+      widthInput.addEventListener("input", () => {
+        ctx.lineWidth = Number(widthInput.value);
+      });
+    }
+  }
+
+  const traceWidthInput = document.getElementById("traceWidth");
+  const freeWidthInput = document.getElementById("freeWidth");
+  const clearTraceBtn = document.getElementById("clearTrace");
+  const clearFreeBtn = document.getElementById("clearFree");
+
+  // 초기 캔버스 설정
+  setTimeout(() => {
+    resizeCanvas();
+    enableDrawing(traceCanvas, traceCtx, traceWidthInput);
+    enableDrawing(freeCanvas, freeCtx, freeWidthInput);
+  }, 0);
+
+  clearTraceBtn.addEventListener("click", () =>
+    clearCanvas(traceCtx, traceCanvas)
+  );
+  clearFreeBtn.addEventListener("click", () =>
+    clearCanvas(freeCtx, freeCanvas)
+  );
+
+  // 처음 렌더링
+  renderLetterGrid();
+</script>
+</body>
+</html>
