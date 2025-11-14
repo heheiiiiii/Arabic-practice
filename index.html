@@ -597,9 +597,28 @@
         </div>
       </div>
 
+      <!-- 따라쓰기 캔버스 (이제 여기에서도 글씨 쓰기 가능) -->
+      <div class="canvas-wrapper">
+        <div class="canvas-title-row">
+          <span>따라 쓰기 (연한 글자를 따라 그려보세요)</span>
+          <span class="small-label" id="currentTextLabel">선택된 글자/단어/문장 없음</span>
+        </div>
+        <canvas id="traceCanvas"></canvas>
+      </div>
 <!-- 연습 영역 (선택한 항목 + 따라 쓰기 + 직접 쓰기) -->
 <div class="practice-area">
 
+      <!-- 자유 쓰기 캔버스 -->
+      <div class="canvas-wrapper">
+        <div class="canvas-title-row">
+          <span>직접 쓰기 (자유 연습)</span>
+        </div>
+        <canvas id="drawCanvas"></canvas>
+        <div class="draw-actions">
+          <button class="btn-small secondary" type="button" onclick="clearDrawCanvas()">
+            지우기
+          </button>
+        </div>
   <!-- 🔹 선택한 항목 정보 박스 -->
   <div id="selectedInfo" class="selected-info">
     <div id="selectedType" class="selected-type">
@@ -985,6 +1004,10 @@
     div.appendChild(nameLine);
     div.appendChild(soundLine);
 
+    div.onclick = () => {
+      setTraceText(letter.char, "자음: " + letter.name);
+      speakArabic(letter.char);
+    };
    div.onclick = () => {
   // label: "자음 연습", extra: "alif · 발음: a / ā" 이런 느낌
   const extra = `${letter.name} · 발음: ${letter.sound}`;
@@ -1229,6 +1252,14 @@
       resizeCanvasElement(drawCanvas);
     }
 
+    function setTraceText(text, labelSource) {
+      currentTraceText = text;
+      const label = document.getElementById("currentTextLabel");
+      label.textContent = labelSource
+        ? labelSource + " · " + text
+        : text || "선택된 글자/단어/문장 없음";
+      drawTraceSample(text);
+    }
    // text: 따라 쓸 아랍어, label: 어떤 연습인지(자음/단어/문장 등), extra: 뜻/발음
 function setTraceText(text, label = "", extra = "") {
   currentTraceText = text || "";
