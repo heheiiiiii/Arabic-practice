@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>아랍어 자음 · 모음 필기 연습</title>
+  <title>아랍어 자음 · 모음 · 단어 필기 연습</title>
   <style>
     * {
       box-sizing: border-box;
@@ -43,7 +43,7 @@
       max-height: calc(100vh - 64px);
     }
 
-    /* 왼쪽 패널: 글자 목록 */
+    /* 왼쪽 패널: 글자/단어 목록 */
     .sidebar {
       width: 280px;
       background: white;
@@ -115,7 +115,7 @@
     }
 
     .letter-symbol {
-      font-size: 26px;
+      font-size: 24px;
       margin-bottom: 2px;
       font-family: "Noto Naskh Arabic", "Scheherazade New", "Amiri",
         "Times New Roman", serif;
@@ -225,7 +225,7 @@
     }
 
     .big-letter {
-      font-size: 70px;
+      font-size: 46px;
       font-family: "Noto Naskh Arabic", "Scheherazade New", "Amiri",
         "Times New Roman", serif;
       direction: rtl;
@@ -234,6 +234,8 @@
       background: #f9fafb;
       border: 1px solid #e5e7eb;
       flex-shrink: 0;
+      min-width: 120px;
+      text-align: center;
     }
 
     .canvas-row {
@@ -341,17 +343,18 @@
 <body>
 <header>
   <div>
-    <h1>아랍어 자음 · 모음 필기 연습</h1>
-    <span>글자를 선택하고, 위 칸에서 따라 쓰고 아래 칸에서 직접 써 보세요.</span>
+    <h1>아랍어 자음 · 모음 · 단어 필기 연습</h1>
+    <span>글자와 단어를 선택하고, 위 칸에서 따라 쓰고 아래 칸에서 직접 써 보세요.</span>
   </div>
 </header>
 
 <div class="container">
-  <!-- 왼쪽: 자음/모음 목록 -->
+  <!-- 왼쪽: 자음/모음/단어 목록 -->
   <aside class="sidebar">
     <div class="tab-buttons">
       <button class="tab-button active" data-tab="consonants">자음</button>
       <button class="tab-button" data-tab="vowels">모음</button>
+      <button class="tab-button" data-tab="words">단어</button>
     </div>
     <div class="list-title" id="listTitle">아랍어 자음 (알파벳) 목록</div>
     <div class="letter-grid" id="letterGrid">
@@ -365,7 +368,7 @@
       <div class="info-left">
         <div class="info-title" id="infoTitle">글자를 선택해 주세요.</div>
         <div class="info-detail" id="infoDetail">
-          왼쪽에서 자음 또는 모음을 누르면 이름과 소리가 여기 나옵니다.
+          왼쪽에서 자음, 모음 또는 단어를 누르면 정보가 여기 나옵니다.
         </div>
         <div class="info-example" id="infoExample"></div>
 
@@ -400,7 +403,7 @@
       <!-- 따라 쓰기 -->
       <div class="canvas-card">
         <div class="canvas-header">
-          <div class="canvas-title">1. 글자 따라 쓰기</div>
+          <div class="canvas-title">1. 따라 쓰기</div>
           <div class="canvas-controls">
             선 두께
             <input type="range" min="2" max="12" value="5" id="traceWidth" />
@@ -411,7 +414,7 @@
           <canvas id="traceCanvas"></canvas>
         </div>
         <div class="hint-text">
-          흐릿한 글자를 보면서 모양을 따라 그려 보세요. (마우스 또는 손가락으로)
+          흐릿한 글자나 단어를 보면서 모양을 따라 그려 보세요. (마우스 또는 손가락)
         </div>
       </div>
 
@@ -429,7 +432,7 @@
           <canvas id="freeCanvas"></canvas>
         </div>
         <div class="hint-text">
-          빈 칸에 글자 모양을 떠올리면서 자유롭게 연습해 보세요.
+          빈 칸에 기억나는 대로 자유롭게 연습해 보세요.
         </div>
       </div>
     </section>
@@ -437,7 +440,7 @@
 </div>
 
 <script>
-  // ===== 데이터: 자음 / 모음 =====
+  // ===== 데이터: 자음 / 모음 / 단어 =====
   const consonants = [
     {
       letter: "ا",
@@ -768,6 +771,187 @@
     }
   ];
 
+  // 색깔 / 날씨 / 과일 / 야채 / 교통수단 단어들
+  const words = [
+    // 색깔
+    {
+      letter: "أَحْمَرُ",
+      meaning: "빨간색",
+      category: "색깔",
+      tts: "أَحْمَرُ"
+    },
+    {
+      letter: "أَزْرَقُ",
+      meaning: "파란색",
+      category: "색깔",
+      tts: "أَزْرَقُ"
+    },
+    {
+      letter: "أَصْفَرُ",
+      meaning: "노란색",
+      category: "색깔",
+      tts: "أَصْفَرُ"
+    },
+    {
+      letter: "أَخْضَرُ",
+      meaning: "초록색",
+      category: "색깔",
+      tts: "أَخْضَرُ"
+    },
+    {
+      letter: "أَبْيَضُ",
+      meaning: "하얀색",
+      category: "색깔",
+      tts: "أَبْيَضُ"
+    },
+    {
+      letter: "أَسْوَدُ",
+      meaning: "검은색",
+      category: "색깔",
+      tts: "أَسْوَدُ"
+    },
+
+    // 날씨
+    {
+      letter: "مَطَرٌ",
+      meaning: "비",
+      category: "날씨",
+      tts: "مَطَرٌ"
+    },
+    {
+      letter: "ثَلْجٌ",
+      meaning: "눈 (snow)",
+      category: "날씨",
+      tts: "ثَلْجٌ"
+    },
+    {
+      letter: "شَمْسٌ",
+      meaning: "해, 햇빛",
+      category: "날씨",
+      tts: "شَمْسٌ"
+    },
+    {
+      letter: "رِيحٌ",
+      meaning: "바람",
+      category: "날씨",
+      tts: "رِيحٌ"
+    },
+    {
+      letter: "جَوٌّ حَارٌّ",
+      meaning: "더운 날씨",
+      category: "날씨",
+      tts: "جَوٌّ حَارٌّ"
+    },
+    {
+      letter: "جَوٌّ بَارِدٌ",
+      meaning: "추운 날씨",
+      category: "날씨",
+      tts: "جَوٌّ بَارِدٌ"
+    },
+
+    // 과일
+    {
+      letter: "تُفَّاحَةٌ",
+      meaning: "사과",
+      category: "과일",
+      tts: "تُفَّاحَةٌ"
+    },
+    {
+      letter: "مَوْزَةٌ",
+      meaning: "바나나",
+      category: "과일",
+      tts: "مَوْزَةٌ"
+    },
+    {
+      letter: "بُرْتُقَالَةٌ",
+      meaning: "오렌지",
+      category: "과일",
+      tts: "بُرْتُقَالَةٌ"
+    },
+    {
+      letter: "عِنَبٌ",
+      meaning: "포도",
+      category: "과일",
+      tts: "عِنَبٌ"
+    },
+    {
+      letter: "فَرَاوِلَةٌ",
+      meaning: "딸기",
+      category: "과일",
+      tts: "فَرَاوِلَةٌ"
+    },
+
+    // 야채
+    {
+      letter: "جَزَرٌ",
+      meaning: "당근",
+      category: "야채",
+      tts: "جَزَرٌ"
+    },
+    {
+      letter: "طَمَاطِمُ",
+      meaning: "토마토",
+      category: "야채",
+      tts: "طَمَاطِمُ"
+    },
+    {
+      letter: "بَطَاطِسُ",
+      meaning: "감자",
+      category: "야채",
+      tts: "بَطَاطِسُ"
+    },
+    {
+      letter: "خِيَارٌ",
+      meaning: "오이",
+      category: "야채",
+      tts: "خِيَارٌ"
+    },
+    {
+      letter: "بَصَلٌ",
+      meaning: "양파",
+      category: "야채",
+      tts: "بَصَلٌ"
+    },
+
+    // 교통수단
+    {
+      letter: "سَيَّارَةٌ",
+      meaning: "자동차",
+      category: "교통수단",
+      tts: "سَيَّارَةٌ"
+    },
+    {
+      letter: "حَافِلَةٌ",
+      meaning: "버스",
+      category: "교통수단",
+      tts: "حَافِلَةٌ"
+    },
+    {
+      letter: "قِطَارٌ",
+      meaning: "기차",
+      category: "교통수단",
+      tts: "قِطَارٌ"
+    },
+    {
+      letter: "مِتْرُو",
+      meaning: "지하철",
+      category: "교통수단",
+      tts: "مِتْرُو"
+    },
+    {
+      letter: "دَرَّاجَةٌ",
+      meaning: "자전거",
+      category: "교통수단",
+      tts: "دَرَّاجَةٌ"
+    },
+    {
+      letter: "طَائِرَةٌ",
+      meaning: "비행기",
+      category: "교통수단",
+      tts: "طَائِرَةٌ"
+    }
+  ];
+
   let currentTab = "consonants";
   let currentLetterObj = null;
   let currentForm = "isolated";
@@ -788,7 +972,6 @@
   const formFinal = document.getElementById("formFinal");
   const speakBtn = document.getElementById("speakBtn");
 
-  // ===== 글자 목록 렌더링 =====
   function getCurrentGlyph() {
     if (!currentLetterObj) return "";
     if (currentTab === "consonants" && currentLetterObj.forms) {
@@ -811,14 +994,67 @@
     formFinal.textContent = f.final;
   }
 
+  function updateInfoPanel(item) {
+    const glyph = getCurrentGlyph();
+    bigLetter.textContent = glyph;
+
+    if (currentTab === "consonants") {
+      infoTitle.textContent = item.name;
+      infoDetail.textContent = "발음: " + item.sound;
+      if (item.example) {
+        infoExample.innerHTML =
+          '예시: <span>' +
+          item.example +
+          "</span> — " +
+          (item.exampleMeaning || "");
+      } else {
+        infoExample.textContent = "";
+      }
+    } else if (currentTab === "vowels") {
+      infoTitle.textContent = item.name;
+      infoDetail.textContent = `발음: ${item.sound} — ${item.desc}`;
+      if (item.example) {
+        infoExample.innerHTML =
+          '예시: <span>' +
+          item.example +
+          "</span> — " +
+          (item.exampleMeaning || "");
+      } else {
+        infoExample.textContent = "";
+      }
+    } else if (currentTab === "words") {
+      infoTitle.textContent = item.letter;
+      infoDetail.textContent = `뜻: ${item.meaning} — (${item.category})`;
+      infoExample.textContent = "";
+    }
+  }
+
+  function selectLetter(item) {
+    currentLetterObj = item;
+    if (currentTab === "consonants") {
+      updateFormGlyphs(item);
+    }
+    updateInfoPanel(item);
+    drawGuideLetter();
+    clearCanvas(traceCtx, traceCanvas);
+    clearCanvas(freeCtx, freeCanvas);
+  }
+
   function renderLetterGrid() {
     letterGrid.innerHTML = "";
-    const data = currentTab === "consonants" ? consonants : vowels;
+    let data;
+    if (currentTab === "consonants") data = consonants;
+    else if (currentTab === "vowels") data = vowels;
+    else data = words;
 
-    listTitle.textContent =
-      currentTab === "consonants"
-        ? "아랍어 자음 (알파벳) 목록"
-        : "아랍어 모음 기호 (하라카트) 목록";
+    if (currentTab === "consonants") {
+      listTitle.textContent = "아랍어 자음 (알파벳) 목록";
+    } else if (currentTab === "vowels") {
+      listTitle.textContent = "아랍어 모음 기호 (하라카트) 목록";
+    } else {
+      listTitle.textContent =
+        "단어 연습 (색깔 · 날씨 · 과일 · 야채 · 교통수단)";
+    }
 
     // 자음일 때만 형태 연습 보이기
     formsRow.style.display = currentTab === "consonants" ? "flex" : "none";
@@ -834,10 +1070,14 @@
 
       const name = document.createElement("div");
       name.className = "letter-name";
-      name.textContent =
-        currentTab === "consonants"
-          ? item.name
-          : item.name.split(" ")[0] + " / " + item.sound;
+
+      if (currentTab === "consonants") {
+        name.textContent = item.name;
+      } else if (currentTab === "vowels") {
+        name.textContent = item.name.split(" ")[0] + " / " + item.sound;
+      } else {
+        name.textContent = item.meaning + " · " + item.category;
+      }
 
       card.appendChild(symbol);
       card.appendChild(name);
@@ -856,18 +1096,17 @@
       letterGrid.appendChild(card);
     });
 
-    // 기본 선택: 첫 글자
+    // 기본 선택: 첫 항목
     if (data.length > 0) {
       const first = data[0];
       currentLetterObj = first;
       currentForm = "isolated";
       formButtons.forEach((b) => b.classList.remove("selected"));
       formButtons[0].classList.add("selected");
-
-      updateInfoPanel(first);
       if (currentTab === "consonants") {
         updateFormGlyphs(first);
       }
+      updateInfoPanel(first);
       if (letterGrid.firstChild) {
         letterGrid.firstChild.classList.add("selected");
       }
@@ -875,40 +1114,6 @@
       clearCanvas(traceCtx, traceCanvas);
       clearCanvas(freeCtx, freeCanvas);
     }
-  }
-
-  function updateInfoPanel(item) {
-    const glyph = getCurrentGlyph();
-    bigLetter.textContent = glyph;
-
-    if (currentTab === "consonants") {
-      infoTitle.textContent = item.name;
-      infoDetail.textContent = "발음: " + item.sound;
-    } else {
-      infoTitle.textContent = item.name;
-      infoDetail.textContent = `발음: ${item.sound} — ${item.desc}`;
-    }
-
-    if (item.example) {
-      infoExample.innerHTML =
-        '예시: <span>' +
-        item.example +
-        "</span> — " +
-        (item.exampleMeaning || "");
-    } else {
-      infoExample.textContent = "";
-    }
-  }
-
-  function selectLetter(item) {
-    currentLetterObj = item;
-    if (currentTab === "consonants") {
-      updateFormGlyphs(item);
-    }
-    updateInfoPanel(item);
-    drawGuideLetter();
-    clearCanvas(traceCtx, traceCanvas);
-    clearCanvas(freeCtx, freeCanvas);
   }
 
   tabButtons.forEach((btn) => {
@@ -921,7 +1126,7 @@
     });
   });
 
-  // 형태 버튼 클릭
+  // 형태 버튼
   formButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
       if (!currentLetterObj) return;
@@ -933,7 +1138,7 @@
     });
   });
 
-  // ===== 발음(TTS) 버튼 =====
+  // 발음(TTS) 버튼
   speakBtn.addEventListener("click", () => {
     if (!currentLetterObj) return;
     if (!("speechSynthesis" in window)) {
@@ -945,12 +1150,12 @@
       currentLetterObj.example ||
       currentLetterObj.letter;
     const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = "ar-SA"; // 표준 아랍어 / 사우디 쪽 음성
+    utter.lang = "ar-SA";
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utter);
   });
 
-  // ===== 캔버스 세팅 =====
+  // 캔버스 세팅
   const traceCanvas = document.getElementById("traceCanvas");
   const freeCanvas = document.getElementById("freeCanvas");
   const traceCtx = traceCanvas.getContext("2d");
@@ -981,16 +1186,14 @@
     }
   }
 
-  function drawGuideLetter(customGlyph) {
+  function drawGuideLetter() {
     if (!currentLetterObj) return;
     const ctx = traceCtx;
     const canvas = traceCanvas;
     const rect = canvas.getBoundingClientRect();
     ctx.clearRect(0, 0, rect.width, rect.height);
 
-    const guide =
-      customGlyph ||
-      (currentTab === "consonants" ? getCurrentGlyph() : currentLetterObj.letter);
+    const guide = getCurrentGlyph();
 
     ctx.save();
     ctx.globalAlpha = 0.12;
@@ -998,7 +1201,7 @@
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    const size = Math.min(rect.width, rect.height) * 0.7;
+    const size = Math.min(rect.width, rect.height) * 0.55;
     ctx.font =
       "normal " +
       size +
@@ -1009,7 +1212,7 @@
 
   window.addEventListener("resize", resizeCanvas);
 
-  // ===== 그리기 로직 (마우스 + 터치 공통) =====
+  // 그리기 로직
   function enableDrawing(canvas, ctx, widthInput) {
     let drawing = false;
     let lastX = 0;
@@ -1076,7 +1279,6 @@
   const clearTraceBtn = document.getElementById("clearTrace");
   const clearFreeBtn = document.getElementById("clearFree");
 
-  // 초기 캔버스 설정
   setTimeout(() => {
     resizeCanvas();
     enableDrawing(traceCanvas, traceCtx, traceWidthInput);
