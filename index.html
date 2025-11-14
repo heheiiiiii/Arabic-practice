@@ -144,12 +144,15 @@
       align-items: center;
       justify-content: space-between;
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.04);
+      gap: 12px;
     }
 
     .info-left {
       display: flex;
       flex-direction: column;
       gap: 4px;
+      flex: 1;
+      min-width: 0;
     }
 
     .info-title {
@@ -162,6 +165,65 @@
       color: #4b5563;
     }
 
+    .info-example {
+      font-size: 12px;
+      color: #374151;
+    }
+
+    .info-example span {
+      font-family: "Noto Naskh Arabic", "Scheherazade New", "Amiri",
+        "Times New Roman", serif;
+      direction: rtl;
+      font-size: 16px;
+      margin-right: 4px;
+    }
+
+    .info-actions {
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .forms-row {
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .form-label {
+      font-size: 11px;
+      color: #6b7280;
+      margin-right: 2px;
+    }
+
+    .form-button {
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      font-size: 11px;
+      padding: 3px 7px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .form-button .form-glyph {
+      font-family: "Noto Naskh Arabic", "Scheherazade New", "Amiri",
+        "Times New Roman", serif;
+      direction: rtl;
+      font-size: 16px;
+    }
+
+    .form-button.selected {
+      border-color: #4f46e5;
+      background: #eef2ff;
+    }
+
     .big-letter {
       font-size: 70px;
       font-family: "Noto Naskh Arabic", "Scheherazade New", "Amiri",
@@ -171,6 +233,7 @@
       border-radius: 10px;
       background: #f9fafb;
       border: 1px solid #e5e7eb;
+      flex-shrink: 0;
     }
 
     .canvas-row {
@@ -304,6 +367,31 @@
         <div class="info-detail" id="infoDetail">
           왼쪽에서 자음 또는 모음을 누르면 이름과 소리가 여기 나옵니다.
         </div>
+        <div class="info-example" id="infoExample"></div>
+
+        <div class="forms-row" id="formsRow">
+          <span class="form-label">형태 연습:</span>
+          <button class="form-button selected" data-form="isolated">
+            단독
+            <span class="form-glyph" id="formIsolated">ا</span>
+          </button>
+          <button class="form-button" data-form="initial">
+            앞
+            <span class="form-glyph" id="formInitial">ا</span>
+          </button>
+          <button class="form-button" data-form="medial">
+            가운데
+            <span class="form-glyph" id="formMedial">ا</span>
+          </button>
+          <button class="form-button" data-form="final">
+            끝
+            <span class="form-glyph" id="formFinal">ا</span>
+          </button>
+        </div>
+
+        <div class="info-actions">
+          <button class="btn" id="speakBtn">발음 듣기 🔊</button>
+        </div>
       </div>
       <div class="big-letter" id="bigLetter">ا</div>
     </section>
@@ -351,34 +439,258 @@
 <script>
   // ===== 데이터: 자음 / 모음 =====
   const consonants = [
-    { letter: "ا", name: "alif (أَلِف)", sound: "긴 a / ʔa" },
-    { letter: "ب", name: "bāʼ (بَاء)", sound: "b" },
-    { letter: "ت", name: "tāʼ (تَاء)", sound: "t" },
-    { letter: "ث", name: "thāʼ (ثَاء)", sound: "th (무성, 영어 think)" },
-    { letter: "ج", name: "jīm (جِيم)", sound: "j / ʤ" },
-    { letter: "ح", name: "ḥāʼ (حَاء)", sound: "강한 h (목에서)" },
-    { letter: "خ", name: "khāʼ (خَاء)", sound: "kh (독일어 ch 비슷)" },
-    { letter: "د", name: "dāl (دَال)", sound: "d" },
-    { letter: "ذ", name: "dhāl (ذَال)", sound: "dh (영어 this 의 th)" },
-    { letter: "ر", name: "rāʼ (رَاء)", sound: "굴리는 r" },
-    { letter: "ز", name: "zāy (زَاي)", sound: "z" },
-    { letter: "س", name: "sīn (سِين)", sound: "s" },
-    { letter: "ش", name: "shīn (شِين)", sound: "sh" },
-    { letter: "ص", name: "ṣād (صَاد)", sound: "강한 s (emphatic)" },
-    { letter: "ض", name: "ḍād (ضَاد)", sound: "강한 d" },
-    { letter: "ط", name: "ṭāʼ (طَاء)", sound: "강한 t" },
-    { letter: "ظ", name: "ẓāʼ (ظَاء)", sound: "강한 dh" },
-    { letter: "ع", name: "ʿayn (عَيْن)", sound: "목에서 나는 소리" },
-    { letter: "غ", name: "ghayn (غَيْن)", sound: "gh (프랑스어 r 비슷)" },
-    { letter: "ف", name: "fāʼ (فَاء)", sound: "f" },
-    { letter: "ق", name: "qāf (قَاف)", sound: "뒤쪽 k (q)" },
-    { letter: "ك", name: "kāf (كَاف)", sound: "k" },
-    { letter: "ل", name: "lām (لَام)", sound: "l" },
-    { letter: "م", name: "mīm (مِيم)", sound: "m" },
-    { letter: "ن", name: "nūn (نُون)", sound: "n" },
-    { letter: "ه", name: "hāʼ (هَاء)", sound: "h" },
-    { letter: "و", name: "wāw (وَاو)", sound: "w / 긴 u" },
-    { letter: "ي", name: "yāʼ (يَاء)", sound: "y / 긴 i" }
+    {
+      letter: "ا",
+      name: "alif (أَلِف)",
+      sound: "긴 a / ʔa",
+      example: "اَ",
+      exampleMeaning: "a 소리(음절)",
+      tts: "اَ",
+      forms: { isolated: "ا", initial: "ا", medial: "ـا", final: "ـا" }
+    },
+    {
+      letter: "ب",
+      name: "bāʼ (بَاء)",
+      sound: "b",
+      example: "بَ",
+      exampleMeaning: "ba 소리(음절)",
+      tts: "بَ",
+      forms: { isolated: "ب", initial: "ﺑ", medial: "ـبـ", final: "ـب" }
+    },
+    {
+      letter: "ت",
+      name: "tāʼ (تَاء)",
+      sound: "t",
+      example: "تَ",
+      exampleMeaning: "ta 소리(음절)",
+      tts: "تَ",
+      forms: { isolated: "ت", initial: "ﺗ", medial: "ـتـ", final: "ـت" }
+    },
+    {
+      letter: "ث",
+      name: "thāʼ (ثَاء)",
+      sound: "th (무성, 영어 think)",
+      example: "ثَ",
+      exampleMeaning: "tha 소리(음절)",
+      tts: "ثَ",
+      forms: { isolated: "ث", initial: "ﺛ", medial: "ـثـ", final: "ـث" }
+    },
+    {
+      letter: "ج",
+      name: "jīm (جِيم)",
+      sound: "j / ʤ",
+      example: "جَ",
+      exampleMeaning: "ja 소리(음절)",
+      tts: "جَ",
+      forms: { isolated: "ج", initial: "ﺟ", medial: "ـجـ", final: "ـج" }
+    },
+    {
+      letter: "ح",
+      name: "ḥāʼ (حَاء)",
+      sound: "강한 h (목에서)",
+      example: "حَ",
+      exampleMeaning: "ḥa 소리(음절)",
+      tts: "حَ",
+      forms: { isolated: "ح", initial: "ﺣ", medial: "ـحـ", final: "ـح" }
+    },
+    {
+      letter: "خ",
+      name: "khāʼ (خَاء)",
+      sound: "kh (독일어 ch 비슷)",
+      example: "خَ",
+      exampleMeaning: "kha 소리(음절)",
+      tts: "خَ",
+      forms: { isolated: "خ", initial: "ﺧ", medial: "ـخـ", final: "ـخ" }
+    },
+    {
+      letter: "د",
+      name: "dāl (دَال)",
+      sound: "d",
+      example: "دَ",
+      exampleMeaning: "da 소리(음절)",
+      tts: "دَ",
+      forms: { isolated: "د", initial: "د", medial: "ـد", final: "ـد" }
+    },
+    {
+      letter: "ذ",
+      name: "dhāl (ذَال)",
+      sound: "dh (영어 this 의 th)",
+      example: "ذَ",
+      exampleMeaning: "dha 소리(음절)",
+      tts: "ذَ",
+      forms: { isolated: "ذ", initial: "ذ", medial: "ـذ", final: "ـذ" }
+    },
+    {
+      letter: "ر",
+      name: "rāʼ (رَاء)",
+      sound: "굴리는 r",
+      example: "رَ",
+      exampleMeaning: "ra 소리(음절)",
+      tts: "رَ",
+      forms: { isolated: "ر", initial: "ر", medial: "ـر", final: "ـر" }
+    },
+    {
+      letter: "ز",
+      name: "zāy (زَاي)",
+      sound: "z",
+      example: "زَ",
+      exampleMeaning: "za 소리(음절)",
+      tts: "زَ",
+      forms: { isolated: "ز", initial: "ز", medial: "ـز", final: "ـز" }
+    },
+    {
+      letter: "س",
+      name: "sīn (سِين)",
+      sound: "s",
+      example: "سَ",
+      exampleMeaning: "sa 소리(음절)",
+      tts: "سَ",
+      forms: { isolated: "س", initial: "ﺳ", medial: "ـسـ", final: "ـس" }
+    },
+    {
+      letter: "ش",
+      name: "shīn (شِين)",
+      sound: "sh",
+      example: "شَ",
+      exampleMeaning: "sha 소리(음절)",
+      tts: "شَ",
+      forms: { isolated: "ش", initial: "ﺷ", medial: "ـشـ", final: "ـش" }
+    },
+    {
+      letter: "ص",
+      name: "ṣād (صَاد)",
+      sound: "강한 s (emphatic)",
+      example: "صَ",
+      exampleMeaning: "ṣa 소리(음절)",
+      tts: "صَ",
+      forms: { isolated: "ص", initial: "ﺻ", medial: "ـصـ", final: "ـص" }
+    },
+    {
+      letter: "ض",
+      name: "ḍād (ضَاد)",
+      sound: "강한 d",
+      example: "ضَ",
+      exampleMeaning: "ḍa 소리(음절)",
+      tts: "ضَ",
+      forms: { isolated: "ض", initial: "ﺿ", medial: "ـضـ", final: "ـض" }
+    },
+    {
+      letter: "ط",
+      name: "ṭāʼ (طَاء)",
+      sound: "강한 t",
+      example: "طَ",
+      exampleMeaning: "ṭa 소리(음절)",
+      tts: "طَ",
+      forms: { isolated: "ط", initial: "ﻃ", medial: "ـطـ", final: "ـط" }
+    },
+    {
+      letter: "ظ",
+      name: "ẓāʼ (ظَاء)",
+      sound: "강한 dh",
+      example: "ظَ",
+      exampleMeaning: "ẓa 소리(음절)",
+      tts: "ظَ",
+      forms: { isolated: "ظ", initial: "ﻇ", medial: "ـظـ", final: "ـظ" }
+    },
+    {
+      letter: "ع",
+      name: "ʿayn (عَيْن)",
+      sound: "목에서 나는 소리",
+      example: "عَ",
+      exampleMeaning: "ʿa 소리(음절)",
+      tts: "عَ",
+      forms: { isolated: "ع", initial: "ﻋ", medial: "ـعـ", final: "ـع" }
+    },
+    {
+      letter: "غ",
+      name: "ghayn (غَيْن)",
+      sound: "gh (프랑스어 r 비슷)",
+      example: "غَ",
+      exampleMeaning: "gha 소리(음절)",
+      tts: "غَ",
+      forms: { isolated: "غ", initial: "ﻏ", medial: "ـغـ", final: "ـغ" }
+    },
+    {
+      letter: "ف",
+      name: "fāʼ (فَاء)",
+      sound: "f",
+      example: "فَ",
+      exampleMeaning: "fa 소리(음절)",
+      tts: "فَ",
+      forms: { isolated: "ف", initial: "ﻓ", medial: "ـفـ", final: "ـف" }
+    },
+    {
+      letter: "ق",
+      name: "qāf (قَاف)",
+      sound: "뒤쪽 k (q)",
+      example: "قَ",
+      exampleMeaning: "qa 소리(음절)",
+      tts: "قَ",
+      forms: { isolated: "ق", initial: "ﻗ", medial: "ـقـ", final: "ـق" }
+    },
+    {
+      letter: "ك",
+      name: "kāf (كَاف)",
+      sound: "k",
+      example: "كَ",
+      exampleMeaning: "ka 소리(음절)",
+      tts: "كَ",
+      forms: { isolated: "ك", initial: "ﻛ", medial: "ـكـ", final: "ـك" }
+    },
+    {
+      letter: "ل",
+      name: "lām (لَام)",
+      sound: "l",
+      example: "لَ",
+      exampleMeaning: "la 소리(음절)",
+      tts: "لَ",
+      forms: { isolated: "ل", initial: "ﻟ", medial: "ـلـ", final: "ـل" }
+    },
+    {
+      letter: "م",
+      name: "mīm (مِيم)",
+      sound: "m",
+      example: "مَ",
+      exampleMeaning: "ma 소리(음절)",
+      tts: "مَ",
+      forms: { isolated: "م", initial: "ﻣ", medial: "ـمـ", final: "ـم" }
+    },
+    {
+      letter: "ن",
+      name: "nūn (نُون)",
+      sound: "n",
+      example: "نَ",
+      exampleMeaning: "na 소리(음절)",
+      tts: "نَ",
+      forms: { isolated: "ن", initial: "ﻧ", medial: "ـنـ", final: "ـن" }
+    },
+    {
+      letter: "ه",
+      name: "hāʼ (هَاء)",
+      sound: "h",
+      example: "هَ",
+      exampleMeaning: "ha 소리(음절)",
+      tts: "هَ",
+      forms: { isolated: "ه", initial: "ﻫ", medial: "ـهـ", final: "ـه" }
+    },
+    {
+      letter: "و",
+      name: "wāw (وَاو)",
+      sound: "w / 긴 u",
+      example: "وَ",
+      exampleMeaning: "wa 소리(음절)",
+      tts: "وَ",
+      forms: { isolated: "و", initial: "و", medial: "ـو", final: "ـو" }
+    },
+    {
+      letter: "ي",
+      name: "yāʼ (يَاء)",
+      sound: "y / 긴 i",
+      example: "يَ",
+      exampleMeaning: "ya 소리(음절)",
+      tts: "يَ",
+      forms: { isolated: "ي", initial: "ﻳ", medial: "ـيـ", final: "ـي" }
+    }
   ];
 
   const vowels = [
@@ -386,63 +698,119 @@
       letter: "َ",
       name: "fatḥa (فَتْحَة)",
       sound: "a",
-      desc: "자음 위에 쓰는 짧은 a 소리"
+      desc: "자음 위에 쓰는 짧은 a 소리",
+      example: "بَ",
+      exampleMeaning: "ba 소리(음절)",
+      tts: "بَ"
     },
     {
       letter: "ِ",
       name: "kasra (كَسْرَة)",
       sound: "i",
-      desc: "자음 아래에 쓰는 짧은 i 소리"
+      desc: "자음 아래에 쓰는 짧은 i 소리",
+      example: "بِ",
+      exampleMeaning: "bi 소리(음절)",
+      tts: "بِ"
     },
     {
       letter: "ُ",
       name: "ḍamma (ضَمَّة)",
       sound: "u",
-      desc: "자음 위에 쓰는 짧은 u 소리"
+      desc: "자음 위에 쓰는 짧은 u 소리",
+      example: "بُ",
+      exampleMeaning: "bu 소리(음절)",
+      tts: "بُ"
     },
     {
       letter: "ْ",
       name: "sukūn (سُكُون)",
       sound: "자음만 발음",
-      desc: "뒤에 모음 없음"
+      desc: "뒤에 모음 없음",
+      example: "بْ",
+      exampleMeaning: "b 소리(자음만)",
+      tts: "بْ"
     },
     {
       letter: "ّ",
       name: "shadda (شَدَّة)",
       sound: "자음이 2번",
-      desc: "자음을 겹쳐 발음"
+      desc: "자음을 겹쳐 발음",
+      example: "بّ",
+      exampleMeaning: "bb 소리(자음 겹침)",
+      tts: "بّ"
     },
     {
       letter: "ً",
       name: "tanwīn fatḥ (تَنْوِين فَتْح)",
       sound: "an",
-      desc: "단어 끝에서 an 소리"
+      desc: "단어 끝에서 an 소리",
+      example: "بًا",
+      exampleMeaning: "ban 소리(음절)",
+      tts: "بًا"
     },
     {
       letter: "ٍ",
       name: "tanwīn kasr (تَنْوِين كَسْر)",
       sound: "in",
-      desc: "단어 끝에서 in 소리"
+      desc: "단어 끝에서 in 소리",
+      example: "بٍ",
+      exampleMeaning: "bin 소리(음절)",
+      tts: "بٍ"
     },
     {
       letter: "ٌ",
       name: "tanwīn ḍamm (تَنْوِين ضَمّ)",
       sound: "un",
-      desc: "단어 끝에서 un 소리"
+      desc: "단어 끝에서 un 소리",
+      example: "بٌ",
+      exampleMeaning: "bun 소리(음절)",
+      tts: "بٌ"
     }
   ];
 
   let currentTab = "consonants";
   let currentLetterObj = null;
+  let currentForm = "isolated";
 
   const tabButtons = document.querySelectorAll(".tab-button");
   const letterGrid = document.getElementById("letterGrid");
   const listTitle = document.getElementById("listTitle");
   const infoTitle = document.getElementById("infoTitle");
   const infoDetail = document.getElementById("infoDetail");
+  const infoExample = document.getElementById("infoExample");
   const bigLetter = document.getElementById("bigLetter");
 
+  const formsRow = document.getElementById("formsRow");
+  const formButtons = document.querySelectorAll(".form-button");
+  const formIsolated = document.getElementById("formIsolated");
+  const formInitial = document.getElementById("formInitial");
+  const formMedial = document.getElementById("formMedial");
+  const formFinal = document.getElementById("formFinal");
+  const speakBtn = document.getElementById("speakBtn");
+
   // ===== 글자 목록 렌더링 =====
+  function getCurrentGlyph() {
+    if (!currentLetterObj) return "";
+    if (currentTab === "consonants" && currentLetterObj.forms) {
+      return currentLetterObj.forms[currentForm] || currentLetterObj.letter;
+    }
+    return currentLetterObj.letter;
+  }
+
+  function updateFormGlyphs(item) {
+    if (!item || currentTab !== "consonants") return;
+    const f = item.forms || {
+      isolated: item.letter,
+      initial: item.letter,
+      medial: item.letter,
+      final: item.letter
+    };
+    formIsolated.textContent = f.isolated;
+    formInitial.textContent = f.initial;
+    formMedial.textContent = f.medial;
+    formFinal.textContent = f.final;
+  }
+
   function renderLetterGrid() {
     letterGrid.innerHTML = "";
     const data = currentTab === "consonants" ? consonants : vowels;
@@ -451,6 +819,9 @@
       currentTab === "consonants"
         ? "아랍어 자음 (알파벳) 목록"
         : "아랍어 모음 기호 (하라카트) 목록";
+
+    // 자음일 때만 형태 연습 보이기
+    formsRow.style.display = currentTab === "consonants" ? "flex" : "none";
 
     data.forEach((item, index) => {
       const card = document.createElement("button");
@@ -476,6 +847,9 @@
           .querySelectorAll(".letter-card")
           .forEach((c) => c.classList.remove("selected"));
         card.classList.add("selected");
+        currentForm = "isolated";
+        formButtons.forEach((b) => b.classList.remove("selected"));
+        formButtons[0].classList.add("selected");
         selectLetter(item);
       });
 
@@ -486,12 +860,14 @@
     if (data.length > 0) {
       const first = data[0];
       currentLetterObj = first;
-      bigLetter.textContent = first.letter;
-      infoTitle.textContent = first.name;
-      infoDetail.textContent =
-        currentTab === "consonants"
-          ? "발음: " + first.sound
-          : `발음: ${first.sound} (${first.desc})`;
+      currentForm = "isolated";
+      formButtons.forEach((b) => b.classList.remove("selected"));
+      formButtons[0].classList.add("selected");
+
+      updateInfoPanel(first);
+      if (currentTab === "consonants") {
+        updateFormGlyphs(first);
+      }
       if (letterGrid.firstChild) {
         letterGrid.firstChild.classList.add("selected");
       }
@@ -501,9 +877,10 @@
     }
   }
 
-  function selectLetter(item) {
-    currentLetterObj = item;
-    bigLetter.textContent = item.letter;
+  function updateInfoPanel(item) {
+    const glyph = getCurrentGlyph();
+    bigLetter.textContent = glyph;
+
     if (currentTab === "consonants") {
       infoTitle.textContent = item.name;
       infoDetail.textContent = "발음: " + item.sound;
@@ -511,6 +888,24 @@
       infoTitle.textContent = item.name;
       infoDetail.textContent = `발음: ${item.sound} — ${item.desc}`;
     }
+
+    if (item.example) {
+      infoExample.innerHTML =
+        '예시: <span>' +
+        item.example +
+        "</span> — " +
+        (item.exampleMeaning || "");
+    } else {
+      infoExample.textContent = "";
+    }
+  }
+
+  function selectLetter(item) {
+    currentLetterObj = item;
+    if (currentTab === "consonants") {
+      updateFormGlyphs(item);
+    }
+    updateInfoPanel(item);
     drawGuideLetter();
     clearCanvas(traceCtx, traceCanvas);
     clearCanvas(freeCtx, freeCanvas);
@@ -526,6 +921,35 @@
     });
   });
 
+  // 형태 버튼 클릭
+  formButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (!currentLetterObj) return;
+      currentForm = btn.dataset.form;
+      formButtons.forEach((b) => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      updateInfoPanel(currentLetterObj);
+      drawGuideLetter();
+    });
+  });
+
+  // ===== 발음(TTS) 버튼 =====
+  speakBtn.addEventListener("click", () => {
+    if (!currentLetterObj) return;
+    if (!("speechSynthesis" in window)) {
+      alert("브라우저가 음성 합성을 지원하지 않습니다.");
+      return;
+    }
+    const text =
+      currentLetterObj.tts ||
+      currentLetterObj.example ||
+      currentLetterObj.letter;
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "ar-SA"; // 표준 아랍어 / 사우디 쪽 음성
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utter);
+  });
+
   // ===== 캔버스 세팅 =====
   const traceCanvas = document.getElementById("traceCanvas");
   const freeCanvas = document.getElementById("freeCanvas");
@@ -533,7 +957,6 @@
   const freeCtx = freeCanvas.getContext("2d");
 
   function resizeCanvas() {
-    // 실제 픽셀 크기를 요소 크기와 맞추기
     [traceCanvas, freeCanvas].forEach((c) => {
       const rect = c.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
@@ -551,20 +974,24 @@
   }
 
   function clearCanvas(ctx, canvas) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const rect = canvas.getBoundingClientRect();
+    ctx.clearRect(0, 0, rect.width, rect.height);
     if (canvas === traceCanvas) {
       drawGuideLetter();
     }
   }
 
-  function drawGuideLetter() {
+  function drawGuideLetter(customGlyph) {
     if (!currentLetterObj) return;
     const ctx = traceCtx;
     const canvas = traceCanvas;
     const rect = canvas.getBoundingClientRect();
     ctx.clearRect(0, 0, rect.width, rect.height);
 
-    const guide = currentLetterObj.letter;
+    const guide =
+      customGlyph ||
+      (currentTab === "consonants" ? getCurrentGlyph() : currentLetterObj.letter);
+
     ctx.save();
     ctx.globalAlpha = 0.12;
     ctx.fillStyle = "#111827";
@@ -576,7 +1003,6 @@
       "normal " +
       size +
       "px 'Noto Naskh Arabic','Scheherazade New','Amiri','Times New Roman',serif";
-    // 오른쪽에서 왼쪽 글자지만 가운데 정렬로 충분
     ctx.fillText(guide, rect.width / 2, rect.height / 2);
     ctx.restore();
   }
