@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -382,6 +382,52 @@
         grid-template-columns: repeat(6, minmax(0, 1fr));
       }
     }
+
+        .difficulty-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .diff-btn {
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #f3f4f6;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      color: #374151;
+    }
+    .diff-btn.active {
+      border-color: #f97316;
+      background: #fff7ed;
+      color: #9a3412;
+    }
+
+    .longtext-item {
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      padding: 6px 8px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .longtext-item-title {
+      font-weight: 600;
+      color: #111827;
+    }
+    .longtext-item-meta {
+      font-size: 0.7rem;
+      color: #6b7280;
+    }
+    .longtext-item.active {
+      border-color: #f97316;
+      box-shadow: 0 0 0 1px rgba(249,115,22,0.4);
+    }
+
+    
   </style>
 </head>
 <body>
@@ -392,6 +438,7 @@
       <button class="tab-btn" data-tab="vowels">모음</button>
       <button class="tab-btn" data-tab="words">단어</button>
       <button class="tab-btn" data-tab="sentences">문장</button>
+      <button class="tab-btn" data-tab="longtext">긴 글</button>
     </div>
   </header>
 
@@ -427,6 +474,22 @@
         <div class="side-sub">기본 회화 문장을 골라 따라 써 보세요.</div>
         <div id="sentencesList" style="display:flex; flex-direction:column; gap:6px;"></div>
       </div>
+
+            <div id="panel-longtext" class="hidden">
+        <div class="side-title">긴 글 연습</div>
+        <div class="side-sub">짧은 동화나 일상 글을 필사해 보세요.</div>
+
+        <!-- 난이도 버튼 -->
+        <div class="difficulty-tabs" style="margin-top:8px;">
+          <button class="diff-btn active" data-level="beginner">초급</button>
+          <button class="diff-btn" data-level="intermediate">중급</button>
+          <button class="diff-btn" data-level="advanced">고급</button>
+        </div>
+
+        <!-- 긴 글 리스트 -->
+        <div id="longtextList" style="margin-top:10px; display:flex; flex-direction:column; gap:6px;"></div>
+      </div>
+
     </aside>
 
     <!-- 오른쪽 패널 -->
@@ -570,33 +633,81 @@ const arabicForms = {
 
     const wordCategories = {
       colors: [
-        { arabic: "أَحْمَرُ", pron: "aḥmar", meaning: "빨간색" },
-        { arabic: "أَزْرَقُ", pron: "azraq", meaning: "파란색" },
-        { arabic: "أَخْضَرُ", pron: "akhḍar", meaning: "초록색" },
-        { arabic: "أَصْفَرُ", pron: "aṣfar", meaning: "노란색" },
-        { arabic: "أَبْيَضُ", pron: "abyaḍ", meaning: "흰색" },
-        { arabic: "أَسْوَدُ", pron: "aswad", meaning: "검은색" },
-        { arabic: "بُنِّيٌّ", pron: "bunniyy", meaning: "갈색" },
-        { arabic: "وَرْدِيٌّ", pron: "wardiyy", meaning: "분홍색" }
+        { arabic: "لَوْن", pron: "lawn", meaning: "색" },
+  { arabic: "أَحْمَرُ", pron: "aḥmar", meaning: "빨간색" },
+  { arabic: "بُرْتُقَالِيّ", pron: "burtuqālī", meaning: "주황색" },
+  { arabic: "أَصْفَرُ", pron: "aṣfar", meaning: "노란색" },
+  { arabic: "أَخْضَرُ", pron: "aḫḍar", meaning: "초록색" },
+  { arabic: "أَزْرَقُ", pron: "azraq", meaning: "파란색" },
+  { arabic: "نِيلِيّ", pron: "nīlī", meaning: "남색" },
+  { arabic: "بَنَفْسَجِيّ", pron: "banafsajī", meaning: "보라색" },
+  { arabic: "بُنِّيّ", pron: "bunnī", meaning: "갈색" },
+  { arabic: "أَسْوَدُ", pron: "aswad", meaning: "검은색" },
+  { arabic: "أَبْيَضُ", pron: "abyaḍ", meaning: "하얀색" },
+  { arabic: "رَمَادِيّ", pron: "ramādī", meaning: "회색" },
+  { arabic: "وَرْدِيّ", pron: "wardī", meaning: "핑크색" },
+  { arabic: "ذَهَبِيّ", pron: "dhahabī", meaning: "금색" },
+  { arabic: "فِضِّيّ", pron: "fiḍḍī", meaning: "은색" }
+
       ],
+    
+      
       weather: [
+        { arabic: "الطَّقْس", pron: "aṭ-ṭaqs", meaning: "날씨" }
         { arabic: "مَطَرٌ", pron: "maṭar", meaning: "비" },
-        { arabic: "ثَلْجٌ", pron: "thalj", meaning: "눈(snow)" },
-        { arabic: "رِيحٌ", pron: "rīḥ", meaning: "바람" },
-        { arabic: "جَوٌّ حَارٌّ", pron: "jaww ḥārr", meaning: "더운 날씨" },
-        { arabic: "جَوٌّ بَارِدٌ", pron: "jaww bārid", meaning: "추운 날씨" }
+  { arabic: "ثَلْجٌ", pron: "thalj", meaning: "눈(snow)" },
+  { arabic: "رِيحٌ", pron: "rīḥ", meaning: "바람" },
+  { arabic: "جَوٌّ حَارٌّ", pron: "jaww ḥārr", meaning: "더운 날씨" },
+  { arabic: "جَوٌّ بَارِدٌ", pron: "jaww bārid", meaning: "추운 날씨" },
+  { arabic: "غَائِمٌ", pron: "ġā'im", meaning: "흐림 / 구름 낀" },
+  { arabic: "مُشْمِسٌ", pron: "mushmis", meaning: "맑음" },
+  { arabic: "عاصِف", pron: "ʿāṣif", meaning: "폭풍우" },
+  { arabic: "ضَبَابٌ", pron: "ḍabāb", meaning: "안개" },
+  { arabic: "رَطِبٌ", pron: "raṭib", meaning: "습함" },
+  { arabic: "جَافٌّ", pron: "jāff", meaning: "건조함" },
+  { arabic: "رَعْدٌ", pron: "raʿd", meaning: "천둥" },
+  { arabic: "بَرْقٌ", pron: "barq", meaning: "번개" },
+  { arabic: "عاصِفَةٌ رَمْلِيَّةٌ", pron: "ʿāṣifah ramliyyah", meaning: "모래폭풍" },
+  { arabic: "إِعْصَار", pron: "iʿṣār", meaning: "태풍" }
       ],
-      fruits: [
-        { arabic: "تُفَّاحَةٌ", pron: "tuffāḥa", meaning: "사과" },
-        { arabic: "مَوْزَةٌ", pron: "mawza", meaning: "바나나" },
-        { arabic: "عِنَبٌ", pron: "ʿinab", meaning: "포도" },
-        { arabic: "بُرْتُقَالَةٌ", pron: "burtuqāla", meaning: "오렌지" }
+     
+    
+    fruits: [
+         { arabic: "فَاكِهَةٌ", pron: "fākihah", meaning: "과일" },
+  { arabic: "تُفَّاحَةٌ", pron: "tuffāḥa", meaning: "사과" },
+  { arabic: "مَوْزَةٌ", pron: "mawza", meaning: "바나나" },
+  { arabic: "عِنَبٌ", pron: "ʿinab", meaning: "포도" },
+  { arabic: "بُرْتُقَالَةٌ", pron: "burtuqāla", meaning: "오렌지" },
+  { arabic: "فَرَاوْلَةٌ", pron: "farāwlah", meaning: "딸기" },
+  { arabic: "بِطِّيخَةٌ", pron: "biṭṭīḫa", meaning: "수박" },
+  { arabic: "كُمَّثْرَى", pron: "kummathrā", meaning: "배" },
+  { arabic: "مَانْجَا", pron: "mānjā", meaning: "망고" },
+  { arabic: "أَنَانَاس", pron: "anānās", meaning: "파인애플" },
+  { arabic: "كَرَزٌ", pron: "karaz", meaning: "체리" },
+  { arabic: "رُمَّانٌ", pron: "rummān", meaning: "석류" },
+  { arabic: "تِينٌ", pron: "tīn", meaning: "무화과" },
+  { arabic: "خَوْخٌ", pron: "khawkh", meaning: "복숭아" },
+  { arabic: "لَيْمُونٌ", pron: "laymūn", meaning: "레몬" }
+
       ],
+
+      
       transport: [
-        { arabic: "سَيَّارَةٌ", pron: "sayyāra", meaning: "자동차" },
-        { arabic: "حَافِلَةٌ", pron: "ḥāfila", meaning: "버스" },
-        { arabic: "قِطَارٌ", pron: "qiṭār", meaning: "기차" },
-        { arabic: "طَائِرَةٌ", pron: "ṭāʾira", meaning: "비행기" }
+        { arabic: "وَسِيلَةُ نَقْلٍ", pron: "wasīlat naql", meaning: "교통수단" },
+  { arabic: "سَيَّارَةٌ", pron: "sayyāra", meaning: "자동차" },
+  { arabic: "حَافِلَةٌ", pron: "ḥāfila", meaning: "버스" },
+  { arabic: "قِطَارٌ", pron: "qiṭār", meaning: "기차" },
+  { arabic: "طَائِرَةٌ", pron: "ṭāʾira", meaning: "비행기" },
+  { arabic: "دَرَّاجَةٌ", pron: "darrāja", meaning: "자전거" },
+  { arabic: "دَرَّاجَةٌ نَارِيَّةٌ", pron: "darrāja nāriyya", meaning: "오토바이" },
+  { arabic: "سَفِينَةٌ", pron: "safīna", meaning: "배 / 선박" },
+  { arabic: "قَارِبٌ", pron: "qārib", meaning: "보트" },
+  { arabic: "مِتْرُو / قِطَارٌ أَنْفَاق", pron: "mitrū / qiṭār anfāq", meaning: "지하철" },
+  { arabic: "تَكْسِي", pron: "taksī", meaning: "택시" },
+  { arabic: "شَاحِنَةٌ", pron: "shāḥina", meaning: "트럭" },
+  { arabic: "قُطَارٌ سَرِيعٌ", pron: "quṭār sarīʿ", meaning: "고속열차" },
+  { arabic: "قِطَارُ الرُّكَّاب", pron: "qiṭāru r-rukkāb", meaning: "여객열차" },
+  { arabic: "حَافِلَةٌ صَغِيرَةٌ", pron: "ḥāfila ṣaghīra", meaning: "승합차" }
       ]
     };
 
@@ -617,6 +728,36 @@ const arabicForms = {
         meaning: "나는 대학교 학생이야."
       }
     ];
+ // 긴 글 데이터 (초급 예시 1편)
+    const longTexts = [
+      {
+        id: "duck_beginner_1",
+        level: "beginner",
+        title: "오리 이야기 1 – 위삼",
+        tag: "일상 동화 · 초급",
+        arabic: [
+"ذاتَ مَرَّةٍ كانَتْ هُناكَ بَطَّةٌ صَغيرَةٌ تَعيشُ عِندَ البُحَيْرَةِ.",
+"كانَ اسمُها وِسام، وَكانَتْ مَبْتَهِجَةً دائِمًا.",
+"كُلَّ صَباحٍ تَسْتَيْقِظُ مُبَكِّرًا وَتَذْهَبُ إِلى الماءِ.",
+"تَسْبَحُ في البُحَيْرَةِ وَتَلْعَبُ مَعَ الأَسْماكِ الصَّغيرَةِ.",
+"بَعْدَ السِّباحَةِ تَجْلِسُ تَحْتَ شَجَرَةٍ كَبيرَةٍ لِتَسْتَريحَ.",
+"في يَومٍ مِنَ الأَيّامِ قابَلَتْ بَطَّةً أُخْرى وَأَصْبَحَتا صَديقَتَيْنِ.",
+"كانَتا تَسْبَحانِ وَتَلْعَبانِ مَعًا كُلَّ يَومٍ.",
+"كانَتْ وِسام تَشْكُرُ اللهَ دائِمًا عَلى هذِهِ الحَياةِ البَسيطَةِ السَّعيدَةِ."
+        ].join("\\n"),
+        korean: [
+"옛날에 작은 오리 한 마리가 호숫가에 살고 있었어요.",
+"그 오리의 이름은 위삼이었고, 항상 명랑했어요.",
+"매일 아침 일찍 일어나서 물가로 갔어요.",
+"호수에서 헤엄치며 작은 물고기들과 놀았어요.",
+"수영을 마친 후에는 큰 나무 아래에 앉아 쉬었어요.",
+"어느 날 다른 오리를 만나 둘은 친구가 되었어요.",
+"두 오리는 매일 함께 헤엄치고 놀았어요.",
+"위삼은 이런 단순하지만 행복한 삶에 항상 감사했어요."
+        ].join("\\n")
+      }
+    ];
+    
 
     // ======================
     // 상태 관리
@@ -632,6 +773,7 @@ const arabicForms = {
     const panelVowels = document.getElementById("panel-vowels");
     const panelWords = document.getElementById("panel-words");
     const panelSentences = document.getElementById("panel-sentences");
+    const panelLongtext = document.getElementById("panel-longtext");
 
     const selectionCard = document.getElementById("selectionCard");
     const selArabic = document.getElementById("selArabic");
@@ -651,6 +793,7 @@ const arabicForms = {
     const vowelsList = document.getElementById("vowelsList");
     const wordsList = document.getElementById("wordsList");
     const sentencesList = document.getElementById("sentencesList");
+    const longtextList = document.getElementById("longtextList");
 
     const traceCanvas = document.getElementById("traceCanvas");
     const freeCanvas = document.getElementById("freeCanvas");
@@ -660,6 +803,25 @@ const arabicForms = {
     let traceDrawing = false;
     let freeDrawing = false;
     let traceGuideText = "";
+
+        const diffButtons = document.querySelectorAll(".diff-btn");
+
+    diffButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const level = btn.dataset.level;
+        if (!level) return;
+
+        diffButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        currentLongLevel = level;
+        renderLongTexts();
+
+        // 긴 글 난이도 바꾸면 선택 정보 초기화
+        renderSelectionInfo(null);
+      });
+    });
+
 
     // ======================
     // 탭 전환
@@ -674,6 +836,7 @@ const arabicForms = {
       panelVowels.classList.toggle("hidden", tab !== "vowels");
       panelWords.classList.toggle("hidden", tab !== "words");
       panelSentences.classList.toggle("hidden", tab !== "sentences");
+      panelLongtext.classList.toggle("hidden", tab !== "longtext");
 
       // 문장이 아닌 탭에서는 선택 정보 카드만 사용, 추가 패널 없음
       if (!currentSelection) {
@@ -862,6 +1025,60 @@ const arabicForms = {
       });
     }
 
+        function initLongTexts() {
+      renderLongTexts();
+    }
+
+    let currentLongLevel = "beginner";
+
+    function renderLongTexts() {
+      if (!longtextList) return;
+      longtextList.innerHTML = "";
+
+      const filtered = longTexts.filter(t => t.level === currentLongLevel);
+
+      filtered.forEach(text => {
+        const div = document.createElement("div");
+        div.className = "longtext-item";
+        div.dataset.id = text.id;
+
+        const title = document.createElement("div");
+        title.className = "longtext-item-title";
+        title.textContent = text.title;
+
+        const meta = document.createElement("div");
+        meta.className = "longtext-item-meta";
+        meta.textContent = text.tag || "";
+
+        div.appendChild(title);
+        div.appendChild(meta);
+
+        div.addEventListener("click", () => {
+          // active 표시
+          longtextList.querySelectorAll(".longtext-item").forEach(i => i.classList.remove("active"));
+          div.classList.add("active");
+
+          // 선택 정보 업데이트
+          currentSelection = {
+            type: "긴 글",
+            arabic: text.title,         // 카드 상단에는 제목만
+            meaning: text.tag || "",
+            pron: "",
+            forms: null,
+            longTextArabic: text.arabic,
+            longTextKorean: text.korean
+          };
+          renderSelectionInfo(currentSelection);
+
+          // 긴 글은 따라쓰기를 자유롭게 하도록 가이드는 비움
+          updateTraceGuide("");
+        });
+
+        longtextList.appendChild(div);
+      });
+    }
+
+    
     // ======================
     // 선택 정보 카드 렌더링
     // ======================
@@ -877,14 +1094,30 @@ const arabicForms = {
 
       selArabic.textContent = sel.arabic;
       selType.textContent = sel.type;
-      const extraParts = [];
+            const extraParts = [];
       if (sel.meaning) {
         extraParts.push(`<span>뜻: ${sel.meaning}</span>`);
       }
       if (sel.pron) {
         extraParts.push(`<span>발음: ${sel.pron}</span>`);
       }
-      selExtra.innerHTML = extraParts.join(" · ");
+
+      // 긴 글인 경우: 본문과 번역을 아래에 블록으로 표시
+      if (sel.longTextArabic) {
+        let html = "";
+        if (extraParts.length > 0) {
+          html += `<div>${extraParts.join(" · ")}</div>`;
+        }
+        html += `<div style="margin-top:6px; font-size:0.9rem; line-height:1.7; direction:rtl; white-space:pre-line;">${sel.longTextArabic}</div>`;
+        if (sel.longTextKorean) {
+          html += `<div style="margin-top:6px; font-size:0.78rem; color:#374151; line-height:1.6; white-space:pre-line;">${sel.longTextKorean}</div>`;
+        }
+        selExtra.innerHTML = html;
+      } else {
+        // 기존 자음/모음/단어/문장용
+        selExtra.innerHTML = extraParts.join(" · ");
+      }
+
 
             if (sel.forms) {
         selForms.classList.remove("hidden");
@@ -1254,6 +1487,7 @@ function updateTraceGuide(text) {
     renderWordList();
     initSentences();
     initCanvases();
+    initLongTexts();
     renderSelectionInfo(null);
   </script>
 </body>
