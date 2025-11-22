@@ -795,6 +795,24 @@ const arabicForms = {
     const sentencesList = document.getElementById("sentencesList");
     const longtextList = document.getElementById("longtextList");
 
+      const diffButtons = document.querySelectorAll(".diff-btn");
+
+diffButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    const level = btn.dataset.level;
+    if (!level) return;
+
+    diffButtons.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    currentLongLevel = level;
+    renderLongTexts();
+
+    // 긴 글 난이도 바꾸면 선택 정보 초기화
+    renderSelectionInfo(null);
+  });
+});
+
     const traceCanvas = document.getElementById("traceCanvas");
     const freeCanvas = document.getElementById("freeCanvas");
     const clearBtn = document.getElementById("clearBtn");
@@ -804,24 +822,7 @@ const arabicForms = {
     let freeDrawing = false;
     let traceGuideText = "";
 
-        const diffButtons = document.querySelectorAll(".diff-btn");
-
-    diffButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const level = btn.dataset.level;
-        if (!level) return;
-
-        diffButtons.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-
-        currentLongLevel = level;
-        renderLongTexts();
-
-        // 긴 글 난이도 바꾸면 선택 정보 초기화
-        renderSelectionInfo(null);
-      });
-    });
-
+    
 
     // ======================
     // 탭 전환
