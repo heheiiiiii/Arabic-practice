@@ -1218,13 +1218,21 @@ setTimeout(() => {
       window.speechSynthesis.speak(utter);
     }
 
-   playSelectionBtn.addEventListener("click", () => {
-  if (!currentSelection || !currentSelection.arabic) return;
+  playSelectionBtn.addEventListener("click", () => {
+  if (!currentSelection) return;
 
   // 자음/모음은 발음 재생하지 않음
   if (currentSelection.type === "자음" || currentSelection.type === "모음") return;
 
-  speakArabic(currentSelection.arabic);
+  // 긴 글이면 longTextArabic(본문), 그 외에는 arabic(글자/단어/문장) 읽기
+  const textToSpeak =
+    currentSelection.longTextArabic && currentSelection.longTextArabic.trim()
+      ? currentSelection.longTextArabic
+      : currentSelection.arabic;
+
+  if (!textToSpeak) return;
+
+  speakArabic(textToSpeak);
 });
 
 
