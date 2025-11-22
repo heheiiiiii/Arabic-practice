@@ -447,6 +447,22 @@
   margin-bottom: 20px;
 }
 
+      #ghostCanvas {
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  direction: rtl;
+  text-align: right;
+}
+
+#ghostCanvas .ghost-line {
+  opacity: 0.12;
+  font-size: 4rem;
+  line-height: 1.8;
+  margin: 0.5rem 0;
+}
+
+
   </style>
 </head>
 <body>
@@ -1426,14 +1442,18 @@ function updateTraceGuide(text) {
 
 
     function drawTraceGuide() {
-  if (!traceCtx) return;
+  if (!traceCtx || !traceCanvas) return;
+
   const canvas = traceCanvas;
   traceCtx.clearRect(0, 0, canvas.width, canvas.height);
   if (!traceGuideText) return;
 
-  const rect = canvas.getBoundingClientRect();
-  const w = rect.width;
-  const h = rect.height;
+  // ✅ 1) 줄 나누기 (\n 기준) – 긴 글에서는 문장별로 들어 있음
+  const rawLines = traceGuideText.split("\n");
+  const lines = rawLines.map(l => l.trim()).filter(l => l.length > 0);
+
+  const w = canvas.width;
+  const h = canvas.height;
 
   traceCtx.save();
   traceCtx.globalAlpha = 0.12;
@@ -1442,31 +1462,41 @@ function updateTraceGuide(text) {
   traceCtx.textBaseline = "middle";
   traceCtx.direction = "rtl";
 
-  // 🔹 줄바꿈 기준으로 문장 나누기
-  const lines = traceGuideText.split(/\n+/).filter(l => l.trim().length > 0);
-
-  // 줄 수에 따라 폰트 크기/줄 간격 조정
-  const maxFont = Math.min(w, h) * 0.6;   // 한 줄일 때 크기
-  const multiFont = Math.min(w, h) * 0.18; // 여러 줄일 때 크기
-  const fontSize = (lines.length > 1) ? multiFont : maxFont;
-  const lineHeight = fontSize * 1.8;
-
-  traceCtx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
-
-  if (lines.length === 1) {
-    // 🔸 기존처럼 가운데에 한 줄만
-    traceCtx.fillText(lines[0], w / 2, h / 2);
+  if (lines.length <= 1) {
+    // ✅ 자음·단어·짧은 문장: 기존처럼 크게 한 줄만
+    const fontSize = Math.min(w, h) * 0.6;
+    traceCtx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
+    const y = h / 2;
+    traceCtx.fillText(traceGuideText, w / 2, y);
   } else {
-    // 🔸 여러 줄이면 위–아래로 균형 있게 배치
-    const totalHeight = lineHeight * (lines.length - 1);
-    lines.forEach((line, idx) => {
-      const y = h / 2 - totalHeight / 2 + idx * lineHeight;
+    // ✅ 긴 글: 여러 줄로 나눠서 그리기
+    // 줄 수에 따라 폰트 크기 자동 조정
+    let baseFontSize = (h / (lines.length + 1)) * 0.7;
+    if (baseFontSize > 80) baseFontSize = 80; // 너무 커지는 것 방지
+
+    lines.forEach((line, index) => {
+      let fontSize = baseFontSize;
+      traceCtx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
+
+      // 너무 길어서 양 옆이 잘리면 줄마다 조금씩 줄이기
+      let metrics = traceCtx.measureText(line);
+      const maxWidth = w * 0.9;
+      while (metrics.width > maxWidth && fontSize > 10) {
+        fontSize *= 0.9;
+        traceCtx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
+        metrics = traceCtx.measureText(line);
+      }
+
+      const lineHeight = h / (lines.length + 1);
+      const y = lineHeight * (index + 1);
+
       traceCtx.fillText(line, w / 2, y);
     });
   }
 
   traceCtx.restore();
 }
+
 
 
     // 지우기 버튼: 유저가 그린 부분만 삭제, 가이드는 다시 그림
