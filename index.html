@@ -849,24 +849,18 @@ const freeCard = document.getElementById("freeCard");
     // 탭 전환
     // ======================
     function setTab(tab) {
-      currentTab = tab;
-      tabButtons.forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.tab === tab);
-      });
+  currentTab = tab;
+  tabButtons.forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.tab === tab);
+  });
 
-      panelLetters.classList.toggle("hidden", tab !== "letters");
-      panelVowels.classList.toggle("hidden", tab !== "vowels");
-      panelWords.classList.toggle("hidden", tab !== "words");
-      panelSentences.classList.toggle("hidden", tab !== "sentences");
-      panelLongtext.classList.toggle("hidden", tab !== "longtext");
+  panelLetters.classList.toggle("hidden", tab !== "letters");
+  panelVowels.classList.toggle("hidden", tab !== "vowels");
+  panelWords.classList.toggle("hidden", tab !== "words");
+  panelSentences.classList.toggle("hidden", tab !== "sentences");
+  panelLongtext.classList.toggle("hidden", tab !== "longtext");
 
-      // 문장이 아닌 탭에서는 선택 정보 카드만 사용, 추가 패널 없음
-      if (!currentSelection) {
-        renderSelectionInfo(null);
-      }
-    }
-
-        // 🔹 긴 글 탭일 때: 필사 모드
+  // 🔹 긴 글 탭일 때: 필사 모드
   if (traceCard && freeCard) {
     const traceHeader = traceCard.querySelector(".canvas-header");
     const traceWrap = traceCard.querySelector(".canvas-wrap");
@@ -908,6 +902,15 @@ const freeCard = document.getElementById("freeCard");
       freeCard.style.flex = "";
     }
   }
+
+  // 선택이 아무것도 없으면 안내 문구
+  if (!currentSelection) {
+    renderSelectionInfo(null);
+  }
+}
+
+
+        
 
 
     tabButtons.forEach(btn => {
