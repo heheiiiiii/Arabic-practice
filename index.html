@@ -249,6 +249,17 @@
       align-items: center;
       gap: 4px;
     }
+      .guide-toggle-btn {
+  margin-top: 6px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  color: #374151;
+  display: none; /* 기본은 숨김, 긴 글 선택 시에만 보이게 */
+}
     .play-btn span {
       font-size: 0.9rem;
     }
@@ -532,6 +543,10 @@
             <div class="record-mini-status" id="recordStatus">대기 중입니다.</div>
           </div>
         </div>
+                <!-- 🔽 새로 추가: 긴 글 전용 연한 아랍어 토글 버튼 -->
+  <button id="longTextGuideToggleBtn" class="guide-toggle-btn" style="display:none;">
+    연한 아랍어: 켜짐
+  </button>
       </div>
 
       
@@ -539,7 +554,7 @@
 
       <!-- 캔버스 영역 -->
       <div class="canvas-section">
-        <div class="canvas-card">
+        <div class="canvas-card" id="traceCard">
           <div class="canvas-header">
             <span>1. 따라 쓰기</span>
             <span class="canvas-hint">연한 글자를 따라 그려 보세요.</span>
@@ -549,7 +564,7 @@
           </div>
         </div>
 
-        <div class="canvas-card">
+        <div class="canvas-card" id="freeCard">
           <div class="canvas-header">
             <span>2. 직접 쓰기</span>
             <span class="canvas-hint">자유롭게 연습해 보세요.</span>
@@ -764,6 +779,7 @@ const arabicForms = {
     // ======================
     let currentTab = "letters";
     let currentSelection = null; // { type, arabic, meaning, pron, forms }
+      let longTextGuideEnabled = true; // 긴 글에서 연한 아랍어 ON/OFF 상태
 
     // ======================
     // DOM 참조
@@ -781,6 +797,8 @@ const arabicForms = {
     const selExtra = document.getElementById("selExtra");
     const selForms = document.getElementById("selForms");
     const playSelectionBtn = document.getElementById("playSelectionBtn");
+      const longTextGuideToggleBtn = document.getElementById("longTextGuideToggleBtn");
+
 
         const recordCard = document.getElementById("recordCard");
     const recordStartBtn = document.getElementById("recordStartBtn");
@@ -816,6 +834,9 @@ diffButtons.forEach(btn => {
     const traceCanvas = document.getElementById("traceCanvas");
     const freeCanvas = document.getElementById("freeCanvas");
     const clearBtn = document.getElementById("clearBtn");
+      const traceCard = document.getElementById("traceCard");
+const freeCard = document.getElementById("freeCard");
+
 
     let traceCtx, freeCtx;
     let traceDrawing = false;
@@ -844,6 +865,50 @@ diffButtons.forEach(btn => {
         renderSelectionInfo(null);
       }
     }
+
+        // 🔹 긴 글 탭일 때: 필사 모드
+  if (traceCard && freeCard) {
+    const traceHeader = traceCard.querySelector(".canvas-header");
+    const traceWrap = traceCard.querySelector(".canvas-wrap");
+    const freeHeader = freeCard.querySelector(".canvas-header");
+    const freeWrap = freeCard.querySelector(".canvas-wrap");
+    const freeBottom = freeCard.querySelector(".bottom-bar");
+
+    if (tab === "longtext") {
+      // 위 카드: 필사
+      if (traceHeader) {
+        const spans = traceHeader.querySelectorAll("span");
+        if (spans[0]) spans[0].textContent = "필사";
+        if (spans[1]) spans[1].textContent = "위의 긴 글을 보고 그대로 써 보세요.";
+      }
+      if (traceWrap) {
+        traceWrap.style.display = "block";
+      }
+      traceCard.style.flex = "1 1 auto";
+
+      // 아래 카드: 캔버스는 숨기고, '모두 지우기'만 남김
+      if (freeHeader) freeHeader.style.display = "none";
+      if (freeWrap) freeWrap.style.display = "none";
+      if (freeBottom) freeBottom.style.display = "flex";
+      freeCard.style.flex = "0 0 auto"; // 높이를 최소로
+    } else {
+      // 다른 탭에서는 원래대로: 따라쓰기 + 직접쓰기
+      if (traceHeader) {
+        const spans = traceHeader.querySelectorAll("span");
+        if (spans[0]) spans[0].textContent = "1. 따라 쓰기";
+        if (spans[1]) spans[1].textContent = "연한 글자를 따라 그려 보세요.";
+      }
+      if (traceWrap) traceWrap.style.display = "block";
+
+      if (freeHeader) freeHeader.style.display = "";
+      if (freeWrap) freeWrap.style.display = "block";
+      if (freeBottom) freeBottom.style.display = "flex";
+
+      traceCard.style.flex = "";
+      freeCard.style.flex = "";
+    }
+  }
+
 
     tabButtons.forEach(btn => {
       btn.addEventListener("click", () => setTab(btn.dataset.tab));
@@ -1069,10 +1134,15 @@ diffButtons.forEach(btn => {
             longTextArabic: text.arabic,
             longTextKorean: text.korean
           };
-          renderSelectionInfo(currentSelection);
+         renderSelectionInfo(currentSelection);
 
-          // 긴 글은 따라쓰기를 자유롭게 하도록 가이드는 비움
-          updateTraceGuide("");
+  // 🔹 긴 글: 연한 아랍어 ON/OFF 상태에 따라 가이드 적용
+  if (longTextGuideEnabled) {
+    updateTraceGuide(text.arabic);
+  } else {
+    updateTraceGuide("");
+  }
+
         });
 
         longtextList.appendChild(div);
@@ -1084,91 +1154,109 @@ diffButtons.forEach(btn => {
     // 선택 정보 카드 렌더링
     // ======================
     function renderSelectionInfo(sel) {
-      if (!sel) {
-        selArabic.textContent = "아랍어 연습 사이트";
-        selType.textContent = "안내";
-        selExtra.innerHTML = "<span>왼쪽에서 자음·모음·단어·문장을 선택하면 이곳에 정보가 나타납니다.</span>";
-        selForms.classList.add("hidden");
-        playSelectionBtn.style.display = "inline-flex";
-        return;
-      }
-
-      selArabic.textContent = sel.arabic;
-      selType.textContent = sel.type;
-            const extraParts = [];
-      if (sel.meaning) {
-        extraParts.push(`<span>뜻: ${sel.meaning}</span>`);
-      }
-      if (sel.pron) {
-        extraParts.push(`<span>발음: ${sel.pron}</span>`);
-      }
-
-      // 긴 글인 경우: 본문과 번역을 아래에 블록으로 표시
-      if (sel.longTextArabic) {
-        let html = "";
-        if (extraParts.length > 0) {
-          html += `<div>${extraParts.join(" · ")}</div>`;
-        }
-        html += `<div style="margin-top:6px; font-size:0.9rem; line-height:1.7; direction:rtl; white-space:pre-line;">${sel.longTextArabic}</div>`;
-        if (sel.longTextKorean) {
-          html += `<div style="margin-top:6px; font-size:0.78rem; color:#374151; line-height:1.6; white-space:pre-line;">${sel.longTextKorean}</div>`;
-        }
-        selExtra.innerHTML = html;
-      } else {
-        // 기존 자음/모음/단어/문장용
-        selExtra.innerHTML = extraParts.join(" · ");
-      }
-
-
-            if (sel.forms) {
-        selForms.classList.remove("hidden");
-        selForms.innerHTML = `
-          <button type="button" class="selection-form-btn" onclick="selectFormVariant('isolated')">
-            <span class="form-label">단독형</span>
-            <span class="form-ar">${sel.forms.isolated}</span>
-          </button>
-          <button type="button" class="selection-form-btn" onclick="selectFormVariant('initial')">
-            <span class="form-label">어두형</span>
-            <span class="form-ar">${sel.forms.initial}</span>
-          </button>
-          <button type="button" class="selection-form-btn" onclick="selectFormVariant('medial')">
-            <span class="form-label">어중형</span>
-            <span class="form-ar">${sel.forms.medial}</span>
-          </button>
-          <button type="button" class="selection-form-btn" onclick="selectFormVariant('final')">
-            <span class="form-label">어말형</span>
-            <span class="form-ar">${sel.forms.final}</span>
-          </button>
-        `;
-           } else {
-        selForms.classList.add("hidden");
-      }
-
-      // 자음/모음이면 발음 버튼 숨기기, 그 외(단어/문장)는 보이기
-      if (sel.type === "자음" || sel.type === "모음") {
-        playSelectionBtn.style.display = "none";
-      } else {
-        playSelectionBtn.style.display = "inline-flex";
-      }
-
-// === 형태 선택 버튼 클릭 이벤트 ===
-setTimeout(() => {
-  document.querySelectorAll(".form-btn").forEach(btn => {
-    btn.onclick = () => {
-      const formType = btn.dataset.form;
-      if (!currentSelection || !currentSelection.arabic) return;
-
-      const char = currentSelection.arabic;
-      const forms = arabicForms[char];
-      if (!forms) return;
-
-      const selectedForm = forms[formType];
-      updateTraceGuide(selectedForm);
-    };
-  });
-}, 0);
-
+  if (!sel) {
+    selArabic.textContent = "아랍어 연습 사이트";
+    selType.textContent = "안내";
+    selExtra.innerHTML =
+      "<span>왼쪽에서 자음·모음·단어·문장을 선택하면 이곳에 정보가 나타납니다.</span>";
+    selForms.classList.add("hidden");
+    playSelectionBtn.style.display = "inline-flex";
+    if (longTextGuideToggleBtn) {
+      longTextGuideToggleBtn.style.display = "none";
     }
+    return;
+  }
+
+  selArabic.textContent = sel.arabic;
+  selType.textContent = sel.type;
+
+  const extraParts = [];
+  if (sel.meaning) {
+    extraParts.push(`<span>뜻: ${sel.meaning}</span>`);
+  }
+  if (sel.pron) {
+    extraParts.push(`<span>발음: ${sel.pron}</span>`);
+  }
+
+  // 🔹 긴 글인 경우: 한국어 본문만 보여주기
+  if (sel.longTextArabic) {
+    let html = "";
+
+    // 태그(예: "일상 동화 · 초급")는 작게 위에 한 줄
+    if (sel.meaning) {
+      html += `<div style="font-size:0.75rem; color:#6b7280; margin-bottom:4px;">${sel.meaning}</div>`;
+    }
+
+    // 한국어 전체 본문
+    if (sel.longTextKorean) {
+      html += `<div style="font-size:0.86rem; line-height:1.7; white-space:pre-line;">
+        ${sel.longTextKorean}
+      </div>`;
+    }
+
+    selExtra.innerHTML = html;
+
+    // 긴 글 전용: 연한 아랍어 토글 버튼 표시
+    if (longTextGuideToggleBtn) {
+      longTextGuideToggleBtn.style.display = "inline-flex";
+      longTextGuideToggleBtn.textContent = longTextGuideEnabled
+        ? "연한 아랍어: 켜짐"
+        : "연한 아랍어: 꺼짐";
+    }
+  } else {
+    // 🔹 자음/모음/단어/문장 (기존 방식 유지)
+    selExtra.innerHTML = extraParts.join(" · ");
+    if (longTextGuideToggleBtn) {
+      longTextGuideToggleBtn.style.display = "none";
+    }
+  }
+
+  // 자음 형태 버튼
+  if (sel.forms) {
+    selForms.classList.remove("hidden");
+    selForms.innerHTML = `
+      <button type="button" class="selection-form-btn" onclick="selectFormVariant('isolated')">
+        <span class="form-label">단독형</span>
+        <span class="form-ar">${sel.forms.isolated}</span>
+      </button>
+      <button type="button" class="selection-form-btn" onclick="selectFormVariant('initial')">
+        <span class="form-label">어두형</span>
+        <span class="form-ar">${sel.forms.initial}</span>
+      </button>
+      <button type="button" class="selection-form-btn" onclick="selectFormVariant('medial')">
+        <span class="form-label">중간형</span>
+        <span class="form-ar">${sel.forms.medial}</span>
+      </button>
+      <button type="button" class="selection-form-btn" onclick="selectFormVariant('final')">
+        <span class="form-label">어말형</span>
+        <span class="form-ar">${sel.forms.final}</span>
+      </button>
+    `;
+  } else {
+    selForms.classList.add("hidden");
+  }
+}
+
+      // 🔹 긴 글용 연한 아랍어 ON/OFF 버튼 이벤트
+if (longTextGuideToggleBtn) {
+  longTextGuideToggleBtn.addEventListener("click", () => {
+    longTextGuideEnabled = !longTextGuideEnabled;
+    longTextGuideToggleBtn.textContent = longTextGuideEnabled
+      ? "연한 아랍어: 켜짐"
+      : "연한 아랍어: 꺼짐";
+
+    // 긴 글 선택 중일 때만 가이드 갱신
+    if (currentSelection && currentSelection.type === "긴 글") {
+      if (longTextGuideEnabled && currentSelection.longTextArabic) {
+        updateTraceGuide(currentSelection.longTextArabic);
+      } else {
+        updateTraceGuide("");
+      }
+    }
+  });
+}
+
+
 
 
         function selectFormVariant(which) {
@@ -1224,7 +1312,7 @@ setTimeout(() => {
   // 자음/모음은 발음 재생하지 않음
   if (currentSelection.type === "자음" || currentSelection.type === "모음") return;
 
-  // 긴 글이면 longTextArabic(본문), 그 외에는 arabic(글자/단어/문장) 읽기
+  // 🔹 긴 글이면 전체 아랍어 본문, 아니면 선택된 짧은 아랍어(글자/단어/문장)
   const textToSpeak =
     currentSelection.longTextArabic && currentSelection.longTextArabic.trim()
       ? currentSelection.longTextArabic
@@ -1234,6 +1322,7 @@ setTimeout(() => {
 
   speakArabic(textToSpeak);
 });
+
 
 
     // ======================
