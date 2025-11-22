@@ -1057,7 +1057,7 @@ function updateTraceGuide(text) {
     let recordedAudioUrl = null;
     let playbackAudio = null;
 
-    function setRecordUi(state) {
+        function setRecordUi(state) {
       // state: 'idle' | 'recording' | 'ready'
       if (!recordStartBtn || !recordStopBtn || !recordPlayBtn || !recordStatus) return;
 
@@ -1065,20 +1065,26 @@ function updateTraceGuide(text) {
         recordStartBtn.disabled = true;
         recordStopBtn.disabled = false;
         recordPlayBtn.disabled = true;
+        // 재생 버튼은 아직 사용 불가 + 기본 텍스트로 유지
+        recordPlayBtn.textContent = "▶ 재생";
         recordStatus.textContent = "녹음 중… 읽고 싶은 문장을 말해 보세요.";
       } else if (state === "ready") {
         recordStartBtn.disabled = false;
         recordStopBtn.disabled = true;
         recordPlayBtn.disabled = false;
+        // 녹음은 끝났고, 재생 대기 상태이므로 ▶ 재생으로 돌려두기
+        recordPlayBtn.textContent = "▶ 재생";
         recordStatus.textContent = "녹음 완료! 재생 버튼을 눌러 들어보세요.";
       } else {
         // idle
         recordStartBtn.disabled = false;
         recordStopBtn.disabled = true;
         recordPlayBtn.disabled = true;
+        recordPlayBtn.textContent = "▶ 재생";
         recordStatus.textContent = "대기 중입니다.";
       }
     }
+
 
     async function startRecording() {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -1119,14 +1125,15 @@ function updateTraceGuide(text) {
       }
     }
 
-        function playRecording() {
+            function playRecording() {
       if (!recordedAudioUrl) return;
 
-      // 이미 재생 중이면 → 멈추고 처음으로
+      // 이미 재생 중이면 → 멈추고, 버튼 텍스트를 다시 "▶ 재생"으로
       if (playbackAudio) {
         playbackAudio.pause();
         playbackAudio.currentTime = 0;
         playbackAudio = null;
+        recordPlayBtn.textContent = "▶ 재생";
         recordStatus.textContent = "재생을 멈췄습니다.";
         return;
       }
@@ -1135,11 +1142,17 @@ function updateTraceGuide(text) {
       playbackAudio = new Audio(recordedAudioUrl);
       playbackAudio.onended = () => {
         playbackAudio = null;
+        // 재생이 자연스럽게 끝났을 때도 버튼을 다시 ▶ 재생으로
+        recordPlayBtn.textContent = "▶ 재생";
         recordStatus.textContent = "재생이 끝났습니다.";
       };
+
       playbackAudio.play();
+      // 재생 시작 시 버튼을 ⏹ 멈춤으로 변경
+      recordPlayBtn.textContent = "⏹ 멈춤";
       recordStatus.textContent = "녹음된 소리를 재생 중입니다.";
     }
+
 
 
     // 녹음 버튼 이벤트 연결
