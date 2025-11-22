@@ -437,8 +437,16 @@
             <span>왼쪽에서 자음·모음·단어·문장을 선택하면 이곳에 정보가 나타납니다.</span>
           </div>
           <div class="selection-forms hidden" id="selForms">
-            <!-- 예: 단독형: ـب / 어두형: بـ ... -->
-          </div>
+  <div class="form-title">자음 형태 선택</div>
+  <div class="form-buttons">
+    <button class="form-btn" data-form="isolated">단독형</button>
+    <button class="form-btn" data-form="initial">어두형</button>
+    <button class="form-btn" data-form="medial">중간형</button>
+    <button class="form-btn" data-form="final">어말형</button>
+  </div>
+</div>
+
+
         </div>
 
         <!-- 오른쪽: 발음 듣기 + 녹음 버튼들 -->
@@ -523,6 +531,28 @@
       { char: "و", name: "wāw", sound: "w", type: "자음", forms: { isolated: "و", initial: "و", medial: "ـو", final: "ـو" } },
       { char: "ي", name: "yāʼ", sound: "y", type: "자음", forms: { isolated: "ي", initial: "يـ", medial: "ـيـ", final: "ـي" } },
     ];
+
+    // 자음 형태 정보
+const arabicForms = {
+  "ا": { isolated: "ا", initial: "ا", medial: "ـا", final: "ـا" },
+  "ب": { isolated: "ب", initial: "بـ", medial: "ـبـ", final: "ـب" },
+  "ت": { isolated: "ت", initial: "تـ", medial: "ـتـ", final: "ـت" },
+  "ث": { isolated: "ث", initial: "ثـ", medial: "ـثـ", final: "ـث" },
+  "ج": { isolated: "ج", initial: "جـ", medial: "ـجـ", final: "ـج" },
+  "ح": { isolated: "ح", initial: "حـ", medial: "ـحـ", final: "ـح" },
+  "خ": { isolated: "خ", initial: "خـ", medial: "ـخـ", final: "ـخ" },
+  "د": { isolated: "د", initial: "د", medial: "ـد", final: "ـد" },
+  "ذ": { isolated: "ذ", initial: "ذ", medial: "ـذ", final: "ـذ" },
+  "ر": { isolated: "ر", initial: "ر", medial: "ـر", final: "ـر" },
+  "ز": { isolated: "ز", initial: "ز", medial: "ـز", final: "ـز" },
+  "س": { isolated: "س", initial: "سـ", medial: "ـسـ", final: "ـس" },
+  "ش": { isolated: "ش", initial: "شـ", medial: "ـشـ", final: "ـش" },
+  "ص": { isolated: "ص", initial: "صـ", medial: "ـصـ", final: "ـص" },
+  "ض": { isolated: "ض", initial: "ضـ", medial: "ـضـ", final: "ـض" },
+  "ط": { isolated: "ط", initial: "طـ", medial: "ـطـ", final: "ـط" },
+  "ظ": { isolated: "ظ", initial: "ظـ", medial: "ـظـ", final: "ـظ" },
+};
+
 
     const vowels = [
       { char: "َ", name: "fatḥa", sound: "a", type: "모음" },
@@ -874,8 +904,42 @@
       } else {
         selForms.classList.add("hidden");
       }
+// === 형태 선택 버튼 클릭 이벤트 ===
+setTimeout(() => {
+  document.querySelectorAll(".form-btn").forEach(btn => {
+    btn.onclick = () => {
+      const formType = btn.dataset.form;
+      if (!currentSelection || !currentSelection.arabic) return;
+
+      const char = currentSelection.arabic;
+      const forms = arabicForms[char];
+      if (!forms) return;
+
+      const selectedForm = forms[formType];
+      updateTraceGuide(selectedForm);
+    };
+  });
+}, 0);
 
     }
+
+    // 형태 선택 버튼 클릭
+document.querySelectorAll(".form-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const formType = btn.dataset.form;
+    if (!currentSelectedArabic) return;
+
+    // 현재 선택된 자음의 해당 형태 가져오기
+    const selectedForm =
+      arabicForms[currentSelectedArabic] &&
+      arabicForms[currentSelectedArabic][formType];
+
+    if (selectedForm) {
+      updateTraceGuide(selectedForm);
+    }
+  });
+});
+
 
         function selectFormVariant(which) {
       if (!currentSelection || !currentSelection.forms) return;
