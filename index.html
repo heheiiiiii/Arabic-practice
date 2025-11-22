@@ -903,6 +903,13 @@ const arabicForms = {
         `;
       } else {
         selForms.classList.add("hidden");
+
+              if (sel.type === "letter" || sel.type === "vowel") {
+   playSelectionBtn.style.display = "none";
+} else {
+   playSelectionBtn.style.display = "inline-flex";
+}
+              
       }
 // === 형태 선택 버튼 클릭 이벤트 ===
 setTimeout(() => {
