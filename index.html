@@ -446,51 +446,6 @@
   line-height: 1.15;
 }
 
-.selection-info-card {
-  margin-bottom: 8px;
-}
-
-.selection-info-header {
-  font-size: 0.9rem;
-  color: #6b7280;
-  margin-bottom: 4px;
-}
-
-.selection-info-ar {
-  font-size: 1.4rem;
-  text-align: right;
-  direction: rtl;
-  margin-bottom: 4px;
-}
-
-.selection-info-kr {
-  font-size: 0.9rem;
-  color: #4b5563;
-}
-
-.selection-info-actions {
-  margin-top: 4px;
-  display: flex;
-  justify-content: flex-end;
-}
-.canvas-title-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.canvas-title-right {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.small-clear-btn {
-  padding: 2px 8px;
-  font-size: 0.7rem;
-}
-
-
   </style>
 </head>
 <body>
@@ -617,41 +572,13 @@
         </div>
       </div>
 
-      <!-- 🟦 선택한 항목 정보 카드 (여기에 붙여 넣기!) -->
-<div class="card selection-info-card" id="selectedInfoCard">
-  <div class="selection-info-header">
-    <span id="selectedInfoLabel">선택한 항목</span>
-  </div>
-  <div class="selection-info-body">
-    <div class="selection-info-ar" id="selectedInfoArabic">
-      왼쪽에서 글자·단어·문장을 선택해 주세요.
-    </div>
-    <div class="selection-info-kr" id="selectedInfoKorean"></div>
-  </div>
-  <div class="selection-info-actions">
-    <button id="selectedInfoPlayBtn" type="button" class="btn-secondary">
-      🔊 발음 듣기
-    </button>
-  </div>
-</div>
-      
       <!-- 따라쓰기 캔버스 (이제 여기에서도 글씨 쓰기 가능) -->
       <div class="canvas-wrapper">
         <div class="canvas-title-row">
-    <span>따라 쓰기 (연한 글자를 따라 그려보세요)</span>
-
-    <!-- 오른쪽 영역: 현재 선택 라벨 + 지우기 버튼 -->
-    <div class="canvas-title-right">
-      <span class="small-label" id="currentTextLabel">
-        선택된 글자/단어/문장 없음
-      </span>
-      <button id="clearTraceBtn" type="button" class="btn-secondary small-clear-btn">
-        지우기
-      </button>
-    </div>
-  </div>
-
-  <canvas id="traceCanvas"></canvas>
+          <span>따라 쓰기 (연한 글자를 따라 그려보세요)</span>
+          <span class="small-label" id="currentTextLabel">선택된 글자/단어/문장 없음</span>
+        </div>
+        <canvas id="traceCanvas"></canvas>
       </div>
 
       <!-- 자유 쓰기 캔버스 -->
@@ -917,45 +844,6 @@
       { text: "أَرَاكَ لَاحِقًا!", korean: "나중에 또 보자!", category: "daily" }
     ];
 
-let lastTraceText = "";
-let lastTraceLabel = "";
-    
-
-    // 현재 선택된 항목 정보 (자음 / 모음 / 단어 / 문장)
-let currentSelection = {
-  type: null,   // 'letter' | 'vowel' | 'word' | 'sentence'
-  arabic: "",
-  korean: ""
-};
-
-function updateSelectedInfo(labelOverride) {
-  const labelEl = document.getElementById("selectedInfoLabel");
-  const arEl = document.getElementById("selectedInfoArabic");
-  const koEl = document.getElementById("selectedInfoKorean");
-  const playBtn = document.getElementById("selectedInfoPlayBtn");
-
-  if (!currentSelection.arabic) {
-    labelEl.textContent = "선택한 항목";
-    arEl.textContent = "왼쪽에서 글자·단어·문장을 선택해 주세요.";
-    koEl.textContent = "";
-    playBtn.disabled = true;
-    return;
-  }
-
-  labelEl.textContent = labelOverride || "선택한 항목";
-  arEl.textContent = currentSelection.arabic;
-  koEl.textContent = currentSelection.korean || "";
-  playBtn.disabled = false;
-}
-
-// 선택한 항목 발음 듣기
-document.getElementById("selectedInfoPlayBtn").onclick = () => {
-  if (currentSelection.arabic) {
-    speakArabic(currentSelection.arabic);
-  }
-};
-
-
     // ====== 상태 변수 ======
     let currentTab = "letters";
     let currentCategoryWord = "color";
@@ -976,12 +864,6 @@ document.getElementById("selectedInfoPlayBtn").onclick = () => {
     document.addEventListener("DOMContentLoaded", () => {
       traceCanvas = document.getElementById("traceCanvas");
       drawCanvas = document.getElementById("drawCanvas");
-    
-// 지우기 버튼 이벤트 연결
-const clearBtn = document.getElementById("clearTraceBtn");
-if (clearBtn) {
-  clearBtn.addEventListener("click", clearTraceCanvas);
-}
 
       initLetters();
       initVowels();
@@ -1036,7 +918,8 @@ if (clearBtn) {
 
 
     // ====== 자음/모음 초기화 ======
-    function initLetters() {const container = document.getElementById("lettersList");
+    function initLetters() {
+  const container = document.getElementById("lettersList");
   container.innerHTML = "";
   consonants.forEach((letter) => {
     const div = document.createElement("div");
@@ -1058,17 +941,7 @@ if (clearBtn) {
     div.appendChild(nameLine);
     div.appendChild(soundLine);
 
-    // 🔺 수정된 클릭 이벤트
     div.onclick = () => {
-      // 선택 정보 카드에 표시할 내용
-      currentSelection = {
-        type: "letter",
-        arabic: letter.char,
-        korean: `${letter.name} / 발음: ${letter.sound}`
-      };
-      updateSelectedInfo("선택한 자음");
-
-      // 따라쓰기 캔버스 텍스트 + 발음
       setTraceText(letter.char, "자음: " + letter.name);
       speakArabic(letter.char);
     };
@@ -1079,29 +952,18 @@ if (clearBtn) {
 
     function initVowels() {
       const container = document.getElementById("vowelsList");
-  container.innerHTML = "";
-  vowels.forEach((v) => {
-    const div = document.createElement("div");
-    div.className = "list-item small-text";
-    div.textContent = v.mark;
-    div.title = v.name + " - " + v.desc;
-
-    div.onclick = () => {
-      // 선택 정보 카드용 데이터
-      currentSelection = {
-        type: "vowel",
-        arabic: v.mark,
-        korean: v.name + (v.desc ? " · " + v.desc : "")
-      };
-      updateSelectedInfo("선택한 모음");
-
-      // 따라쓰기 + 발음
-      setTraceText(v.mark, "모음 " + v.name);
-      speakArabic(v.mark);
-    };
-
-    container.appendChild(div);
-  });
+      container.innerHTML = "";
+      vowels.forEach((v) => {
+        const div = document.createElement("div");
+        div.className = "list-item small-text";
+        div.textContent = v.mark;
+        div.title = v.name + " - " + v.desc;
+        div.onclick = () => {
+          setTraceText(v.mark, "모음 " + v.name);
+          speakArabic(v.mark);
+        };
+        container.appendChild(div);
+      });
     }
 
     // ====== 단어 영역 ======
@@ -1125,69 +987,59 @@ if (clearBtn) {
       });
     }
 
-    function renderWordList() {const list = document.getElementById("wordList");
-  list.innerHTML = "";
-  const all = [...baseWords, ...customWords];
-  const filtered = all.filter((w) => w.category === currentCategoryWord);
-  if (filtered.length === 0) {
-    const empty = document.createElement("p");
-    empty.className = "small-label";
-    empty.textContent =
-      currentCategoryWord === "custom"
-        ? "아직 추가한 단어가 없어요."
-        : "이 카테고리의 단어가 없습니다.";
-    list.appendChild(empty);
-    return;
-  }
-  filtered.forEach((w) => {
-    const card = document.createElement("div");
-    card.className = "word-card";
+    function renderWordList() {
+      const list = document.getElementById("wordList");
+      list.innerHTML = "";
+      const all = [...baseWords, ...customWords];
+      const filtered = all.filter((w) => w.category === currentCategoryWord);
+      if (filtered.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "small-label";
+        empty.textContent =
+          currentCategoryWord === "custom"
+            ? "아직 추가한 단어가 없어요."
+            : "이 카테고리의 단어가 없습니다.";
+        list.appendChild(empty);
+        return;
+      }
+      filtered.forEach((w) => {
+        const card = document.createElement("div");
+        card.className = "word-card";
+        card.onclick = () => {
+          setTraceText(w.letter, "단어: " + (w.korean ?? ""));
+          speakArabic(w.letter);
+        };
 
-    // 🔺 수정된 클릭 이벤트
-    card.onclick = () => {
-      currentSelection = {
-        type: "word",
-        arabic: w.letter,
-        korean:
-          (w.korean ?? "") +
-          (w.roman ? " · 발음: " + w.roman : "")
-      };
-      updateSelectedInfo("선택한 단어");
+        const row = document.createElement("div");
+        row.className = "word-main-row";
 
-      setTraceText(w.letter, "단어: " + (w.korean ?? ""));
-      speakArabic(w.letter);
-    };
+        const arSpan = document.createElement("div");
+        arSpan.className = "word-ar";
+        arSpan.textContent = w.letter;
 
-    const row = document.createElement("div");
-    row.className = "word-main-row";
+        const koSpan = document.createElement("div");
+        koSpan.style.fontSize = "0.8rem";
+        koSpan.textContent = w.korean ?? "";
 
-    const arSpan = document.createElement("div");
-    arSpan.className = "word-ar";
-    arSpan.textContent = w.letter;
+        row.appendChild(arSpan);
+        row.appendChild(koSpan);
 
-    const koSpan = document.createElement("div");
-    koSpan.style.fontSize = "0.8rem";
-    koSpan.textContent = w.korean ?? "";
+        const meta = document.createElement("div");
+        meta.className = "word-meta";
+        if (w.roman) {
+          const r = document.createElement("span");
+          r.textContent = w.roman;
+          meta.appendChild(r);
+        }
+        const cat = document.createElement("span");
+        cat.textContent =
+          wordCategories.find((c) => c.id === w.category)?.label ?? "";
+        meta.appendChild(cat);
 
-    row.appendChild(arSpan);
-    row.appendChild(koSpan);
-
-    const meta = document.createElement("div");
-    meta.className = "word-meta";
-    if (w.roman) {
-      const r = document.createElement("span");
-      r.textContent = w.roman;
-      meta.appendChild(r);
-    }
-    const cat = document.createElement("span");
-    cat.textContent =
-      wordCategories.find((c) => c.id === w.category)?.label ?? "";
-    meta.appendChild(cat);
-
-    card.appendChild(row);
-    card.appendChild(meta);
-    list.appendChild(card);
-  });
+        card.appendChild(row);
+        card.appendChild(meta);
+        list.appendChild(card);
+      });
     }
 
     function addCustomWord() {
@@ -1277,29 +1129,16 @@ if (clearBtn) {
       });
     }
 
-    function selectSentence(s) {currentSentence = s;
-
-  // 선택 정보 카드 업데이트
-  currentSelection = {
-    type: "sentence",
-    arabic: s.text,
-    korean: s.korean
-  };
-  updateSelectedInfo("선택한 문장");
-
-  // 문장 연습 박스 표시
-  const box = document.getElementById("sentencePracticeBox");
-  const ar = document.getElementById("practiceSentenceAr");
-  const kr = document.getElementById("practiceSentenceKr");
-  box.classList.remove("hidden");
-  ar.textContent = s.text;
-  kr.textContent = s.korean;
-
-  // 따라쓰기에도 같은 문장 표시
-  setTraceText(s.text, "문장 연습");
-
-  // 녹음 패널 표시
-  document.getElementById("recordPanel").classList.remove("hidden");
+    function selectSentence(s) {
+      currentSentence = s;
+      const box = document.getElementById("sentencePracticeBox");
+      const ar = document.getElementById("practiceSentenceAr");
+      const kr = document.getElementById("practiceSentenceKr");
+      box.classList.remove("hidden");
+      ar.textContent = s.text;
+      kr.textContent = s.korean;
+      setTraceText(s.text, "문장 연습");
+      document.getElementById("recordPanel").classList.remove("hidden");
     }
 
     function playCurrentSentence() {
@@ -1344,47 +1183,13 @@ if (clearBtn) {
     }
 
     function setTraceText(text, labelSource) {
-      // 1) 마지막 텍스트/라벨 기억
-  lastTraceText = text || "";
-  lastTraceLabel = subtitle || "선택된 글자/단어/문장 없음";
-
-  // 2) 라벨 업데이트
-  const label = document.getElementById("currentTextLabel");
-  if (label) {
-    label.textContent = lastTraceLabel;
-  }
-
-  // 3) 캔버스에 연한 글씨 다시 그리기
-  if (!traceCanvas || !traceCtx) return;
-
-  // 전체 지우고
-  traceCtx.clearRect(0, 0, traceCanvas.width, traceCanvas.height);
-
-  if (!lastTraceText) return;
-
-  // 연한 글씨(가이드) 그리기
-  traceCtx.save();
-  traceCtx.globalAlpha = 0.08; // 연하게
-  traceCtx.fillStyle = "#111827";
-  traceCtx.textAlign = "center";
-  traceCtx.textBaseline = "middle";
-
-  // 글자 크기는 캔버스 높이에 맞게
-  const fontSize = traceCanvas.height * 0.6;
-  traceCtx.font = fontSize + "px 'Scheherazade New', system-ui";
-
-  traceCtx.fillText(lastTraceText, traceCanvas.width / 2, traceCanvas.height / 2);
-  traceCtx.restore();
+      currentTraceText = text;
+      const label = document.getElementById("currentTextLabel");
+      label.textContent = labelSource
+        ? labelSource + " · " + text
+        : text || "선택된 글자/단어/문장 없음";
+      drawTraceSample(text);
     }
-    function clearTraceCanvas() {
-  if (!traceCanvas || !traceCtx) return;
-
-  traceCtx.clearRect(0, 0, traceCanvas.width, traceCanvas.height);
-
-  if (lastTraceText) {
-    setTraceText(lastTraceText, lastTraceLabel);
-  }
-}
 
     function drawTraceSample(text) {
       if (!traceCanvas) return;
