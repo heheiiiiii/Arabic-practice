@@ -653,7 +653,7 @@ const arabicForms = {
     
       
       weather: [
-        { arabic: "الطَّقْس", pron: "aṭ-ṭaqs", meaning: "날씨" }
+        { arabic: "الطَّقْس", pron: "aṭ-ṭaqs", meaning: "날씨" },
         { arabic: "مَطَرٌ", pron: "maṭar", meaning: "비" },
   { arabic: "ثَلْجٌ", pron: "thalj", meaning: "눈(snow)" },
   { arabic: "رِيحٌ", pron: "rīḥ", meaning: "바람" },
@@ -1169,23 +1169,6 @@ setTimeout(() => {
 }, 0);
 
     }
-
-    // 형태 선택 버튼 클릭
-document.querySelectorAll(".form-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const formType = btn.dataset.form;
-    if (!currentSelectedArabic) return;
-
-    // 현재 선택된 자음의 해당 형태 가져오기
-    const selectedForm =
-      arabicForms[currentSelectedArabic] &&
-      arabicForms[currentSelectedArabic][formType];
-
-    if (selectedForm) {
-      updateTraceGuide(selectedForm);
-    }
-  });
-});
 
 
         function selectFormVariant(which) {
