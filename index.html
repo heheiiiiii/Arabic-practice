@@ -143,6 +143,30 @@
       gap: 10px;
       min-height: 64px;
     }
+        .selection-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+    .record-mini {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      align-items: flex-end;
+    }
+    .record-mini-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      justify-content: flex-end;
+    }
+    .record-mini-status {
+      font-size: 0.7rem;
+      color: #6b7280;
+      text-align: right;
+    }
+
     .selection-main {
       display: flex;
       flex-direction: column;
@@ -403,7 +427,7 @@
     <!-- 오른쪽 패널 -->
     <section class="content-panel">
       <!-- 선택 정보 카드 -->
-      <div class="selection-card" id="selectionCard">
+            <div class="selection-card" id="selectionCard">
         <div class="selection-main">
           <div class="selection-top-line">
             <div class="selection-ar" id="selArabic">아랍어 연습 사이트</div>
@@ -416,21 +440,26 @@
             <!-- 예: 단독형: ـب / 어두형: بـ ... -->
           </div>
         </div>
-        <button class="play-btn" id="playSelectionBtn">
-          <span>🔊</span> 발음 듣기
-        </button>
-      </div>
-      
-      <div class="record-card" id="recordCard">
-        <div class="record-title">발음 녹음 연습</div>
-        <div class="record-sub">현재 선택된 자음·단어·문장을 소리 내어 읽고, 내 발음을 들어보세요.</div>
-        <div class="record-buttons">
-          <button type="button" class="record-btn" id="recordStartBtn">● 녹음</button>
-          <button type="button" class="record-btn" id="recordStopBtn">■ 정지</button>
-          <button type="button" class="record-btn" id="recordPlayBtn">▶ 재생</button>
+
+        <!-- 오른쪽: 발음 듣기 + 녹음 버튼들 -->
+        <div class="selection-right">
+          <button class="play-btn" id="playSelectionBtn">
+            <span>🔊</span> 발음 듣기
+          </button>
+
+          <div class="record-mini">
+            <div class="record-mini-buttons">
+              <button type="button" class="record-btn" id="recordStartBtn">● 녹음</button>
+              <button type="button" class="record-btn" id="recordStopBtn">■ 정지</button>
+              <button type="button" class="record-btn" id="recordPlayBtn">▶ 재생</button>
+            </div>
+            <div class="record-mini-status" id="recordStatus">대기 중입니다.</div>
+          </div>
         </div>
-        <div class="record-status" id="recordStatus">대기 중입니다.</div>
       </div>
+
+      
+      
 
       <!-- 캔버스 영역 -->
       <div class="canvas-section">
@@ -1026,6 +1055,7 @@ function updateTraceGuide(text) {
     let mediaRecorder = null;
     let recordedChunks = [];
     let recordedAudioUrl = null;
+    let playbackAudio = null;
 
     function setRecordUi(state) {
       // state: 'idle' | 'recording' | 'ready'
@@ -1089,11 +1119,28 @@ function updateTraceGuide(text) {
       }
     }
 
-    function playRecording() {
+        function playRecording() {
       if (!recordedAudioUrl) return;
-      const audio = new Audio(recordedAudioUrl);
-      audio.play();
+
+      // 이미 재생 중이면 → 멈추고 처음으로
+      if (playbackAudio) {
+        playbackAudio.pause();
+        playbackAudio.currentTime = 0;
+        playbackAudio = null;
+        recordStatus.textContent = "재생을 멈췄습니다.";
+        return;
+      }
+
+      // 새로 재생 시작
+      playbackAudio = new Audio(recordedAudioUrl);
+      playbackAudio.onended = () => {
+        playbackAudio = null;
+        recordStatus.textContent = "재생이 끝났습니다.";
+      };
+      playbackAudio.play();
+      recordStatus.textContent = "녹음된 소리를 재생 중입니다.";
     }
+
 
     // 녹음 버튼 이벤트 연결
     if (recordStartBtn && recordStopBtn && recordPlayBtn) {
