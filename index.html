@@ -1445,57 +1445,76 @@ function updateTraceGuide(text) {
   if (!traceCtx || !traceCanvas) return;
 
   const canvas = traceCanvas;
-  traceCtx.clearRect(0, 0, canvas.width, canvas.height);
+  const ctx = traceCtx;
+
+  // 캔버스 지우기
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   if (!traceGuideText) return;
 
-  // ✅ 1) 줄 나누기 (\n 기준) – 긴 글에서는 문장별로 들어 있음
+  ctx.save();
+  ctx.globalAlpha = 0.12;
+  ctx.fillStyle = "#9ca3af";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.direction = "rtl";
+
+  // 🔹 긴 글인지, 한 줄짜리(자음/단어/짧은 문장)인지 구분
   const rawLines = traceGuideText.split("\n");
   const lines = rawLines.map(l => l.trim()).filter(l => l.length > 0);
 
-  const w = canvas.width;
-  const h = canvas.height;
+  const cw = canvas.width;
+  const ch = canvas.height;
 
-  traceCtx.save();
-  traceCtx.globalAlpha = 0.12;
-  traceCtx.fillStyle = "#9ca3af";
-  traceCtx.textAlign = "center";
-  traceCtx.textBaseline = "middle";
-  traceCtx.direction = "rtl";
-
+  // 한 줄짜리는 예전처럼 크게 보여주기
   if (lines.length <= 1) {
-    // ✅ 자음·단어·짧은 문장: 기존처럼 크게 한 줄만
-    const fontSize = Math.min(w, h) * 0.6;
-    traceCtx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
-    const y = h / 2;
-    traceCtx.fillText(traceGuideText, w / 2, y);
-  } else {
-    // ✅ 긴 글: 여러 줄로 나눠서 그리기
-    // 줄 수에 따라 폰트 크기 자동 조정
-    let baseFontSize = (h / (lines.length + 1)) * 0.7;
-    if (baseFontSize > 80) baseFontSize = 80; // 너무 커지는 것 방지
-
-    lines.forEach((line, index) => {
-      let fontSize = baseFontSize;
-      traceCtx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
-
-      // 너무 길어서 양 옆이 잘리면 줄마다 조금씩 줄이기
-      let metrics = traceCtx.measureText(line);
-      const maxWidth = w * 0.9;
-      while (metrics.width > maxWidth && fontSize > 10) {
-        fontSize *= 0.9;
-        traceCtx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
-        metrics = traceCtx.measureText(line);
-      }
-
-      const lineHeight = h / (lines.length + 1);
-      const y = lineHeight * (index + 1);
-
-      traceCtx.fillText(line, w / 2, y);
-    });
+    const fontSize = Math.min(cw, ch) * 0.6;
+    ctx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
+    ctx.fillText(traceGuideText, cw / 2, ch / 2);
+    ctx.restore();
+    return;
   }
 
-  traceCtx.restore();
+  // 🔹 긴 글(여러 줄)일 때: 전체가 화면 안에 들어오도록 폰트 크기 자동 조정
+  let fontSize = Math.min(cw / 25, ch / (lines.length * 2)); // 시작 크기 (대략 작게)
+  if (fontSize > 40) fontSize = 40; // 너무 크면 제한
+  if (fontSize < 12) fontSize = 12; // 너무 작아도 제한
+
+  while (true) {
+    ctx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
+
+    // 가장 긴 줄의 폭 계산
+    let maxLineWidth = 0;
+    for (const line of lines) {
+      const w = ctx.measureText(line).width;
+      if (w > maxLineWidth) maxLineWidth = w;
+    }
+
+    const lineHeight = fontSize * 1.8;
+    const totalHeight = lineHeight * (lines.length - 1);
+
+    const fitsWidth = maxLineWidth <= cw * 0.9;
+    const fitsHeight = totalHeight <= ch * 0.8;
+
+    if (fitsWidth && fitsHeight) break;
+
+    fontSize *= 0.9; // 조금씩 줄이기
+    if (fontSize < 10) break;
+  }
+
+  // 🔹 계산된 폰트 크기로 여러 줄 그리기 (위–아래 중앙 정렬)
+  ctx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
+  const lineHeightFinal = fontSize * 1.8;
+  const totalHeightFinal = lineHeightFinal * (lines.length - 1);
+  const centerY = ch / 2;
+
+  lines.forEach((line, idx) => {
+    const y = centerY - totalHeightFinal / 2 + idx * lineHeightFinal;
+    ctx.fillText(line, cw / 2, y);
+  });
+
+  ctx.restore();
 }
+
 
 
 
