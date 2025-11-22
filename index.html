@@ -188,6 +188,26 @@
     .selection-form-label {
       color: #9ca3af;
     }
+        .selection-form-btn {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      cursor: pointer;
+      font-size: 0.7rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .selection-form-btn .form-label {
+      color: #9ca3af;
+    }
+    .selection-form-btn .form-ar {
+      direction: rtl;
+      font-family: "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif;
+      font-size: 1.1rem;
+    }
+
     .play-btn {
       border-radius: 999px;
       border: none;
@@ -203,6 +223,48 @@
     .play-btn span {
       font-size: 0.9rem;
     }
+        .record-card {
+      background: white;
+      border-radius: 14px;
+      border: 1px solid #e5e7eb;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .record-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #374151;
+    }
+    .record-sub {
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+    .record-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .record-btn {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.8rem;
+      cursor: pointer;
+      background: #e5e7eb;
+      color: #111827;
+    }
+    .record-btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+    .record-status {
+      font-size: 0.75rem;
+      color: #4b5563;
+    }
+
 
     /* 캔버스 영역 */
     .canvas-section {
@@ -358,6 +420,17 @@
           <span>🔊</span> 발음 듣기
         </button>
       </div>
+      
+      <div class="record-card" id="recordCard">
+        <div class="record-title">발음 녹음 연습</div>
+        <div class="record-sub">현재 선택된 자음·단어·문장을 소리 내어 읽고, 내 발음을 들어보세요.</div>
+        <div class="record-buttons">
+          <button type="button" class="record-btn" id="recordStartBtn">● 녹음</button>
+          <button type="button" class="record-btn" id="recordStopBtn">■ 정지</button>
+          <button type="button" class="record-btn" id="recordPlayBtn">▶ 재생</button>
+        </div>
+        <div class="record-status" id="recordStatus">대기 중입니다.</div>
+      </div>
 
       <!-- 캔버스 영역 -->
       <div class="canvas-section">
@@ -502,6 +575,13 @@
     const selExtra = document.getElementById("selExtra");
     const selForms = document.getElementById("selForms");
     const playSelectionBtn = document.getElementById("playSelectionBtn");
+
+        const recordCard = document.getElementById("recordCard");
+    const recordStartBtn = document.getElementById("recordStartBtn");
+    const recordStopBtn = document.getElementById("recordStopBtn");
+    const recordPlayBtn = document.getElementById("recordPlayBtn");
+    const recordStatus = document.getElementById("recordStatus");
+
 
     const lettersList = document.getElementById("lettersList");
     const vowelsList = document.getElementById("vowelsList");
@@ -742,18 +822,44 @@
       }
       selExtra.innerHTML = extraParts.join(" · ");
 
-      if (sel.forms) {
+            if (sel.forms) {
         selForms.classList.remove("hidden");
         selForms.innerHTML = `
-          <span><span class="selection-form-label">단독형:</span> ${sel.forms.isolated}</span>
-          <span><span class="selection-form-label">어두형:</span> ${sel.forms.initial}</span>
-          <span><span class="selection-form-label">어중형:</span> ${sel.forms.medial}</span>
-          <span><span class="selection-form-label">어말형:</span> ${sel.forms.final}</span>
+          <button type="button" class="selection-form-btn" onclick="selectFormVariant('isolated')">
+            <span class="form-label">단독형</span>
+            <span class="form-ar">${sel.forms.isolated}</span>
+          </button>
+          <button type="button" class="selection-form-btn" onclick="selectFormVariant('initial')">
+            <span class="form-label">어두형</span>
+            <span class="form-ar">${sel.forms.initial}</span>
+          </button>
+          <button type="button" class="selection-form-btn" onclick="selectFormVariant('medial')">
+            <span class="form-label">어중형</span>
+            <span class="form-ar">${sel.forms.medial}</span>
+          </button>
+          <button type="button" class="selection-form-btn" onclick="selectFormVariant('final')">
+            <span class="form-label">어말형</span>
+            <span class="form-ar">${sel.forms.final}</span>
+          </button>
         `;
       } else {
         selForms.classList.add("hidden");
       }
+
     }
+
+        function selectFormVariant(which) {
+      if (!currentSelection || !currentSelection.forms) return;
+      const formText = currentSelection.forms[which];
+      if (!formText) return;
+
+      // 선택한 형태로 따라쓰기 가이드 변경
+      updateTraceGuide(formText);
+
+      // 선택한 형태 발음도 듣고 싶으면 유지
+      speakArabic(formText);
+    }
+
 
     // ======================
     // TTS (발음) - 아랍어 보이스 우선
@@ -914,6 +1020,90 @@ function updateTraceGuide(text) {
       freeCtx.clearRect(0, 0, freeCanvas.width, freeCanvas.height);
     });
 
+        // ======================
+    // 녹음 기능 (MediaRecorder)
+    // ======================
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let recordedAudioUrl = null;
+
+    function setRecordUi(state) {
+      // state: 'idle' | 'recording' | 'ready'
+      if (!recordStartBtn || !recordStopBtn || !recordPlayBtn || !recordStatus) return;
+
+      if (state === "recording") {
+        recordStartBtn.disabled = true;
+        recordStopBtn.disabled = false;
+        recordPlayBtn.disabled = true;
+        recordStatus.textContent = "녹음 중… 읽고 싶은 문장을 말해 보세요.";
+      } else if (state === "ready") {
+        recordStartBtn.disabled = false;
+        recordStopBtn.disabled = true;
+        recordPlayBtn.disabled = false;
+        recordStatus.textContent = "녹음 완료! 재생 버튼을 눌러 들어보세요.";
+      } else {
+        // idle
+        recordStartBtn.disabled = false;
+        recordStopBtn.disabled = true;
+        recordPlayBtn.disabled = true;
+        recordStatus.textContent = "대기 중입니다.";
+      }
+    }
+
+    async function startRecording() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert("이 브라우저에서는 녹음 기능을 사용할 수 없습니다.");
+        return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        recordedChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) {
+            recordedChunks.push(e.data);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: "audio/webm" });
+          if (recordedAudioUrl) {
+            URL.revokeObjectURL(recordedAudioUrl);
+          }
+          recordedAudioUrl = URL.createObjectURL(blob);
+          setRecordUi("ready");
+        };
+
+        mediaRecorder.start();
+        setRecordUi("recording");
+      } catch (err) {
+        console.error(err);
+        alert("마이크 접근이 거부되었습니다. 브라우저 설정에서 마이크 권한을 허용해 주세요.");
+      }
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+      }
+    }
+
+    function playRecording() {
+      if (!recordedAudioUrl) return;
+      const audio = new Audio(recordedAudioUrl);
+      audio.play();
+    }
+
+    // 녹음 버튼 이벤트 연결
+    if (recordStartBtn && recordStopBtn && recordPlayBtn) {
+      setRecordUi("idle");
+      recordStartBtn.addEventListener("click", startRecording);
+      recordStopBtn.addEventListener("click", stopRecording);
+      recordPlayBtn.addEventListener("click", playRecording);
+    }
+
+    
     // ======================
     // 초기 실행
     // ======================
