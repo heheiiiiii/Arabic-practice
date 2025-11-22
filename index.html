@@ -1426,26 +1426,48 @@ function updateTraceGuide(text) {
 
 
     function drawTraceGuide() {
-      if (!traceCtx) return;
-      const canvas = traceCanvas;
-      traceCtx.clearRect(0, 0, canvas.width, canvas.height);
-      if (!traceGuideText) return;
+  if (!traceCtx) return;
+  const canvas = traceCanvas;
+  traceCtx.clearRect(0, 0, canvas.width, canvas.height);
+  if (!traceGuideText) return;
 
-      const rect = canvas.getBoundingClientRect();
-      const w = rect.width;
-      const h = rect.height;
+  const rect = canvas.getBoundingClientRect();
+  const w = rect.width;
+  const h = rect.height;
 
-      traceCtx.save();
-      traceCtx.globalAlpha = 0.12;
-      traceCtx.fillStyle = "#9ca3af";
-      traceCtx.textAlign = "center";
-      traceCtx.textBaseline = "middle";
-      const fontSize = Math.min(w, h) * 0.6;
-      traceCtx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
-      traceCtx.direction = "rtl";
-      traceCtx.fillText(traceGuideText, w / 2, h / 2);
-      traceCtx.restore();
-    }
+  traceCtx.save();
+  traceCtx.globalAlpha = 0.12;
+  traceCtx.fillStyle = "#9ca3af";
+  traceCtx.textAlign = "center";
+  traceCtx.textBaseline = "middle";
+  traceCtx.direction = "rtl";
+
+  // 🔹 줄바꿈 기준으로 문장 나누기
+  const lines = traceGuideText.split(/\n+/).filter(l => l.trim().length > 0);
+
+  // 줄 수에 따라 폰트 크기/줄 간격 조정
+  const maxFont = Math.min(w, h) * 0.6;   // 한 줄일 때 크기
+  const multiFont = Math.min(w, h) * 0.18; // 여러 줄일 때 크기
+  const fontSize = (lines.length > 1) ? multiFont : maxFont;
+  const lineHeight = fontSize * 1.8;
+
+  traceCtx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
+
+  if (lines.length === 1) {
+    // 🔸 기존처럼 가운데에 한 줄만
+    traceCtx.fillText(lines[0], w / 2, h / 2);
+  } else {
+    // 🔸 여러 줄이면 위–아래로 균형 있게 배치
+    const totalHeight = lineHeight * (lines.length - 1);
+    lines.forEach((line, idx) => {
+      const y = h / 2 - totalHeight / 2 + idx * lineHeight;
+      traceCtx.fillText(line, w / 2, y);
+    });
+  }
+
+  traceCtx.restore();
+}
+
 
     // 지우기 버튼: 유저가 그린 부분만 삭제, 가이드는 다시 그림
     clearBtn.addEventListener("click", () => {
