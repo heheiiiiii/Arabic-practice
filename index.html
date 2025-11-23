@@ -1349,15 +1349,22 @@ if (traceCard) {
 
           // 선택 정보 업데이트
           currentSelection = {
-            type: "긴 글",
-            arabic: text.title,         // 카드 상단에는 제목만
-            meaning: text.tag || "",
-            pron: "",
-            forms: null,
-            longTextArabic: text.arabic,
-            longTextKorean: text.korean
-          };
-         renderSelectionInfo(currentSelection);
+  type: "긴 글",
+  arabic: text.title,         // 카드 상단에는 제목만
+  meaning: text.tag || "",
+  pron: "",
+  forms: null,
+  longTextArabic: text.arabic,
+  longTextKorean: text.korean,
+  // 🔹 한국어도 줄 단위로 쪼개서 저장
+  longTextKoreanSentences: (text.korean || "")
+    .split("\n")
+    .map(s => s.trim())
+    .filter(s => s.length > 0)
+};
+
+renderSelectionInfo(currentSelection);
+
 
          // 🔹 긴 글: 연한 아랍어 ON/OFF 상태에 따라 가이드 적용
       if (longTextGuideEnabled) {
@@ -1472,12 +1479,9 @@ function renderSelectionInfo(sel) {
   if (sel.pron) {
     extraParts.push(`<span>발음: ${sel.pron}</span>`);
   }
-// 🔹 긴 글인 경우: 상단 구조 재정의 (아랍어 → 한국어 순서)
+// 🔹 긴 글인 경우: 상단 구조 재정의 (위: 아랍어 / 아래: 한국어)
 if (sel.longTextArabic) {
-
-  // 제목 & 탭 종류는 기존 selArabic, selType 영역 그대로 사용
-
-  // 태그 영역 출력
+  // 태그(예: "일상 동화 · 초급")
   let tagHtml = "";
   if (sel.meaning) {
     tagHtml = `
@@ -1487,23 +1491,15 @@ if (sel.longTextArabic) {
     `;
   }
 
-  // 기본 구조 틀 (본문은 updateLongTextGuidePage에서 채워짐)
+  // 라벨 박스 없이, 본문만 위아래로 배치
   selExtra.innerHTML = `
     ${tagHtml}
 
-    <div id="lt-ar-block" class="longtext-block">
-      <div class="longtext-block-label">아랍어 원문</div>
-      <div id="lt-ar-body" class="longtext-block-body ar">
-        <!-- JS에서 3문장 채워짐 -->
-      </div>
-    </div>
+    <!-- 아랍어 본문 (위쪽) -->
+    <div id="lt-ar-body" class="longtext-block-body ar"></div>
 
-    <div id="lt-kr-block" class="longtext-block">
-      <div class="longtext-block-label">한글 내용</div>
-      <div id="lt-kr-body" class="longtext-block-body">
-        <!-- JS에서 3문장 채워짐 -->
-      </div>
-    </div>
+    <!-- 한국어 본문 (아래쪽) -->
+    <div id="lt-kr-body" class="longtext-block-body" style="margin-top: 10px;"></div>
   `;
 
   // 연한 아랍어 on/off 버튼 표시
@@ -1516,6 +1512,7 @@ if (sel.longTextArabic) {
 
   return;
 }
+
 
   
 
