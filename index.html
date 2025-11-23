@@ -161,6 +161,18 @@ body.long-mode .content-panel {
       gap: 10px;
       min-height: 64px;
     }
+/* 긴 글 탭일 때: 상단 카드를 세로 배치로 바꾸기 */
+.selection-card.longtext-mode {
+  flex-direction: column;    /* 위에 텍스트, 아래에 버튼 */
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.selection-card.longtext-mode .selection-right {
+  align-self: flex-start;    /* 버튼 묶음도 왼쪽 정렬 */
+}
+
+      
         .selection-right {
       display: flex;
       flex-direction: column;
@@ -1034,6 +1046,15 @@ if (traceCard) {
   panelWords.classList.toggle("hidden", tab !== "words");
   panelSentences.classList.toggle("hidden", tab !== "sentences");
   panelLongtext.classList.toggle("hidden", tab !== "longtext");
+          // 긴 글 탭일 때는 selection-card 레이아웃을 세로로 전환
+  if (selectionCard) {
+    if (tab === "longtext") {
+      selectionCard.classList.add("longtext-mode");
+    } else {
+      selectionCard.classList.remove("longtext-mode");
+    }
+  }
+
 
   // 🔹 긴 글 탭일 때: 필사 모드
   if (traceCard && freeCard) {
@@ -1409,24 +1430,27 @@ function updateLongTextGuidePage() {
     ? currentSelection.longTextKoreanSentences.slice(start, start + LONG_TEXT_PAGE_SIZE)
     : [];
 
-  // 아랍어 (상단)
+  // 아랍어 (위쪽) – 문장들을 한 덩어리로 이어 붙이기
   const arBody = document.getElementById("lt-ar-body");
   if (arBody) {
     if (longTextGuideEnabled) {
-      arBody.innerHTML = arPage.map(s => `<div class="lt-line ar">${s}</div>`).join("");
+      const arText = arPage.join(" ");   // 문장 사이를 공백으로 이어서 하나의 문단으로
+      arBody.textContent = arText;
     } else {
-      arBody.innerHTML = "";
+      arBody.textContent = "";
     }
   }
 
-  // 한국어 (하단)
+  // 한국어 (아래쪽) – 마찬가지로 한 덩어리로
   const krBody = document.getElementById("lt-kr-body");
   if (krBody) {
-    krBody.innerHTML = krPage.map(s => `<div class="lt-line">${s}</div>`).join("");
+    const krText = krPage.join(" ");
+    krBody.textContent = krText;
   }
 
   updateLongTextPageControls();
 }
+
 
 
 // 🔹 페이지 번호 / 버튼 활성화 상태 갱신
