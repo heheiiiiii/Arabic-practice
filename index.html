@@ -197,9 +197,10 @@ body.long-mode .content-panel {
       flex-wrap: wrap;
     }
     .selection-ar {
-      font-size: 1.6rem;
-      direction: rtl;
-      font-family: "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif;
+      font-size: 1.25rem;   /* 1.6 → 1.25로 줄이기 */
+  font-weight: 600;
+  direction: rtl;
+  font-family: "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif;
     }
     .selection-type {
       font-size: 0.7rem;
@@ -248,29 +249,32 @@ body.long-mode .content-panel {
       font-size: 1.1rem;
     }
 
-    .play-btn {
-      border-radius: 999px;
-      border: none;
-      padding: 6px 12px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      background: #111827;
-      color: #f9fafb;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
+      .play-btn {
+  border-radius: 999px;
+  border: none;
+  padding: 4px 10px;      /* 패딩 축소 */
+  font-size: 0.75rem;     /* 글자 살짝 줄이기 */
+  cursor: pointer;
+  background: #111827;
+  color: #f9fafb;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+    
       .guide-toggle-btn {
-  margin-top: 6px;
+  margin-top: 4px;
   border-radius: 999px;
   border: 1px solid #e5e7eb;
   background: #f9fafb;
-  padding: 4px 10px;
-  font-size: 0.75rem;
+  padding: 3px 8px;
+  font-size: 0.7rem;
   cursor: pointer;
   color: #374151;
-  display: none; /* 기본은 숨김, 긴 글 선택 시에만 보이게 */
+  display: none;
 }
+
       .longtext-page-controls {
   margin-top: 6px;
   display: inline-flex;
@@ -283,11 +287,12 @@ body.long-mode .content-panel {
   border-radius: 999px;
   border: 1px solid #e5e7eb;
   background: #f9fafb;
-  padding: 4px 8px;
-  font-size: 0.75rem;
+  padding: 2px 6px;
+  font-size: 0.7rem;
   cursor: pointer;
   color: #374151;
 }
+
 
 .page-btn:disabled {
   opacity: 0.4;
@@ -327,15 +332,18 @@ body.long-mode .content-panel {
       gap: 8px;
       margin-top: 4px;
     }
-    .record-btn {
-      padding: 6px 12px;
-      border-radius: 999px;
-      border: none;
-      font-size: 0.8rem;
-      cursor: pointer;
-      background: #e5e7eb;
-      color: #111827;
-    }
+
+      .record-btn {
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: none;
+  font-size: 0.7rem;
+  cursor: pointer;
+  background: #e5e7eb;
+  color: #111827;
+}
+
+      
     .record-btn:disabled {
       opacity: 0.4;
       cursor: default;
@@ -1046,7 +1054,7 @@ if (traceCard) {
   // 🔹 필사 칸 높이를 다른 탭과 동일하게 220px로 맞추기
   if (traceWrap) {
     traceWrap.style.display = "block";
-    traceWrap.style.height = "280px";   // 자음/단어 탭과 같은 높이
+    traceWrap.style.height = "320px";   // 자음/단어 탭과 같은 높이
   }
 
   // 레이아웃도 다른 탭과 동일하게 (flex 설정 초기화)
