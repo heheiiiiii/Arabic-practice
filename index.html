@@ -376,6 +376,11 @@ body.long-mode .canvas-section {
       overflow: hidden;
     }
 
+      /* 직접 쓰기 카드 숨기기(캔버스를 하나처럼 사용) */
+#freeCard {
+  display: none;
+}
+
       /* 긴 글 탭일 때만 위쪽 필사 칸 높이 키우기 */
 body.long-mode #traceCard {
   min-height: 620px;  /* 원하면 500~600 사이로 숫자 조절 가능 */
@@ -930,6 +935,21 @@ diffButtons.forEach(btn => {
     const clearBtn = document.getElementById("clearBtn");
       const traceCard = document.getElementById("traceCard");
 const freeCard = document.getElementById("freeCard");
+      // 🔹 freeCard 안에 있던 bottom-bar(모두 지우기 버튼)를 traceCard로 이동
+if (traceCard && freeCard) {
+  const bottomBar = freeCard.querySelector(".bottom-bar");
+  if (bottomBar) {
+    traceCard.appendChild(bottomBar);
+  }
+}
+      // 🔹 헤더 문구를 '따라 쓰기 & 직접 쓰기'로 변경 (선택)
+if (traceCard) {
+  const titleSpan = traceCard.querySelector(".canvas-header span");
+  if (titleSpan) {
+    titleSpan.textContent = "따라 쓰기 & 직접 쓰기";
+  }
+}
+
 
 
     let traceCtx, freeCtx;
@@ -1075,8 +1095,11 @@ const freeCard = document.getElementById("freeCard");
             forms: letter.forms || null
           };
           renderSelectionInfo(currentSelection);
-          updateTraceGuide(letter.char);
-       // 선택 시 1회 자동 재생
+            if (longTextGuideEnabled) {
+    updateTraceGuide(letter.char);
+  } else {
+    updateTraceGuide("");
+  }
         });
 
         lettersList.appendChild(div);
@@ -1115,7 +1138,11 @@ const freeCard = document.getElementById("freeCard");
             forms: null
           };
           renderSelectionInfo(currentSelection);
-          updateTraceGuide(v.char);
+          if (longTextGuideEnabled) {
+  updateTraceGuide(v.char);
+} else {
+  updateTraceGuide("");
+}
         });
 
         vowelsList.appendChild(div);
@@ -1165,7 +1192,11 @@ const freeCard = document.getElementById("freeCard");
             forms: null
           };
           renderSelectionInfo(currentSelection);
-          updateTraceGuide(w.arabic);
+          if (longTextGuideEnabled) {
+  updateTraceGuide(w.arabic);
+} else {
+  updateTraceGuide("");
+}
           speakArabic(w.arabic);
         });
 
@@ -1209,7 +1240,12 @@ const freeCard = document.getElementById("freeCard");
             forms: null
           };
           renderSelectionInfo(currentSelection);
-          updateTraceGuide(s.arabic);
+          if (longTextGuideEnabled) {
+  updateTraceGuide(s.arabic);
+} else {
+  updateTraceGuide("");
+}
+
           speakArabic(s.arabic);
         });
 
@@ -1383,20 +1419,23 @@ function updateLongTextPageControls() {
 
     selExtra.innerHTML = html;
 
-    // 긴 글 전용: 연한 아랍어 토글 버튼 표시
-    if (longTextGuideToggleBtn) {
-      longTextGuideToggleBtn.style.display = "inline-flex";
-      longTextGuideToggleBtn.textContent = longTextGuideEnabled
-        ? "연한 아랍어: 켜짐"
-        : "연한 아랍어: 꺼짐";
-    }
-  } else {
-    // 🔹 자음/모음/단어/문장 (기존 방식 유지)
-    selExtra.innerHTML = extraParts.join(" · ");
-    if (longTextGuideToggleBtn) {
-      longTextGuideToggleBtn.style.display = "none";
-    }
-  }
+    if (sel.type === "긴 글") {
+  // (긴 글용 selExtra 구성 부분은 그대로 유지)
+  ...
+  selExtra.innerHTML = html;
+} else {
+  // 🔹 자음/모음/단어/문장
+  selExtra.innerHTML = extraParts.join(" · ");
+}
+
+// 🔹 이제는 모든 타입에서 토글 버튼 사용
+if (longTextGuideToggleBtn) {
+  longTextGuideToggleBtn.style.display = "inline-flex";
+  longTextGuideToggleBtn.textContent = longTextGuideEnabled
+    ? "연한 아랍어: 켜짐"
+    : "연한 아랍어: 꺼짐";
+}
+
 
   // 자음 형태 버튼
   if (sel.forms) {
@@ -1424,7 +1463,7 @@ function updateLongTextPageControls() {
   }
 }
 
-      // 🔹 긴 글용 연한 아랍어 ON/OFF 버튼 이벤트
+     // 🔹 연한 아랍어 ON/OFF 버튼 이벤트 (모든 탭 공통)
 if (longTextGuideToggleBtn) {
   longTextGuideToggleBtn.addEventListener("click", () => {
     longTextGuideEnabled = !longTextGuideEnabled;
@@ -1432,20 +1471,37 @@ if (longTextGuideToggleBtn) {
       ? "연한 아랍어: 켜짐"
       : "연한 아랍어: 꺼짐";
 
-    // 긴 글 선택 중일 때만 가이드 갱신
-    if (currentSelection && currentSelection.type === "긴 글") {if (longTextGuideEnabled && currentSelection.longTextArabic) {
-    // 🔹 다시 켜질 때: 현재 선택된 긴 글로 페이지 준비
-    prepareLongTextPages(currentSelection.longTextArabic);
-  } else {
-    // 🔹 꺼질 때: 연한 글자 / 페이지 컨트롤 숨김
-    updateTraceGuide("");
-    longTextSentences = [];
-    longTextPageIndex = 0;
-    updateLongTextPageControls();
-  }
+    if (!currentSelection) {
+      // 선택된 게 없으면 그냥 가이드만 지움
+      updateTraceGuide("");
+      return;
+    }
+
+    // OFF → 가이드 모두 지우기
+    if (!longTextGuideEnabled) {
+      updateTraceGuide("");
+      if (currentSelection.type === "긴 글") {
+        longTextSentences = [];
+        longTextPageIndex = 0;
+        updateLongTextPageControls();
+      }
+      return;
+    }
+
+    // ON → 현재 선택된 항목 타입에 따라 가이드 다시 그림
+    if (currentSelection.type === "긴 글" && currentSelection.longTextArabic) {
+      prepareLongTextPages(currentSelection.longTextArabic);
+    } else {
+      // 자음/모음/단어/문장
+      if (currentSelection.arabic) {
+        updateTraceGuide(currentSelection.arabic);
+      } else {
+        updateTraceGuide("");
+      }
     }
   });
 }
+
 
 
 
@@ -1456,7 +1512,11 @@ if (longTextGuideToggleBtn) {
       if (!formText) return;
 
       // 선택한 형태로 따라쓰기 가이드 변경
-      updateTraceGuide(formText);
+     if (longTextGuideEnabled) {
+    updateTraceGuide(formText);
+  } else {
+    updateTraceGuide("");
+  }
 
       // 선택한 형태 발음도 듣고 싶으면 유지
       speakArabic(formText);
