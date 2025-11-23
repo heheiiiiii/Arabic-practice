@@ -463,11 +463,12 @@ body.long-mode #traceCard {
 }
 
 #ghostCanvas .ghost-line {
-  opacity: 0.12;
-  font-size: 4rem;
-  line-height: 1.8;
-  margin: 0.5rem 0;
-}
+        font-size: 3rem;      /* 전체 크기 ↓ */
+        line-height: 1.4;     /* 줄 간격 ↓ */
+        word-break: keep-all;
+        white-space: pre-line;
+      }
+
 
 
   </style>
@@ -906,9 +907,11 @@ const freeCard = document.getElementById("freeCard");
         if (spans[0]) spans[0].textContent = "필사";
         if (spans[1]) spans[1].textContent = "위의 긴 글을 보고 그대로 써 보세요.";
       }
-      if (traceWrap) {
+            if (traceWrap) {
         traceWrap.style.display = "block";
+        traceWrap.style.height = "460px";   // 🔹 원하는 만큼 세로 길이
       }
+
       traceCard.style.flex = "1 1 auto";
 
       // 아래 카드: 캔버스는 숨기고, '모두 지우기'만 남김
@@ -923,7 +926,8 @@ const freeCard = document.getElementById("freeCard");
         if (spans[0]) spans[0].textContent = "1. 따라 쓰기";
         if (spans[1]) spans[1].textContent = "연한 글자를 따라 그려 보세요.";
       }
-      if (traceWrap) traceWrap.style.display = "block";
+       traceWrap.style.display = "block";
+        traceWrap.style.height = "";   // 🔹 기본 CSS 높이(260px)로 복원
 
       if (freeHeader) freeHeader.style.display = "";
       if (freeWrap) freeWrap.style.display = "block";
