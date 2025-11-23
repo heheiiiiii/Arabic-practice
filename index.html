@@ -1849,8 +1849,8 @@ function updateTraceGuide(text) {
   }
 
   // 🔹 2) 긴 글 탭: 여러 줄이 캔버스 안에 들어가도록 자동 조정
-  let fontSize = Math.min(cw, ch) * 0.45;
-  if (fontSize > 60) fontSize = 80;
+  let fontSize = Math.min(cw, ch) * 0.5;
+  if (fontSize > 60) fontSize = 90;
   if (fontSize < 14) fontSize = 26;
 
   while (fontSize > 10) {
