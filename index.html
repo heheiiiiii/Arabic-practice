@@ -180,14 +180,15 @@ body.long-mode .content-panel {
       gap: 6px;
     }
 
-/* 🔹 긴 글 탭에서 툴바를 가로 한 줄로 정렬 */
+/* 긴 글 탭에서 툴바를 가로 한 줄 + 좌우 분리 */
 .selection-card.longtext-toolbar .selection-right {
-      flex-direction: row;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: flex-start;
-    }
+  flex-direction: row;
+  align-items: center;     /* 세로 정렬(하단) 맞추기 */
+  flex-wrap: nowrap;       /* 줄바꿈 없이 한 줄 유지 */
+  gap: 8px;
+  width: 100%;             /* 왼쪽·오른쪽으로 공간 나누기 */
+}
+
 
     .record-mini {
       display: flex;
@@ -577,6 +578,17 @@ body.long-mode #traceCard {
 .lt-line {
   margin-bottom: 4px;
 }
+
+      /* 긴 글 탭에서: 연한 아랍어 토글을 오른쪽으로 밀기 */
+.selection-card.longtext-toolbar #longTextGuideToggleBtn {
+  margin-left: auto;      /* 여기서 왼쪽 그룹(발음/녹음)과 오른쪽 그룹을 분리 */
+}
+
+/* 페이지 이동 버튼은 토글 바로 오른쪽에 붙도록 살짝 간격만 */
+.selection-card.longtext-toolbar #longTextPageControls {
+  margin-left: 6px;
+}
+
 
 
   </style>
