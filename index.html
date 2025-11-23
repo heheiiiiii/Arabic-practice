@@ -1489,6 +1489,19 @@ function updateLongTextGuidePage() {
     const krText = krPage.join(" ");
     krBody.textContent = krText;
   }
+      // 🔹 필사 칸용 연한 아랍어 가이드: 문장마다 줄바꿈해서 캔버스에 표시
+  if (longTextGuideEnabled) {
+    const guideText = arPage.join("\n");   // 문장 사이를 줄바꿈으로 연결
+    updateTraceGuide(guideText);
+  } else {
+    updateTraceGuide("");
+  }
+
+  updateLongTextPageControls();
+}
+
+
+    
 
   updateLongTextPageControls();
 }
