@@ -143,7 +143,12 @@ body.long-mode main {
       gap: 10px;
       overflow: hidden;
     }
+/* 긴 글 탭에서는 한국어 뜻이 잘리지 않도록 오버플로우 해제 */
+body.long-mode .content-panel {
+  overflow: visible;
+}
 
+      
     /* 선택 정보 카드 */
     .selection-card {
       background: white;
@@ -268,6 +273,35 @@ body.long-mode main {
   color: #374151;
   display: none; /* 기본은 숨김, 긴 글 선택 시에만 보이게 */
 }
+      .longtext-page-controls {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+}
+
+.page-btn {
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  color: #374151;
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.page-info {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+      
     .play-btn span {
       font-size: 0.9rem;
     }
@@ -596,6 +630,12 @@ body.long-mode #traceCard {
   <button id="longTextGuideToggleBtn" class="guide-toggle-btn" style="display:none;">
     연한 아랍어: 켜짐
   </button>
+                <!-- 🔽 새로 추가: 긴 글 문장 넘기기 컨트롤 -->
+<div id="longTextPageControls" class="longtext-page-controls" style="display:none;">
+  <button id="longTextPrevBtn" class="page-btn">이전</button>
+  <span id="longTextPageInfo" class="page-info">1 / 1</span>
+  <button id="longTextNextBtn" class="page-btn">다음</button>
+</div>
       </div>
 
       
@@ -829,6 +869,9 @@ const arabicForms = {
     let currentTab = "letters";
     let currentSelection = null; // { type, arabic, meaning, pron, forms }
       let longTextGuideEnabled = true; // 긴 글에서 연한 아랍어 ON/OFF 상태
+      let longTextSentences = [];
+let longTextPageIndex = 0;
+const LONG_TEXT_PAGE_SIZE = 3;  // 한 번에 3문장
 
     // ======================
     // DOM 참조
@@ -847,6 +890,10 @@ const arabicForms = {
     const selForms = document.getElementById("selForms");
     const playSelectionBtn = document.getElementById("playSelectionBtn");
       const longTextGuideToggleBtn = document.getElementById("longTextGuideToggleBtn");
+      const longTextPageControls = document.getElementById("longTextPageControls");
+const longTextPrevBtn = document.getElementById("longTextPrevBtn");
+const longTextNextBtn = document.getElementById("longTextNextBtn");
+const longTextPageInfo = document.getElementById("longTextPageInfo");
 
 
         const recordCard = document.getElementById("recordCard");
@@ -1221,6 +1268,9 @@ const freeCard = document.getElementById("freeCard");
     updateTraceGuide(chunk);
   } else {
     updateTraceGuide("");
+        longTextSentences = [];
+  longTextPageIndex = 0;
+  updateLongTextPageControls();
   }
 
 
@@ -1229,6 +1279,60 @@ const freeCard = document.getElementById("freeCard");
         longtextList.appendChild(div);
       });
     }
+
+      // 🔹 긴 글 아랍어 본문을 줄 단위로 쪼개고, 첫 페이지로 초기화
+function prepareLongTextPages(arabicText) {
+  longTextSentences = (arabicText || "")
+    .split("\n")
+    .map(s => s.trim())
+    .filter(s => s.length > 0);
+  longTextPageIndex = 0;
+  updateLongTextGuidePage();
+  updateLongTextPageControls();
+}
+
+// 🔹 현재 페이지에 해당하는 3문장만 연한 글자로 그리기
+function updateLongTextGuidePage() {
+  if (!longTextGuideEnabled || !longTextSentences.length) {
+    updateTraceGuide("");
+    return;
+  }
+
+  const totalPages = Math.ceil(longTextSentences.length / LONG_TEXT_PAGE_SIZE);
+  if (longTextPageIndex >= totalPages) {
+    longTextPageIndex = totalPages - 1;
+  }
+
+  const start = longTextPageIndex * LONG_TEXT_PAGE_SIZE;
+  const chunk = longTextSentences
+    .slice(start, start + LONG_TEXT_PAGE_SIZE)
+    .join("\n");
+
+  updateTraceGuide(chunk);
+}
+
+// 🔹 페이지 번호 / 버튼 활성화 상태 갱신
+function updateLongTextPageControls() {
+  if (!longTextPageControls) return;
+
+  // 긴 글 탭이 아니거나, 문장이 없으면 숨김
+  if (currentTab !== "longtext" || !longTextSentences.length) {
+    longTextPageControls.style.display = "none";
+    return;
+  }
+
+  const totalPages = Math.ceil(longTextSentences.length / LONG_TEXT_PAGE_SIZE);
+  if (totalPages <= 1) {
+    longTextPageControls.style.display = "none";
+    return;
+  }
+
+  longTextPageControls.style.display = "inline-flex";
+  longTextPageInfo.textContent = `${longTextPageIndex + 1} / ${totalPages}`;
+  longTextPrevBtn.disabled = (longTextPageIndex === 0);
+  longTextNextBtn.disabled = (longTextPageIndex >= totalPages - 1);
+}
+
 
     
     // ======================
@@ -1327,12 +1431,16 @@ if (longTextGuideToggleBtn) {
       : "연한 아랍어: 꺼짐";
 
     // 긴 글 선택 중일 때만 가이드 갱신
-    if (currentSelection && currentSelection.type === "긴 글") {
-      if (longTextGuideEnabled && currentSelection.longTextArabic) {
-        updateTraceGuide(currentSelection.longTextArabic);
-      } else {
-        updateTraceGuide("");
-      }
+    if (currentSelection && currentSelection.type === "긴 글") {if (longTextGuideEnabled && currentSelection.longTextArabic) {
+    // 🔹 다시 켜질 때: 현재 선택된 긴 글로 페이지 준비
+    prepareLongTextPages(currentSelection.longTextArabic);
+  } else {
+    // 🔹 꺼질 때: 연한 글자 / 페이지 컨트롤 숨김
+    updateTraceGuide("");
+    longTextSentences = [];
+    longTextPageIndex = 0;
+    updateLongTextPageControls();
+  }
     }
   });
 }
@@ -1557,9 +1665,9 @@ function updateTraceGuide(text) {
   }
 
   // 🔹 2) 긴 글 탭: 여러 줄이 캔버스 안에 들어가도록 자동 조정
-  let fontSize = Math.min(cw, ch) * 0.18;
-  if (fontSize > 32) fontSize = 32;
-  if (fontSize < 14) fontSize = 14;
+  let fontSize = Math.min(cw, ch) * 0.33;
+  if (fontSize > 32) fontSize = 60;
+  if (fontSize < 14) fontSize = 22;
 
   while (fontSize > 10) {
     ctx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
@@ -1719,7 +1827,31 @@ function updateTraceGuide(text) {
       recordPlayBtn.addEventListener("click", playRecording);
     }
 
-    
+// ======================
+// 긴 글 탭: 페이지 넘기기 버튼 이벤트
+// ======================
+if (longTextPrevBtn) {
+  longTextPrevBtn.addEventListener("click", () => {
+    if (longTextPageIndex > 0) {
+      longTextPageIndex--;
+      updateLongTextGuidePage();
+      updateLongTextPageControls();
+    }
+  });
+}
+
+if (longTextNextBtn) {
+  longTextNextBtn.addEventListener("click", () => {
+    const totalPages = Math.ceil(longTextSentences.length / LONG_TEXT_PAGE_SIZE);
+    if (longTextPageIndex < totalPages - 1) {
+      longTextPageIndex++;
+      updateLongTextGuidePage();
+      updateLongTextPageControls();
+    }
+  });
+});
+
+      
     // ======================
     // 초기 실행
     // ======================
