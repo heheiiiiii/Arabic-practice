@@ -983,24 +983,28 @@ if (traceCard) {
     const freeBottom = freeCard.querySelector(".bottom-bar");
 
     if (tab === "longtext") {
-      // 위 카드: 필사
-      if (traceHeader) {
-        const spans = traceHeader.querySelectorAll("span");
-        if (spans[0]) spans[0].textContent = "필사";
-        if (spans[1]) spans[1].textContent = "위의 긴 글을 보고 그대로 써 보세요.";
-      }
-            if (traceWrap) {
-        traceWrap.style.display = "block";
-        traceWrap.style.height = "560px";   // 🔹 원하는 만큼 세로 길이
-      }
+  // 위 카드: 필사 (문구는 그대로 사용)
+  if (traceHeader) {
+    const spans = traceHeader.querySelectorAll("span");
+    if (spans[0]) spans[0].textContent = "필사";
+    if (spans[1]) spans[1].textContent = "위의 긴 글을 보고 그대로 써 보세요.";
+  }
 
-      traceCard.style.flex = "1 1 auto";
+  // 🔹 필사 칸 높이를 다른 탭과 동일하게 220px로 맞추기
+  if (traceWrap) {
+    traceWrap.style.display = "block";
+    traceWrap.style.height = "220px";   // 자음/단어 탭과 같은 높이
+  }
 
-      // 아래 카드: 캔버스는 숨기고, '모두 지우기'만 남김
-      if (freeHeader) freeHeader.style.display = "none";
-      if (freeWrap) freeWrap.style.display = "none";
-      if (freeBottom) freeBottom.style.display = "flex";
-      freeCard.style.flex = "0 0 auto"; // 높이를 최소로
+  // 레이아웃도 다른 탭과 동일하게 (flex 설정 초기화)
+  traceCard.style.flex = "";
+
+  // 아래 카드: 지금 구조처럼 캔버스는 숨기고, '모두 지우기'만 남기는 형태 유지
+  if (freeHeader) freeHeader.style.display = "none";
+  if (freeWrap) freeWrap.style.display = "none";
+  if (freeBottom) freeBottom.style.display = "flex";
+  freeCard.style.flex = "0 0 auto"; // 높이를 최소로 유지
+
     } else {
       // 🔹 자음 / 모음 / 단어 / 문장 탭: 따라쓰기 + 직접쓰기, 두 칸 모두 균형 있게
       if (traceHeader) {
@@ -1050,14 +1054,11 @@ if (traceCard) {
     const tab = btn.dataset.tab;
     setTab(tab);
 
-    // 긴 글 탭일 때만 body에 long-mode 클래스 추가
-    if (tab === "longtext") {
-      document.body.classList.add("long-mode");
-    } else {
-      document.body.classList.remove("long-mode");
-    }
+    // 긴 글 탭에서도 이제 스크롤/레이아웃을 동일하게 사용하므로 long-mode는 쓰지 않음
+    document.body.classList.remove("long-mode");
   });
 });
+
 
 
     // ======================
