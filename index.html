@@ -342,7 +342,7 @@ body.long-mode .canvas-section {
 
       /* 긴 글 탭일 때만 위쪽 필사 칸 높이 키우기 */
 body.long-mode #traceCard {
-  min-height: 520px;  /* 원하면 500~600 사이로 숫자 조절 가능 */
+  min-height: 800px;  /* 원하면 500~600 사이로 숫자 조절 가능 */
 }
 
       
@@ -922,7 +922,7 @@ const freeCard = document.getElementById("freeCard");
       }
             if (traceWrap) {
         traceWrap.style.display = "block";
-        traceWrap.style.height = "460px";   // 🔹 원하는 만큼 세로 길이
+        traceWrap.style.height = "560px";   // 🔹 원하는 만큼 세로 길이
       }
 
       traceCard.style.flex = "1 1 auto";
@@ -1204,12 +1204,21 @@ const freeCard = document.getElementById("freeCard");
           };
          renderSelectionInfo(currentSelection);
 
-  // 🔹 긴 글: 연한 아랍어 ON/OFF 상태에 따라 가이드 적용
+   // 🔹 긴 글: 연한 아랍어 ON/OFF 상태에 따라 가이드 적용
   if (longTextGuideEnabled) {
-    updateTraceGuide(text.arabic);
+    // 아랍어 본문을 문장(줄) 단위로 나누고, 앞에서 3문장만 사용
+    const sentences = text.arabic
+      .split("\n")
+      .map(s => s.trim())
+      .filter(s => s.length > 0);
+
+    const chunk = sentences.slice(0, 3).join("\n");  // 앞 3문장
+
+    updateTraceGuide(chunk);
   } else {
     updateTraceGuide("");
   }
+
 
         });
 
