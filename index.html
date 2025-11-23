@@ -212,9 +212,7 @@ body.long-mode .content-panel {
     .selection-extra {
       font-size: 0.75rem;
       color: #4b5563;
-      display: block; /* 중요 */
-  overflow: visible; /* 중요 */
-  line-height: 1.7;
+      
     }
     .selection-extra span {
       white-space: nowrap;
@@ -1255,23 +1253,18 @@ const freeCard = document.getElementById("freeCard");
           };
          renderSelectionInfo(currentSelection);
 
-   // 🔹 긴 글: 연한 아랍어 ON/OFF 상태에 따라 가이드 적용
-  if (longTextGuideEnabled) {
-    // 아랍어 본문을 문장(줄) 단위로 나누고, 앞에서 3문장만 사용
-    const sentences = text.arabic
-      .split("\n")
-      .map(s => s.trim())
-      .filter(s => s.length > 0);
-
-    const chunk = sentences.slice(0, 3).join("\n");  // 앞 3문장
-
-    updateTraceGuide(chunk);
-  } else {
-    updateTraceGuide("");
+         // 🔹 긴 글: 연한 아랍어 ON/OFF 상태에 따라 가이드 적용
+      if (longTextGuideEnabled) {
+        // 🔹 긴 글: 페이지 단위로 준비 (한 번에 3문장씩)
+        prepareLongTextPages(text.arabic);
+      } else {
+        // 🔹 연한 아랍어 OFF일 때: 가이드/페이지 정보 초기화
+        updateTraceGuide("");
         longTextSentences = [];
-  longTextPageIndex = 0;
-  updateLongTextPageControls();
-  }
+        longTextPageIndex = 0;
+        updateLongTextPageControls();
+      }
+
 
 
         });
@@ -1666,7 +1659,7 @@ function updateTraceGuide(text) {
 
   // 🔹 2) 긴 글 탭: 여러 줄이 캔버스 안에 들어가도록 자동 조정
   let fontSize = Math.min(cw, ch) * 0.33;
-  if (fontSize > 32) fontSize = 60;
+  if (fontSize > 60) fontSize = 60;
   if (fontSize < 14) fontSize = 22;
 
   while (fontSize > 10) {
