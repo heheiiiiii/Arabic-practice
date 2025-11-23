@@ -1855,9 +1855,9 @@ function updateTraceGuide(text) {
   }
 
   // 🔹 2) 긴 글 탭: 여러 줄이 캔버스 안에 들어가도록 자동 조정
-  let fontSize = Math.min(cw, ch) * 0.5;
-  if (fontSize > 60) fontSize = 90;
-  if (fontSize < 14) fontSize = 26;
+  let fontSize = Math.min(cw, ch) * 0.60;
+  if (fontSize > 60) fontSize = 95;
+  if (fontSize < 14) fontSize = 30;
 
   while (fontSize > 10) {
     ctx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
