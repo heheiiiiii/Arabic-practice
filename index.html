@@ -1480,50 +1480,39 @@ function updateTraceGuide(text) {
   ctx.textBaseline = "middle";
   ctx.direction = "rtl";
 
-  // 🔹 긴 글인지, 한 줄짜리(자음/단어/짧은 문장)인지 구분
+  // 여러 줄/한 줄 공통 처리
   const rawLines = traceGuideText.split("\n");
   const lines = rawLines.map(l => l.trim()).filter(l => l.length > 0);
-
   const cw = canvas.width;
   const ch = canvas.height;
 
-  // 한 줄짜리는 예전처럼 크게 보여주기
-  if (lines.length <= 1) {
-    const fontSize = Math.min(cw, ch) * 0.6;
-    ctx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
-    ctx.fillText(traceGuideText, cw / 2, ch / 2);
-    ctx.restore();
-    return;
-  }
-
-  // 🔹 긴 글(여러 줄)일 때: 전체가 화면 안에 들어오도록 폰트 크기 자동 조정
-  let fontSize = Math.min(cw / 25, ch / (lines.length * 2)); // 시작 크기 (대략 작게)
-  if (fontSize > 40) fontSize = 40; // 너무 크면 제한
-  if (fontSize < 12) fontSize = 12; // 너무 작아도 제한
+  // 시작 폰트 크기(적당히 크게 시작)
+  let fontSize = Math.min(cw, ch) * 0.35;
+  if (fontSize > 64) fontSize = 64;
+  if (fontSize < 20) fontSize = 20;
 
   while (true) {
     ctx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
 
-    // 가장 긴 줄의 폭 계산
+    // 가장 긴 줄 폭과 전체 높이 계산
     let maxLineWidth = 0;
     for (const line of lines) {
       const w = ctx.measureText(line).width;
       if (w > maxLineWidth) maxLineWidth = w;
     }
-
     const lineHeight = fontSize * 1.8;
     const totalHeight = lineHeight * (lines.length - 1);
 
-    const fitsWidth = maxLineWidth <= cw * 0.9;
-    const fitsHeight = totalHeight <= ch * 0.8;
+    const fitsWidth  = maxLineWidth <= cw * 0.85; // 좌우 15% 여백
+    const fitsHeight = totalHeight  <= ch * 0.7;  // 위아래 30% 여백
 
     if (fitsWidth && fitsHeight) break;
 
-    fontSize *= 0.9; // 조금씩 줄이기
-    if (fontSize < 10) break;
+    fontSize *= 0.9;         // 크기 조금 줄이기
+    if (fontSize < 16) break; // 너무 작아지면 중단
   }
 
-  // 🔹 계산된 폰트 크기로 여러 줄 그리기 (위–아래 중앙 정렬)
+  // 최종 폰트 크기로 그리기
   ctx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
   const lineHeightFinal = fontSize * 1.8;
   const totalHeightFinal = lineHeightFinal * (lines.length - 1);
