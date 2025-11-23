@@ -212,9 +212,9 @@ body.long-mode .content-panel {
     .selection-extra {
       font-size: 0.75rem;
       color: #4b5563;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+      display: block; /* 중요 */
+  overflow: visible; /* 중요 */
+  line-height: 1.7;
     }
     .selection-extra span {
       white-space: nowrap;
