@@ -1003,7 +1003,16 @@ const freeCard = document.getElementById("freeCard");
 
       traceCard.style.flex = "";
       freeCard.style.flex = "";
+    }  // 🔹 탭을 바꿀 때는 오른쪽 카드와 연한 글자를 초기화
+  currentSelection = null;
+  renderSelectionInfo(null);
+  updateTraceGuide("");
+      
+ if (traceCanvas && traceCtx && freeCanvas && freeCtx) {
+      resizeCanvas(traceCanvas, traceCtx, true);
+      resizeCanvas(freeCanvas, freeCtx, false);
     }
+      
   }
 
   // 선택이 아무것도 없으면 안내 문구
@@ -1490,20 +1499,27 @@ if (longTextGuideToggleBtn) {
 
   playSelectionBtn.addEventListener("click", () => {
   if (!currentSelection) return;
-
-  // 자음/모음은 발음 재생하지 않음
+  // 자음/모음은 발음 버튼 사용 안 함
   if (currentSelection.type === "자음" || currentSelection.type === "모음") return;
 
-  // 🔹 긴 글이면 전체 아랍어 본문, 아니면 선택된 짧은 아랍어(글자/단어/문장)
-  const textToSpeak =
-    currentSelection.longTextArabic && currentSelection.longTextArabic.trim()
-      ? currentSelection.longTextArabic
-      : currentSelection.arabic;
+  let textToSpeak = currentSelection.arabic;
 
-  if (!textToSpeak) return;
+  // 🔹 긴 글 탭일 때: 현재 페이지의 3문장만 읽기
+  if (currentSelection.type === "긴 글") {
+    if (longTextGuideEnabled && longTextSentences.length) {
+      const start = longTextPageIndex * LONG_TEXT_PAGE_SIZE;
+      textToSpeak = longTextSentences
+        .slice(start, start + LONG_TEXT_PAGE_SIZE)
+        .join("\n");
+    } else if (currentSelection.longTextArabic) {
+      // 연한 글자 OFF 상태거나 페이지 정보가 없으면 전체 본문
+      textToSpeak = currentSelection.longTextArabic;
+    }
+  }
 
   speakArabic(textToSpeak);
 });
+
 
 
 
