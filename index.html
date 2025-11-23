@@ -173,12 +173,22 @@ body.long-mode .content-panel {
 }
 
       
-        .selection-right {
+       .selection-right {
       display: flex;
       flex-direction: column;
       align-items: flex-end;
       gap: 6px;
     }
+
+/* 🔹 긴 글 탭에서 툴바를 가로 한 줄로 정렬 */
+.selection-card.longtext-toolbar .selection-right {
+      flex-direction: row;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-start;
+    }
+
     .record-mini {
       display: flex;
       flex-direction: column;
@@ -931,6 +941,7 @@ const LONG_TEXT_PAGE_SIZE = 3;  // 한 번에 3문장
     const panelLongtext = document.getElementById("panel-longtext");
 
     const selectionCard = document.getElementById("selectionCard");
+    const selectionRight = document.querySelector(".selection-right");
     const selArabic = document.getElementById("selArabic");
     const selType = document.getElementById("selType");
     const selExtra = document.getElementById("selExtra");
@@ -1045,7 +1056,26 @@ if (traceCard) {
   panelVowels.classList.toggle("hidden", tab !== "vowels");
   panelWords.classList.toggle("hidden", tab !== "words");
   panelSentences.classList.toggle("hidden", tab !== "sentences");
-  panelLongtext.classList.toggle("hidden", tab !== "longtext");
+
+          panelLongtext.classList.toggle("hidden", tab !== "longtext");
+
+  // 🔹 긴 글 탭일 때: 상단 카드 툴바(발음/녹음/연한 아랍어/이전·다음)를 한 줄로 정렬
+  if (selectionCard && selectionRight && longTextGuideToggleBtn && longTextPageControls) {
+    if (tab === "longtext") {
+      // 긴 글 모드: 툴바 구성 요소들을 selection-right 안으로 모으고, 가로 배치
+      selectionCard.classList.add("longtext-toolbar");
+      selectionRight.appendChild(longTextGuideToggleBtn);
+      selectionRight.appendChild(longTextPageControls);
+    } else {
+      // 다른 탭: 원래 구조로 복귀
+      selectionCard.classList.remove("longtext-toolbar");
+      selectionCard.appendChild(longTextGuideToggleBtn);
+      selectionCard.appendChild(longTextPageControls);
+    }
+  }
+
+
+
           // 긴 글 탭일 때는 selection-card 레이아웃을 세로로 전환
   if (selectionCard) {
     if (tab === "longtext") {
