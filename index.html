@@ -928,6 +928,35 @@ const LONG_TEXT_PAGE_SIZE = 3;  // 한 번에 3문장
 const longTextPrevBtn = document.getElementById("longTextPrevBtn");
 const longTextNextBtn = document.getElementById("longTextNextBtn");
 const longTextPageInfo = document.getElementById("longTextPageInfo");
+        // 연한 아랍어 ON/OFF 버튼 이벤트 (긴 글 + 일반 탭 공통)
+  if (longTextGuideToggleBtn) {
+    longTextGuideToggleBtn.addEventListener("click", () => {
+      if (!currentSelection) return;
+
+      // 토글 상태 전환
+      longTextGuideEnabled = !longTextGuideEnabled;
+      longTextGuideToggleBtn.textContent = longTextGuideEnabled
+        ? "연한 아랍어: 켜짐"
+        : "연한 아랍어: 꺼짐";
+
+      // OFF면 가이드만 지움
+      if (!longTextGuideEnabled) {
+        updateTraceGuide("");
+        return;
+      }
+
+      // ON이면 현재 선택에 맞춰 다시 그림
+      if (currentSelection.type === "긴 글" && currentSelection.longTextArabic) {
+        // 긴 글: 현재 선택된 긴 글의 아랍어 문장을 다시 세팅
+        prepareLongTextPages(currentSelection.longTextArabic);
+      } else if (currentSelection.arabic) {
+        // 자음/모음/단어/문장: 선택된 아랍어를 다시 가이드에 표시
+        updateTraceGuide(currentSelection.arabic);
+      }
+    });
+  }
+
+      
 
 
         const recordCard = document.getElementById("recordCard");
@@ -1490,21 +1519,16 @@ if (sel.longTextArabic) {
 
   
 
-    // ON → 현재 선택된 항목 타입에 따라 가이드 다시 그림
-    if (currentSelection.type === "긴 글" && currentSelection.longTextArabic) {
-      prepareLongTextPages(currentSelection.longTextArabic);
-    } else {
-      // 자음/모음/단어/문장
-      if (currentSelection.arabic) {
-        updateTraceGuide(currentSelection.arabic);
-      } else {
-        updateTraceGuide("");
-      }
-    }
-  });
+      // 연한 아랍어 on/off 버튼 표시
+  if (longTextGuideToggleBtn) {
+    longTextGuideToggleBtn.style.display = "inline-flex";
+    longTextGuideToggleBtn.textContent = longTextGuideEnabled
+      ? "연한 아랍어: 켜짐"
+      : "연한 아랍어: 꺼짐";
+  }
+
+  return;
 }
-
-
 
 
 
