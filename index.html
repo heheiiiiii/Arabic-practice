@@ -313,6 +313,11 @@
       flex-direction: column;
       gap: 10px;
       overflow: hidden;
+        /* 긴 글 탭일 때는 캔버스 섹션을 열어서 전체 페이지가 스크롤되도록 */
+body.long-mode .canvas-section {
+  overflow: visible;
+}
+
     }
     .canvas-card {
       flex: 1;
@@ -920,17 +925,23 @@ const freeCard = document.getElementById("freeCard");
       if (freeBottom) freeBottom.style.display = "flex";
       freeCard.style.flex = "0 0 auto"; // 높이를 최소로
     } else {
-      // 다른 탭에서는 원래대로: 따라쓰기 + 직접쓰기
+      // 🔹 자음 / 모음 / 단어 / 문장 탭: 따라쓰기 + 직접쓰기, 두 칸 모두 균형 있게
       if (traceHeader) {
         const spans = traceHeader.querySelectorAll("span");
         if (spans[0]) spans[0].textContent = "1. 따라 쓰기";
         if (spans[1]) spans[1].textContent = "연한 글자를 따라 그려 보세요.";
       }
-       traceWrap.style.display = "block";
-        traceWrap.style.height = "";   // 🔹 기본 CSS 높이(260px)로 복원
+
+      if (traceWrap) {
+        traceWrap.style.display = "block";
+        traceWrap.style.height = "220px";  // 짧은 탭용 필사 칸 높이 (원하시면 200~260 사이로 조절)
+      }
 
       if (freeHeader) freeHeader.style.display = "";
-      if (freeWrap) freeWrap.style.display = "block";
+      if (freeWrap) {
+        freeWrap.style.display = "block";
+        freeWrap.style.height = "220px";   // 직접 쓰기 칸도 동일하게
+      }
       if (freeBottom) freeBottom.style.display = "flex";
 
       traceCard.style.flex = "";
@@ -1486,10 +1497,21 @@ function updateTraceGuide(text) {
   const cw = canvas.width;
   const ch = canvas.height;
 
-  // 시작 폰트 크기(적당히 크게 시작)
-  let fontSize = Math.min(cw, ch) * 0.35;
-  if (fontSize > 64) fontSize = 64;
-  if (fontSize < 20) fontSize = 20;
+  // 🔹 긴 글 탭과 나머지 탭에서 기본 폰트 비율을 다르게
+  const isLong = (currentTab === "longtext");
+
+  // 긴 글: 좀 크게 / 자음·모음·단어·문장: 더 작게
+  const baseFactor = isLong ? 0.45 : 0.25;
+
+  let fontSize = Math.min(cw, ch) * baseFactor;
+  if (isLong) {
+    if (fontSize > 64) fontSize = 64;
+    if (fontSize < 22) fontSize = 22;
+  } else {
+    if (fontSize > 42) fontSize = 42;
+    if (fontSize < 16) fontSize = 16;
+  }
+
 
   while (true) {
     ctx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
@@ -1504,7 +1526,7 @@ function updateTraceGuide(text) {
     const totalHeight = lineHeight * (lines.length - 1);
 
     const fitsWidth  = maxLineWidth <= cw * 0.85; // 좌우 15% 여백
-    const fitsHeight = totalHeight  <= ch * 0.7;  // 위아래 30% 여백
+    const fitsHeight = totalHeight  <= ch * (isLong ? 0.75 : 0.55);
 
     if (fitsWidth && fitsHeight) break;
 
