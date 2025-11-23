@@ -520,39 +520,32 @@ body.long-mode #traceCard {
       }
 
 .longtext-tag {
-  font-size: 0.78rem;
-  color: #6b7280;
-  margin-bottom: 6px;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-bottom: 2px;
 }
 
-.longtext-block {
-  margin-bottom: 20px;
-}
-
-.longtext-block-label {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #444;
-  margin-bottom: 6px;
-}
-
+/* 공통: 한국어/아랍어 박스 기본 스타일 (최대한 여백 축소) */
 .longtext-block-body {
-  background: #fafafa;
-  padding: 14px;
-  border-radius: 8px;
-  line-height: 1.7;
-  font-size: 0.95rem;
+  padding: 4px 0;
+  border-radius: 0;
+  line-height: 1.6;
+  font-size: 0.9rem;
   white-space: pre-line;
 }
 
+/* 아랍어(위쪽)만 회색 박스로, 한국어는 그냥 텍스트처럼 보이도록 */
 .longtext-block-body.ar {
+  background: #f5f5f5;
+  padding: 8px 10px;
+  border-radius: 8px;
   text-align: right;
   direction: rtl;
   font-family: "Scheherazade New", serif;
 }
 
 .lt-line {
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 
@@ -1053,7 +1046,7 @@ if (traceCard) {
   // 🔹 필사 칸 높이를 다른 탭과 동일하게 220px로 맞추기
   if (traceWrap) {
     traceWrap.style.display = "block";
-    traceWrap.style.height = "220px";   // 자음/단어 탭과 같은 높이
+    traceWrap.style.height = "280px";   // 자음/단어 탭과 같은 높이
   }
 
   // 레이아웃도 다른 탭과 동일하게 (flex 설정 초기화)
