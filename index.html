@@ -60,6 +60,12 @@
       height: calc(100vh - 52px);
       overflow: hidden;
     }
+      /* 긴 글 탭일 때는 main에 세로 스크롤 허용 */
+body.long-mode main {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
     .side-panel {
       width: 260px;
       min-width: 220px;
@@ -1480,7 +1486,7 @@ function updateTraceGuide(text) {
   const canvas = traceCanvas;
   const ctx = traceCtx;
 
-  // 캔버스 지우기
+  // 캔버스 전체 지우기
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   if (!traceGuideText) return;
 
@@ -1491,52 +1497,76 @@ function updateTraceGuide(text) {
   ctx.textBaseline = "middle";
   ctx.direction = "rtl";
 
-  // 여러 줄/한 줄 공통 처리
-  const rawLines = traceGuideText.split("\n");
-  const lines = rawLines.map(l => l.trim()).filter(l => l.length > 0);
-  const cw = canvas.width;
-  const ch = canvas.height;
+  // 디바이스 픽셀 비율 고려해서 "화면 기준 크기"로 계산
+  const ratio = window.devicePixelRatio || 1;
+  const cw = canvas.width / ratio;   // 화면 기준 가로
+  const ch = canvas.height / ratio;  // 화면 기준 세로
 
-  // 🔹 긴 글 탭과 나머지 탭에서 기본 폰트 비율을 다르게
-  const isLong = (currentTab === "longtext");
-
-  // 긴 글: 좀 크게 / 자음·모음·단어·문장: 더 작게
-  const baseFactor = isLong ? 0.45 : 0.25;
-
-  let fontSize = Math.min(cw, ch) * baseFactor;
-  if (isLong) {
-    if (fontSize > 64) fontSize = 64;
-    if (fontSize < 22) fontSize = 22;
-  } else {
-    if (fontSize > 42) fontSize = 42;
-    if (fontSize < 16) fontSize = 16;
+  // 여러 줄/한 줄 처리
+  const rawLines = (traceGuideText || "").split("\n");
+  let lines = rawLines.map(l => l.trim()).filter(l => l.length > 0);
+  if (lines.length === 0) {
+    ctx.restore();
+    return;
   }
 
+  const isLong = (currentTab === "longtext");
 
-  while (true) {
+  // 🔹 1) 자음/모음/단어/문장 탭: "한 줄" 크게, 캔버스에 딱 맞게
+  if (!isLong) {
+    const text = lines[0];   // 한 줄만 사용
+    let fontSize = Math.min(cw, ch) * 0.7;  // 꽉 차게 시작
+
+    // 캔버스 안에 들어갈 때까지 줄이기
+    while (fontSize > 10) {
+      ctx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
+      const w = ctx.measureText(text).width;
+      const h = fontSize; // 대략 한 줄 높이로 사용
+
+      const fitsWidth  = w <= cw * 0.9;  // 좌우 10% 여백
+      const fitsHeight = h <= ch * 0.8;  // 위아래 20% 여백
+
+      if (fitsWidth && fitsHeight) break;
+      fontSize *= 0.9;
+    }
+
     ctx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
 
-    // 가장 긴 줄 폭과 전체 높이 계산
+    // 화면 기준 좌표로 그리기 (resizeCanvas에서 이미 ratio로 스케일함)
+    const x = cw / 2;
+    const y = ch / 2;
+    ctx.fillText(text, x, y);
+
+    ctx.restore();
+    return;
+  }
+
+  // 🔹 2) 긴 글 탭: 여러 줄이 캔버스 안에 들어가도록 자동 조정
+  let fontSize = Math.min(cw, ch) * 0.18;
+  if (fontSize > 32) fontSize = 32;
+  if (fontSize < 14) fontSize = 14;
+
+  while (fontSize > 10) {
+    ctx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
+
     let maxLineWidth = 0;
     for (const line of lines) {
       const w = ctx.measureText(line).width;
       if (w > maxLineWidth) maxLineWidth = w;
     }
-    const lineHeight = fontSize * 1.8;
+
+    const lineHeight = fontSize * 1.6;
     const totalHeight = lineHeight * (lines.length - 1);
 
-    const fitsWidth  = maxLineWidth <= cw * 0.85; // 좌우 15% 여백
-    const fitsHeight = totalHeight  <= ch * (isLong ? 0.75 : 0.55);
+    const fitsWidth  = maxLineWidth <= cw * 0.9;  // 좌우 10% 여백
+    const fitsHeight = totalHeight  <= ch * 0.8;  // 위아래 20% 여백
 
     if (fitsWidth && fitsHeight) break;
-
-    fontSize *= 0.9;         // 크기 조금 줄이기
-    if (fontSize < 16) break; // 너무 작아지면 중단
+    fontSize *= 0.9;
   }
 
-  // 최종 폰트 크기로 그리기
   ctx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
-  const lineHeightFinal = fontSize * 1.8;
+  const lineHeightFinal = fontSize * 1.6;
   const totalHeightFinal = lineHeightFinal * (lines.length - 1);
   const centerY = ch / 2;
 
@@ -1547,6 +1577,7 @@ function updateTraceGuide(text) {
 
   ctx.restore();
 }
+
 
 
 
