@@ -947,7 +947,7 @@ const arabicForms = {
       let longTextGuideEnabled = true; // 긴 글에서 연한 아랍어 ON/OFF 상태
       let longTextSentences = [];
 let longTextPageIndex = 0;
-const LONG_TEXT_PAGE_SIZE = 3;  // 한 번에 3문장
+const LONG_TEXT_PAGE_SIZE = 2;  // 한 번에 3문장
 
     // ======================
     // DOM 참조
@@ -1038,20 +1038,7 @@ diffButtons.forEach(btn => {
     const clearBtn = document.getElementById("clearBtn");
       const traceCard = document.getElementById("traceCard");
 const freeCard = document.getElementById("freeCard");
-      // 🔹 freeCard 안에 있던 bottom-bar(모두 지우기 버튼)를 traceCard로 이동
-if (traceCard && freeCard) {
-  const bottomBar = freeCard.querySelector(".bottom-bar");
-  if (bottomBar) {
-    traceCard.appendChild(bottomBar);
-  }
-}
-      // 🔹 헤더 문구를 '따라 쓰기 & 직접 쓰기'로 변경 (선택)
-if (traceCard) {
-  const titleSpan = traceCard.querySelector(".canvas-header span");
-  if (titleSpan) {
-    titleSpan.textContent = "따라 쓰기 & 직접 쓰기";
-  }
-}
+    
 
 
 
@@ -1115,39 +1102,44 @@ if (traceCard) {
   }
 
 
-  // 🔹 긴 글 탭일 때: 필사 모드
+   // 🔹 긴 글 탭일 때: 필사 모드
   if (traceCard && freeCard) {
     const traceHeader = traceCard.querySelector(".canvas-header");
-    const traceWrap = traceCard.querySelector(".canvas-wrap");
-    const freeHeader = freeCard.querySelector(".canvas-header");
-    const freeWrap = freeCard.querySelector(".canvas-wrap");
-    const freeBottom = freeCard.querySelector(".bottom-bar");
+    const traceWrap   = traceCard.querySelector(".canvas-wrap");
+    const freeHeader  = freeCard.querySelector(".canvas-header");
+    const freeWrap    = freeCard.querySelector(".canvas-wrap");
+    const freeBottom  = freeCard.querySelector(".bottom-bar");
 
     if (tab === "longtext") {
-  // 위 카드: 필사 (문구는 그대로 사용)
-  if (traceHeader) {
-    const spans = traceHeader.querySelectorAll("span");
-    if (spans[0]) spans[0].textContent = "필사";
-    if (spans[1]) spans[1].textContent = "위의 긴 글을 보고 그대로 써 보세요.";
-  }
+      // 위 카드: '필사' 모드 문구
+      if (traceHeader) {
+        const spans = traceHeader.querySelectorAll("span");
+        if (spans[0]) spans[0].textContent = "필사";
+        if (spans[1]) spans[1].textContent = "위의 긴 글을 보고 그대로 써 보세요.";
+      }
 
-  // 🔹 필사 칸 높이를 다른 탭과 동일하게 220px로 맞추기
-  if (traceWrap) {
-    traceWrap.style.display = "block";
-    traceWrap.style.height = "380px";   // 자음/단어 탭보다 더 높
-  }
+      // 🔹 긴 글 탭에서는 필사 칸을 더 크게
+      if (traceWrap) {
+        traceWrap.style.display = "block";
+        traceWrap.style.height = "360px";   // 기존 320px → 360px
+      }
 
-  // 레이아웃도 다른 탭과 동일하게 (flex 설정 초기화)
-  traceCard.style.flex = "";
+      traceCard.style.flex = "";
 
-  // 아래 카드: 지금 구조처럼 캔버스는 숨기고, '모두 지우기'만 남기는 형태 유지
-  if (freeHeader) freeHeader.style.display = "none";
-  if (freeWrap) freeWrap.style.display = "none";
-  if (freeBottom) freeBottom.style.display = "flex";
-  freeCard.style.flex = "0 0 auto"; // 높이를 최소로 유지
+      // 아래 카드(직접 쓰기)는 숨기고,
+      // '모두 지우기' 버튼은 상단 툴바(selection-right)로 올리기
+      if (freeHeader) freeHeader.style.display = "none";
+      if (freeWrap)   freeWrap.style.display = "none";
+      if (freeBottom) freeBottom.style.display = "none";
+
+      if (selectionRight && clearBtn) {
+        selectionRight.appendChild(clearBtn);
+      }
+
+      freeCard.style.flex = "0 0 auto";   // 최소 높이만 차지
 
     } else {
-      // 🔹 자음 / 모음 / 단어 / 문장 탭: 따라쓰기 + 직접쓰기, 두 칸 모두 균형 있게
+      // 🔹 자음 / 모음 / 단어 / 문장 탭: 따라쓰기 + 직접쓰기 두 칸 모두 사용
       if (traceHeader) {
         const spans = traceHeader.querySelectorAll("span");
         if (spans[0]) spans[0].textContent = "1. 따라 쓰기";
@@ -1156,27 +1148,35 @@ if (traceCard) {
 
       if (traceWrap) {
         traceWrap.style.display = "block";
-        traceWrap.style.height = "220px";  // 짧은 탭용 필사 칸 높이 (원하시면 200~260 사이로 조절)
+        traceWrap.style.height = "220px";   // 다른 탭 기본 높이
       }
 
       if (freeHeader) freeHeader.style.display = "";
       if (freeWrap) {
         freeWrap.style.display = "block";
-        freeWrap.style.height = "220px";   // 직접 쓰기 칸도 동일하게
+        freeWrap.style.height = "220px";
       }
-      if (freeBottom) freeBottom.style.display = "flex";
+
+      if (freeBottom) {
+        freeBottom.style.display = "flex";
+        if (clearBtn) freeBottom.appendChild(clearBtn);  // 다시 아래로 복귀
+      }
 
       traceCard.style.flex = "";
       freeCard.style.flex = "";
-    }  // 🔹 탭을 바꿀 때는 오른쪽 카드와 연한 글자를 초기화
-  currentSelection = null;
-  renderSelectionInfo(null);
-  updateTraceGuide("");
-      
- if (traceCanvas && traceCtx && freeCanvas && freeCtx) {
+    }
+
+    // 🔹 탭을 바꿀 때는 오른쪽 카드와 연한 글자를 초기화
+    currentSelection = null;
+    renderSelectionInfo(null);
+    updateTraceGuide("");
+
+    if (traceCanvas && traceCtx && freeCanvas && freeCtx) {
       resizeCanvas(traceCanvas, traceCtx, true);
       resizeCanvas(freeCanvas, freeCtx, false);
     }
+  }
+
       
   }
 
@@ -1709,7 +1709,7 @@ if (sel.longTextArabic) {
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
-      ctx.lineWidth = 4;
+      ctx.lineWidth = 6;
       ctx.strokeStyle = "#111827";
 
       if (keepGuide) {
