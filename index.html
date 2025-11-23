@@ -326,6 +326,13 @@
       gap: 6px;
       overflow: hidden;
     }
+
+      /* 긴 글 탭일 때만 위쪽 필사 칸 높이 키우기 */
+body.long-mode #traceCard {
+  min-height: 520px;  /* 원하면 500~600 사이로 숫자 조절 가능 */
+}
+
+      
     .canvas-header {
       font-size: 0.8rem;
       font-weight: 600;
@@ -938,8 +945,19 @@ const freeCard = document.getElementById("freeCard");
 
 
     tabButtons.forEach(btn => {
-      btn.addEventListener("click", () => setTab(btn.dataset.tab));
-    });
+  btn.addEventListener("click", () => {
+    const tab = btn.dataset.tab;
+    setTab(tab);
+
+    // 긴 글 탭일 때만 body에 long-mode 클래스 추가
+    if (tab === "longtext") {
+      document.body.classList.add("long-mode");
+    } else {
+      document.body.classList.remove("long-mode");
+    }
+  });
+});
+
 
     // ======================
     // 리스트 렌더링
