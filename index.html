@@ -1373,10 +1373,10 @@ function updateLongTextPageControls() {
 
 
     
-    // ======================
-    // 선택 정보 카드 렌더링
-    // ======================
-    function renderSelectionInfo(sel) {
+// ======================
+// 선택 정보 카드 렌더링
+// ======================
+function renderSelectionInfo(sel) {
   if (!sel) {
     selArabic.textContent = "아랍어 연습 사이트";
     selType.textContent = "안내";
@@ -1401,7 +1401,7 @@ function updateLongTextPageControls() {
     extraParts.push(`<span>발음: ${sel.pron}</span>`);
   }
 
-  // 🔹 긴 글인 경우: 한국어 본문만 보여주기
+  // 🔹 긴 글인 경우: 한국어 본문 보여주기
   if (sel.longTextArabic) {
     let html = "";
 
@@ -1419,23 +1419,20 @@ function updateLongTextPageControls() {
 
     selExtra.innerHTML = html;
 
-    if (sel.type === "긴 글") {
-  // (긴 글용 selExtra 구성 부분은 그대로 유지)
-  ...
-  selExtra.innerHTML = html;
-} else {
-  // 🔹 자음/모음/단어/문장
-  selExtra.innerHTML = extraParts.join(" · ");
-}
-
-// 🔹 이제는 모든 타입에서 토글 버튼 사용
-if (longTextGuideToggleBtn) {
-  longTextGuideToggleBtn.style.display = "inline-flex";
-  longTextGuideToggleBtn.textContent = longTextGuideEnabled
-    ? "연한 아랍어: 켜짐"
-    : "연한 아랍어: 꺼짐";
-}
-
+    // 긴 글 전용: 연한 아랍어 토글 버튼 표시
+    if (longTextGuideToggleBtn) {
+      longTextGuideToggleBtn.style.display = "inline-flex";
+      longTextGuideToggleBtn.textContent = longTextGuideEnabled
+        ? "연한 아랍어: 켜짐"
+        : "연한 아랍어: 꺼짐";
+    }
+  } else {
+    // 🔹 자음/모음/단어/문장 (기존 방식 유지)
+    selExtra.innerHTML = extraParts.join(" · ");
+    if (longTextGuideToggleBtn) {
+      longTextGuideToggleBtn.style.display = "none";
+    }
+  }
 
   // 자음 형태 버튼
   if (sel.forms) {
@@ -1462,6 +1459,7 @@ if (longTextGuideToggleBtn) {
     selForms.classList.add("hidden");
   }
 }
+
 
      // 🔹 연한 아랍어 ON/OFF 버튼 이벤트 (모든 탭 공통)
 if (longTextGuideToggleBtn) {
