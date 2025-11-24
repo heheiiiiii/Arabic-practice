@@ -387,6 +387,19 @@ body.long-mode .content-panel {
       overflow: hidden;
 
     }
+
+      /* 🔹 긴 글 탭 전용 레이아웃 조정 */
+body.longtext-layout .content-panel {
+  overflow: visible;               /* 캔버스가 오른쪽/왼쪽으로 더 나가도 잘리지 않게 */
+}
+
+/* 긴 글 탭에서만 필사 블럭(캔버스 영역)을 화면 전체 가로로 확장 */
+body.longtext-layout .canvas-section {
+  width: calc(100% + 220px);       /* 오른쪽 패널 폭 + 왼쪽 카테고리 폭(220px) */
+  transform: translateX(-220px);   /* 왼쪽으로 220px 밀어서, 카테고리 아래까지 깔리게 */
+  max-width: none;
+}
+
       body.long-mode .canvas-section {
   overflow: visible;
 }
