@@ -596,6 +596,21 @@ body.longtext-ghost #ghostCanvas .ghost-line {
   margin-left: 6px;
 }
 
+/* 🔹 긴 글 탭일 때: 왼쪽 패널은 조금 더 작게, 오른쪽 필사칸은 더 넓게 */
+body.longtext-layout .side-panel {
+  width: 220px;         /* 기본 260px → 더 좁게 */
+  min-width: 200px;
+  max-width: 240px;
+
+  /* 세로 길이도 main 전체가 아니라, 내용 높이 + max-height로 제한 */
+  align-self: flex-start;  /* 기본 stretch → 내용 높이에 맞게 */
+  max-height: 70vh;        /* 너무 길어지지 않게 상한선 */
+}
+
+/* 긴 글 탭일 때: 오른쪽 콘텐츠는 여유 있게 사용 */
+body.longtext-layout .content-panel {
+  padding-left: 10px;      /* 살짝만 줄이거나 조정 가능 */
+}
 
 
   </style>
@@ -1071,6 +1086,16 @@ if (traceCard) {
   panelSentences.classList.toggle("hidden", tab !== "sentences");
 
           panelLongtext.classList.toggle("hidden", tab !== "longtext");
+        
+          // 🔹 긴 글 탭일 때만 레이아웃(왼쪽 패널 크기)을 다르게 하기 위한 body 클래스
+  if (document.body) {
+    if (tab === "longtext") {
+      document.body.classList.add("longtext-layout");
+    } else {
+      document.body.classList.remove("longtext-layout");
+    }
+  }
+
           // 🔹 긴 글 탭일 때만 연한 아랍어(ghost) 폰트를 키우기 위한 body 클래스
   if (document.body) {
     if (tab === "longtext") {
