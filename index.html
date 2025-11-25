@@ -975,7 +975,7 @@ const arabicForms = {
       let longTextGuideEnabled = true; // 긴 글에서 연한 아랍어 ON/OFF 상태
       let longTextSentences = [];
 let longTextPageIndex = 0;
-const LONG_TEXT_PAGE_SIZE = 2;  // 한 번에 3문장
+const LONG_TEXT_PAGE_SIZE = 2;  // 한 번에 2문장
 
     // ======================
     // DOM 참조
@@ -1913,8 +1913,8 @@ function updateTraceGuide(text) {
        const lineHeight = fontSize * 1.4;
     const totalHeight = lineHeight * (lineCount - 1);
 
-    const fitsWidth  = maxLineWidth <= cw * 0.9;   // 좌우 10% 정도 여백
-    const fitsHeight = totalHeight  <= ch * 0.8;   // 위아래 20% 정도 여백
+    const fitsWidth  = maxLineWidth <= cw * 0.94;   // 좌우 10% 정도 여백
+    const fitsHeight = totalHeight  <= ch * 0.85;   // 위아래 20% 정도 여백
 
     if (fitsWidth && fitsHeight) break;   // 둘 다 만족하면 이 크기로 확정
     fontSize *= 0.94;                     // 조금씩 줄이면서 다시 체크
