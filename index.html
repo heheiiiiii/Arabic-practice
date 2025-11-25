@@ -566,7 +566,7 @@ body.long-mode #traceCard {
 
       /* 긴 글 탭에서만 연한 아랍어를 더 크게 */
 body.longtext-ghost #ghostCanvas .ghost-line {
-  font-size: 4.2rem;    /* 긴 글용 확대 폰트 */
+  font-size: 5rem;    /* 긴 글용 확대 폰트 */
 }
 
 
@@ -1902,7 +1902,14 @@ function updateTraceGuide(text) {
          // 긴 글 탭은 연한 글씨를 조금 더 진하게
   ctx.globalAlpha = 0.17;
 
-        
+    while (fontSize > 10) {
+    ctx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
+
+    let maxLineWidth = 0;
+    for (const line of lines) {
+      const w = ctx.measureText(line).width;
+      if (w > maxLineWidth) maxLineWidth = w;
+    }     
 
 
     const lineHeight = fontSize * 1.6;
