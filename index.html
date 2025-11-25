@@ -1902,25 +1902,7 @@ function updateTraceGuide(text) {
          // 긴 글 탭은 연한 글씨를 조금 더 진하게
   ctx.globalAlpha = 0.17;
 
-    while (fontSize > 10) {
-    ctx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
 
-    let maxLineWidth = 0;
-    for (const line of lines) {
-      const w = ctx.measureText(line).width;
-      if (w > maxLineWidth) maxLineWidth = w;
-    }     
-
-
-    const lineHeight = fontSize * 1.6;
-    const totalHeight = lineHeight * (lines.length - 1);
-
-    const fitsWidth  = maxLineWidth <= cw * 0.98;  // 좌우 10% 여백
-    const fitsHeight = totalHeight  <= ch * 0.92;  // 위아래 20% 여백
-
-    if (fitsWidth && fitsHeight) break;
-    fontSize *= 0.9;
-  }
 
   ctx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
   const lineHeightFinal = fontSize * 1.6;
