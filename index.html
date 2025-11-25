@@ -1891,20 +1891,19 @@ function updateTraceGuide(text) {
     ctx.restore();
     return;
   }
-
+  // 🔹 2) 긴 글 탭: 세로 높이 기준으로 크게 그리기
+  const lineCount = lines.length || 1;
+        
   // 🔹 2) 긴 글 탭: 여러 줄이 캔버스 안에 들어가도록 자동 조정
   let fontSize = Math.min(cw, ch) * 2;
   if (fontSize > 60) fontSize = 180;
   if (fontSize < 14) fontSize = 50;
 
-  while (fontSize > 10) {
-    ctx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
+         // 긴 글 탭은 연한 글씨를 조금 더 진하게
+  ctx.globalAlpha = 0.17;
 
-    let maxLineWidth = 0;
-    for (const line of lines) {
-      const w = ctx.measureText(line).width;
-      if (w > maxLineWidth) maxLineWidth = w;
-    }
+        
+
 
     const lineHeight = fontSize * 1.6;
     const totalHeight = lineHeight * (lines.length - 1);
