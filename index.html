@@ -360,9 +360,9 @@
 
     .fall-word {
       position: absolute;
-      top: 50%;          /* 실제 위치는 JS에서 lane으로 설정 */
-      left: 0;
-      transform: translate(0, -50%);
+      top: 50%;
+      left: 0;                  /* 항상 왼쪽에서 출발 */
+      transform: translateY(-50%);
       font-size: 1.9rem;
       direction: rtl;
       text-align: center;
@@ -441,7 +441,7 @@
 
       <div class="center-wrap">
         <div class="top-stats">
-          <span id="practiceTopStats">진행도: 0개   ·   정확도: 100%   ·   0 / 0 글자</span>
+          <span id="practiceTopStats">진행도: 0개 · 정확도: 100% · 0 / 0 글자</span>
         </div>
 
         <div class="long-selector" id="longSelector">
@@ -481,7 +481,7 @@
     <!-- ===== 게임 탭 ===== -->
     <section class="tab-section" id="gameSection">
       <div class="game-title">게임 모드</div>
-      <div class="game-desc">떨어지는 단어(가로 이동)와 타임어택 문장 게임으로 연습해 보세요.</div>
+      <div class="game-desc">왼쪽에서 오른쪽으로 이동하는 단어와 타임어택 문장 게임으로 연습해 보세요.</div>
 
       <div class="game-inner-tabs">
         <button class="game-tab-btn active" data-game="fallWord">단어 게임 (가로 이동)</button>
@@ -493,7 +493,7 @@
         <div class="game-center-wrap">
           <div class="game-top-stats">
             <span id="fallScoreTop">점수: 0</span>
-            <span id="fallSpeedInfo">속도: 0.50x</span>
+            <span id="fallSpeedInfo">속도: 2.0x</span>
           </div>
 
           <div class="fall-wrapper" id="fallWrapper"></div>
@@ -662,7 +662,7 @@
         : 0;
 
       practiceTopStats.textContent =
-        `진행도: ${progressCount}개   ·   정확도: ${accuracy}%   ·   ${typedLen} / ${totalLen} 글자`;
+        `진행도: ${progressCount}개 · 정확도: ${accuracy}% · ${typedLen} / ${totalLen} 글자`;
     }
 
     function updatePracticeProgress() {
@@ -784,7 +784,7 @@
       });
     });
 
-    // ===== 단어 게임 (왼쪽 -> 오른쪽) =====
+    // ===== 단어 게임 (왼쪽 -> 오른쪽, 픽셀 기준) =====
     const fallWrapper = document.getElementById("fallWrapper");
     const fallTypedDisplay = document.getElementById("fallTypedDisplay");
     const fallInput = document.getElementById("fallInput");
@@ -796,10 +796,10 @@
     let fallState = {
       active: false,
       score: 0,
-      speed: 0.5,                 // 처음 속도 (느리게 시작)
+      speed: 2,                 // px 단위 속도 (느리게 시작)
       timerId: null,
       spawnId: null,
-      items: [],                  // { id, text, el, x, lane }
+      items: [],                // { id, text, el, xPx, lane }
       current: null,
       lanes: [10, 30, 50, 70, 90],
       nextLaneIndex: 0
@@ -827,13 +827,13 @@
       el.dataset.id = id;
       el.textContent = data.text;
 
-      const x = 0; // 왼쪽에서 시작
-      el.style.left = x + "%";
+      const xPx = -el.offsetWidth || 0;  // 거의 0에서 시작
+      el.style.left = xPx + "px";
       el.style.top = lane + "%";
 
       fallWrapper.appendChild(el);
 
-      const item = { id, text: data.text, el, x, lane };
+      const item = { id, text: data.text, el, xPx, lane };
       fallState.items.push(item);
 
       if (!fallState.current) {
@@ -845,13 +845,15 @@
 
     function updateFallingPosition() {
       if (!fallState.active) return;
+      const wrapperWidth = fallWrapper.clientWidth;
 
       for (const item of fallState.items) {
-        item.x += fallState.speed;
-        item.el.style.left = item.x + "%";
+        item.xPx += fallState.speed;             // 왼쪽 -> 오른쪽
+        item.el.style.left = item.xPx + "px";
 
         // 오른쪽 벽에 닿으면 게임 오버
-        if (item.x >= 100) {
+        const wordRight = item.xPx + item.el.offsetWidth;
+        if (wordRight >= wrapperWidth) {
           stopFallGame(false);
           return;
         }
@@ -863,13 +865,13 @@
 
       fallState.active = true;
       fallState.score = 0;
-      fallState.speed = 0.5;   // 시작 속도
+      fallState.speed = 2;   // 시작 속도(px)
       fallState.items.forEach(i => i.el.remove());
       fallState.items = [];
       fallState.current = null;
       fallWrapper.innerHTML = "";
       fallScoreTop.textContent = "점수: 0";
-      fallSpeedInfo.textContent = `속도: ${fallState.speed.toFixed(2)}x`;
+      fallSpeedInfo.textContent = `속도: ${fallState.speed.toFixed(1)}x`;
       fallStatus.textContent = "진행 중...";
       fallTypedDisplay.innerHTML = "";
       fallInput.value = "";
@@ -878,7 +880,7 @@
       if (fallState.timerId) clearInterval(fallState.timerId);
       if (fallState.spawnId) clearInterval(fallState.spawnId);
 
-      fallState.timerId = setInterval(updateFallingPosition, 80);
+      fallState.timerId = setInterval(updateFallingPosition, 40);
       fallState.spawnId = setInterval(spawnFallWord, 2000);
 
       spawnFallWord();
@@ -913,8 +915,8 @@
         fallScoreTop.textContent = `점수: ${fallState.score}`;
 
         // 속도 조금씩 상승
-        fallState.speed += 0.05;
-        fallSpeedInfo.textContent = `속도: ${fallState.speed.toFixed(2)}x`;
+        fallState.speed += 0.4;
+        fallSpeedInfo.textContent = `속도: ${fallState.speed.toFixed(1)}x`;
 
         fallState.current.el.remove();
         fallState.items = fallState.items.filter(it => it.id !== fallState.current.id);
