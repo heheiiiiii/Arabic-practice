@@ -567,6 +567,15 @@
   </div>
 
   <script>
+    function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+    
     const exercises = [
       { type: "word", meaning: "책상", text: "مَكْتَبٌ" },
       { type: "word", meaning: "학교", text: "مَدْرَسَةٌ" },
@@ -676,15 +685,15 @@
     function setupPracticeMode() {
       if (currentMode === "word") {
         modeTitle.textContent = "단어";
-        practiceList = exercises.filter(ex => ex.type === "word");
+       practiceList = shuffleArray(exercises.filter(ex => ex.type === "word"));
         longSelector.classList.remove("active");
       } else if (currentMode === "short") {
         modeTitle.textContent = "문장";
-        practiceList = exercises.filter(ex => ex.type === "sentence-short");
+        practiceList = shuffleArray(exercises.filter(ex => ex.type === "sentence-short"));
         longSelector.classList.remove("active");
       } else {
         modeTitle.textContent = "긴 글";
-        practiceList = exercises.filter(ex => ex.type === "sentence-long");
+       practiceList = shuffleArray(exercises.filter(ex => ex.type === "sentence-long"));
         longSelector.classList.add("active");
         buildLongList();
       }
