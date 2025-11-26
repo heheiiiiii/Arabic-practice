@@ -698,35 +698,50 @@
     }
 
     practiceInput.addEventListener("input", updatePracticeTyping);
+    
+    practiceInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    goToNextPractice();
+  }
+});
 
-    practiceNextBtn.addEventListener("click", () => {
-      if (practiceList.length === 0) return;
-      practiceIndex = (practiceIndex + 1) % practiceList.length;
-      loadPracticeItem();
-    });
+
+    function goToNextPractice() {
+  if (practiceList.length === 0) return;
+  practiceIndex = (practiceIndex + 1) % practiceList.length;
+  loadPracticeItem();
+}
+
+    practiceNextBtn.addEventListener("click", goToNextPractice);
+
 
     setupPracticeMode();
 
-    // ---------- 게임 탭 전환 ----------
-    const gameTabButtons = document.querySelectorAll(".game-tab-btn");
-    const fallWordArea = document.getElementById("fallWordArea");
-    const timeSentenceArea = document.getElementById("timeSentenceArea");
+  // ---------- 게임 탭 전환 ----------
+const gameTabButtons = document.querySelectorAll(".game-tab-btn");
+const fallWordArea = document.getElementById("fallWordArea");
+const timeSentenceArea = document.getElementById("timeSentenceArea");
 
-    gameTabButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        gameTabButtons.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        const gameType = btn.dataset.game;
+gameTabButtons.forEach(btn => {
+  const handler = (e) => {
+    e.preventDefault();
+    gameTabButtons.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    const gameType = btn.dataset.game;
 
-        if (gameType === "fallWord") {
-          fallWordArea.classList.add("active");
-          timeSentenceArea.classList.remove("active");
-        } else {
-          timeSentenceArea.classList.add("active");
-          fallWordArea.classList.remove("active");
-        }
-      });
-    });
+    if (gameType === "fallWord") {
+      fallWordArea.classList.add("active");
+      timeSentenceArea.classList.remove("active");
+    } else {
+      timeSentenceArea.classList.add("active");
+      fallWordArea.classList.remove("active");
+    }
+  };
+
+  btn.addEventListener("pointerdown", handler);
+});
+
 
     // ---------- 단어 게임 (위 -> 아래) ----------
     const fallWrapper = document.getElementById("fallWrapper");
@@ -870,8 +885,12 @@
       }
     }
 
-    fallStartBtn.addEventListener("click", startFallGame);
-    fallInput.addEventListener("input", handleFallInput);
+    fallStartBtn.addEventListener("pointerdown", (e) => {
+  e.preventDefault();
+  startFallGame();
+});
+fallInput.addEventListener("input", handleFallInput);
+
 
     // ---------- 문장 타임어택 ----------
     const timeMeaning = document.getElementById("timeMeaning");
@@ -964,8 +983,12 @@
       timeLeftEl.textContent = `시간 종료 · 최종 점수: ${timeState.score}개`;
     }
 
-    timeStartBtn.addEventListener("click", startTimeAttack);
-    timeInput.addEventListener("input", updateTimeTyping);
+    timeStartBtn.addEventListener("pointerdown", (e) => {
+  e.preventDefault();
+  startTimeAttack();
+});
+timeInput.addEventListener("input", updateTimeTyping);
+
   </script>
 </body>
 </html>
