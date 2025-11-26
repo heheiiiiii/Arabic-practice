@@ -1,1016 +1,2106 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>아랍어 타자 연습</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arabic Practice Lab</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
+    * {
+      box-sizing: border-box;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      background-color: #f3f4f6;
+      color: #111827;
+    }
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f3f3f3;
-      color: #111;
-      display: flex;
-      justify-content: center;
-      align-items: stretch;
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 1100px;
-      background: #fff;
-      border-radius: 16px;
-      padding: 20px 24px 28px;
-      box-shadow: 0 10px 26px rgba(0,0,0,0.08);
       display: flex;
       flex-direction: column;
-      min-height: 90vh;
     }
 
-    .app-title {
-      text-align: center;
-      font-size: 1.6rem;
-      font-weight: 700;
-      margin-bottom: 14px;
-    }
-
-    .main-tabs {
+    /* 상단 헤더 */
+    .app-header {
       display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 18px;
-      flex-wrap: nowrap;
-      white-space: nowrap;
-    }
-
-    .main-tab-btn {
-      padding: 6px 12px;
-      border-radius: 999px;
-      border: 1px solid #ccc;
-      background: #fafafa;
-      font-size: 0.85rem;
-      cursor: pointer;
-    }
-
-    .main-tab-btn.active {
-      background: #2196f3;
-      border-color: #2196f3;
-      color: #fff;
-    }
-
-    .tab-section { flex: 1; display: none; }
-    .tab-section.active {
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      min-height: 0;
-    }
-
-    .mode-title {
-      text-align: center;
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-
-    .top-stats {
-      text-align: right;
-      font-size: 0.9rem;
-      color: #666;
-      margin-bottom: 4px;
-    }
-
-    .center-wrap {
-      max-width: 780px;
-      margin: 0 auto;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      flex: 1;
-    }
-
-    .info-text {
-      font-size: 0.9rem;
-      color: #666;
-      margin-bottom: 4px;
-    }
-
-    .box {
-      background: #f1f1f1;
-      border-radius: 10px;
-      padding: 12px 14px;
-      text-align: center;
-    }
-
-    .combined-box { display: flex; flex-direction: column; gap: 6px; }
-
-    .meaning-line { font-size: 1rem; color: #333; }
-
-    .arabic-line {
-      font-size: 1.6rem;
-      direction: rtl;
-      text-align: center;
-      color: #111;
-      word-wrap: break-word;
-      line-height: 1.8;
-      white-space: pre-line;
-    }
-
-    .typed-display {
-      min-height: 34px;
-      font-size: 1.6rem;
-      direction: rtl;
-      text-align: center;
-      word-wrap: break-word;
-      line-height: 1.8;
-    }
-
-    .input-area { margin-top: 6px; }
-
-    .typing-input {
-      width: 100%;
-      max-width: 640px;
-      padding: 10px 12px;
-      font-size: 1.2rem;
-      direction: rtl;
-      text-align: center;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      outline: none;
-    }
-
-    .typing-input:focus {
-      border-color: #2196f3;
-      box-shadow: 0 0 0 2px rgba(33,150,243,0.12);
-    }
-
-    .bottom-row {
-      margin-top: 14px;
-      display: flex;
-      justify-content: flex-end;
       align-items: center;
-      gap: 10px;
-      font-size: 0.9rem;
-      color: #666;
-      flex-wrap: wrap;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background: #111827;
+      color: #f9fafb;
     }
-
-    .btn {
-      padding: 8px 16px;
-      border-radius: 999px;
-      border: none;
-      background: #2196f3;
-      color: #fff;
-      cursor: pointer;
-      font-size: 0.9rem;
-      white-space: nowrap;
+    .app-title {
+      font-weight: 700;
+      font-size: 1rem;
     }
-
-    .btn:active { transform: translateY(1px); }
-
-    .correct-char { color: #111; }
-    .wrong-char { color: #e53935; }
-
-    .long-selector { display: none; text-align: left; }
-    .long-selector.active { display: block; }
-
-    .long-selector-title {
-      font-size: 0.9rem;
-      color: #444;
-      margin-bottom: 4px;
-    }
-
-    .long-list {
-      border-radius: 10px;
-      border: 1px solid #ddd;
-      background: #fafafa;
-      max-height: 170px;
-      overflow-y: auto;
-      padding: 4px 0;
-    }
-
-    .long-item {
-      padding: 6px 10px;
-      font-size: 0.9rem;
-      cursor: pointer;
-    }
-
-    .long-item:hover { background: #e3f2fd; }
-    .long-item.selected { background: #bbdefb; font-weight: 600; }
-
-    .game-title {
-      text-align: center;
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-
-    .game-desc {
-      text-align: center;
-      font-size: 0.9rem;
-      color: #666;
-      margin-bottom: 14px;
-    }
-
-    .game-inner-tabs {
+    .tab-bar {
       display: flex;
-      justify-content: center;
       gap: 8px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
     }
-
-    .game-tab-btn {
+    .tab-btn {
       padding: 6px 14px;
       border-radius: 999px;
-      border: 1px solid #ccc;
-      background: #fafafa;
+      border: none;
       font-size: 0.85rem;
       cursor: pointer;
+      background: #1f2937;
+      color: #e5e7eb;
+      transition: background 0.15s, color 0.15s;
+    }
+    .tab-btn.active {
+      background: #facc15;
+      color: #111827;
+      font-weight: 600;
     }
 
-    .game-tab-btn.active {
-      background: #ff9800;
-      border-color: #ff9800;
-      color: #fff;
+    /* 메인 레이아웃 */
+    .app-main {
+      flex: 1;
+      display: flex;
+      height: calc(100vh - 52px);
+      overflow: hidden;
+    }
+      /* 긴 글 탭일 때는 main에 세로 스크롤 허용 */
+body.long-mode main {
+   height: auto;                             /* 내용 길이에 맞춰 늘어남 */
+  min-height: calc(100vh - 52px);           /* 화면 높이보다 너무 작아지지 않게 */
+  overflow-y: auto;                         /* 세로 스크롤 열기 */
+  overflow-x: hidden;
+}
+
+    .side-panel {
+      width: 260px;
+      min-width: 220px;
+      max-width: 300px;
+      padding: 12px;
+      border-right: 1px solid #e5e7eb;
+      background: #f9fafb;
+      overflow-y: auto;
+    }
+    .side-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .side-sub {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-bottom: 10px;
     }
 
-    .game-content { flex: 1; display: none; flex-direction: column; }
-    .game-content.active { display: flex; flex-direction: column; }
+    .letter-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
 
-    .game-center-wrap {
-      max-width: 780px;
-      margin: 0 auto;
+     #wordsList.letter-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    
+    .card {
+      border-radius: 14px;
+      padding: 6px 8px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      transition: box-shadow 0.15s, border-color 0.15s, transform 0.05s;
+    }
+    .card:hover {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+      border-color: #d1d5db;
+      transform: translateY(-1px);
+    }
+    .card.active {
+      border-color: #f97316;
+      box-shadow: 0 0 0 1px rgba(249,115,22,0.5);
+    }
+    .card-ar {
+      font-size: 1.4rem;
+      margin-bottom: 2px;
+    }
+    .card-name {
+      font-size: 0.7rem;
+      color: #374151;
+    }
+    .card-sound {
+      font-size: 0.6rem;
+      color: #6b7280;
+    }
+
+    /* 메인 우측 영역 */
+    .content-panel {
+      flex: 1;
+      padding: 12px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow: hidden;
+    }
+/* 긴 글 탭에서는 한국어 뜻이 잘리지 않도록 오버플로우 해제 */
+body.long-mode .content-panel {
+  overflow: visible;
+}
+
+      
+    /* 선택 정보 카드 */
+    .selection-card {
+  background: white;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  padding: 8px 12px;        /* 패딩 줄이기 */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;                 /* 간격 축소 */
+  min-height: 56px;         /* 최소 높이 줄이기 */
+}
+
+/* 긴 글 탭일 때: 상단 카드를 세로 배치로 바꾸기 */
+.selection-card.longtext-mode {
+  flex-direction: column;    /* 위에 텍스트, 아래에 버튼 */
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.selection-card.longtext-mode .selection-right {
+  align-self: flex-start;    /* 버튼 묶음도 왼쪽 정렬 */
+}
+
+      
+       .selection-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+
+/* 긴 글 탭에서 툴바를 가로 한 줄 + 좌우 분리 */
+.selection-card.longtext-toolbar .selection-right {
+  flex-direction: row;
+  align-items: center;     /* 세로 정렬(하단) 맞추기 */
+  flex-wrap: nowrap;       /* 줄바꿈 없이 한 줄 유지 */
+  gap: 8px;
+  width: 100%;             /* 왼쪽·오른쪽으로 공간 나누기 */
+}
+
+
+    .record-mini {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      align-items: flex-end;
+    }
+    .record-mini-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      justify-content: flex-end;
+    }
+    .record-mini-status {
+      font-size: 0.7rem;
+      color: #6b7280;
+      text-align: right;
+    }
+
+    .selection-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .selection-top-line {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .selection-ar {
+      font-size: 1.25rem;   /* 1.6 → 1.25로 줄이기 */
+  font-weight: 600;
+  direction: rtl;
+  font-family: "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif;
+    }
+    .selection-type {
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #4f46e5;
+      font-weight: 600;
+    }
+    .selection-extra {
+      font-size: 0.75rem;
+      color: #4b5563;
+      
+    }
+    .selection-extra span {
+      white-space: nowrap;
+    }
+    .selection-forms {
+      font-size: 0.7rem;
+      color: #6b7280;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .selection-form-label {
+      color: #9ca3af;
+    }
+        .selection-form-btn {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      cursor: pointer;
+      font-size: 0.7rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .selection-form-btn .form-label {
+      color: #9ca3af;
+    }
+    .selection-form-btn .form-ar {
+      direction: rtl;
+      font-family: "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif;
+      font-size: 1.1rem;
+    }
+
+      .play-btn {
+  border-radius: 999px;
+  border: none;
+  padding: 4px 10px;      /* 패딩 축소 */
+  font-size: 0.75rem;     /* 글자 살짝 줄이기 */
+  cursor: pointer;
+  background: #111827;
+  color: #f9fafb;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+    
+      .guide-toggle-btn {
+  margin-top: 4px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  padding: 3px 8px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  color: #374151;
+  display: none;
+}
+
+      .longtext-page-controls {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+}
+
+.page-btn {
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  padding: 2px 6px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  color: #374151;
+}
+
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.page-info {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+      
+    .play-btn span {
+      font-size: 0.9rem;
+    }
+        .record-card {
+      background: white;
+      border-radius: 14px;
+      border: 1px solid #e5e7eb;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .record-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #374151;
+    }
+    .record-sub {
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+    .record-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+      .record-btn {
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: none;
+  font-size: 0.7rem;
+  cursor: pointer;
+  background: #e5e7eb;
+  color: #111827;
+}
+
+      
+    .record-btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+    .record-status {
+      font-size: 0.75rem;
+      color: #4b5563;
+    }
+
+
+    /* 캔버스 영역 */
+    .canvas-section {
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      text-align: center;
-    }
-
-    .game-typed-display {
-      min-height: 30px;
-      font-size: 1.5rem;
-      direction: rtl;
-      text-align: center;
-      word-wrap: break-word;
-      line-height: 1.7;
-    }
-
-    .game-input {
-      width: 100%;
-      max-width: 640px;
-      padding: 8px 11px;
-      font-size: 1.1rem;
-      direction: rtl;
-      text-align: center;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      outline: none;
-    }
-
-    .game-input:focus {
-      border-color: #ff9800;
-      box-shadow: 0 0 0 2px rgba(255,152,0,0.18);
-    }
-
-    .game-top-stats {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.9rem;
-      color: #666;
-      margin-bottom: 4px;
-    }
-
-    .game-stats-row {
-      margin-top: 10px;
-      display: flex;
-      justify-content: space-between;
       gap: 10px;
-      flex-wrap: wrap;
-      font-size: 0.9rem;
-      color: #666;
+      overflow: hidden;
+
+    }
+
+      /* 🔹 긴 글 탭 전용 레이아웃 조정 */
+body.longtext-layout .content-panel {
+  overflow: visible;               /* 캔버스가 오른쪽/왼쪽으로 더 나가도 잘리지 않게 */
+}
+
+/* 긴 글 탭에서만 필사 블럭(캔버스 영역)을 화면 전체 가로로 확장 */
+body.longtext-layout .canvas-section {
+  width: calc(100% + 220px);       /* 오른쪽 패널 폭 + 왼쪽 카테고리 폭(220px) */
+  transform: translateX(-220px);   /* 왼쪽으로 220px 밀어서, 카테고리 아래까지 깔리게 */
+  max-width: none;
+}
+
+      body.long-mode .canvas-section {
+  overflow: visible;
+}
+
+    .canvas-card {
+      flex: 1;
+      min-height: 180px;
+      background: white;
+      border-radius: 14px;
+      border: 1px solid #e5e7eb;
+      padding: 8px 10px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow: hidden;
+    }
+
+      /* 직접 쓰기 카드 숨기기(캔버스를 하나처럼 사용) */
+#freeCard {
+  display: none;
+}
+
+      /* 긴 글 탭일 때만 위쪽 필사 칸 높이 키우기 */
+body.long-mode #traceCard {
+  min-height: 620px;  /* 원하면 500~600 사이로 숫자 조절 가능 */
+}
+
+      
+    .canvas-header {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #374151;
+      display: flex;
+      justify-content: space-between;
       align-items: center;
     }
-
-    .fall-wrapper {
-      position: relative;
-      height: 320px;
+    .canvas-hint {
+      font-size: 0.7rem;
+      color: #9ca3af;
+    }
+    .canvas-wrap {
+      flex: 1;
+      border-radius: 10px;
+      border: 1px dashed #e5e7eb;
+      background: #f9fafb;
       overflow: hidden;
-      border-radius: 12px;
-      background: #fafafa;
-      margin-top: 6px;
-      margin-bottom: 4px;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
     }
 
-    .fall-word {
-      position: absolute;
-      left: 0;
-      top: -40px;
-      font-size: 1.9rem;
-      direction: rtl;
-      text-align: center;
-      white-space: nowrap;
-      transform: translateX(-50%);
+    .bottom-bar {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 4px;
+    }
+    .clear-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      background: #e5e7eb;
+      color: #374151;
     }
 
-    .game-arabic-box {
-      background: #f1f1f1;
+    .hidden {
+      display: none !important;
+    }
+
+    /* 반응형 조정: 아이패드 / 태블릿에서 세로 여백 줄이기 */
+    @media (max-height: 800px) {
+      .canvas-card {
+        min-height: 150px;
+      }
+    }
+    @media (max-width: 900px) {
+      .app-main {
+        flex-direction: column;
+      }
+      .side-panel {
+        width: 100%;
+        max-width: none;
+        border-right: none;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        flex-direction: column;
+      }
+      .letter-grid {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+      }
+    }
+
+        .difficulty-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .diff-btn {
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #f3f4f6;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      color: #374151;
+    }
+    .diff-btn.active {
+      border-color: #f97316;
+      background: #fff7ed;
+      color: #9a3412;
+    }
+
+    .longtext-item {
       border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 1.5rem;
-      direction: rtl;
-      text-align: center;
-      color: #111;
-      word-wrap: break-word;
-      line-height: 1.7;
-      white-space: pre-line;
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      padding: 6px 8px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .longtext-item-title {
+      font-weight: 600;
+      color: #111827;
+    }
+    .longtext-item-meta {
+      font-size: 0.7rem;
+      color: #6b7280;
+    }
+    .longtext-item.active {
+      border-color: #f97316;
+      box-shadow: 0 0 0 1px rgba(249,115,22,0.4);
     }
 
-    .game-meaning-box {
-      background: #f1f1f1;
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 0.95rem;
-      color: #333;
-    }
+    .ghost-line {
+  opacity: 0.12;
+  font-size: 3.2rem;
+  line-height: 1.8;
+  direction: rtl;
+  white-space: normal; /* 줄바꿈 허용 */
+  margin-bottom: 20px;
+}
 
-    @media (max-width: 768px) {
-      body { padding: 10px; }
-      .container { padding: 16px 16px 22px; min-height: 100vh; }
-      .app-title { font-size: 1.4rem; }
-      .arabic-line,
-      .typed-display,
-      .game-arabic-box,
-      .game-typed-display,
-      .fall-word { font-size: 1.4rem; }
-      .typing-input,
-      .game-input { font-size: 1.05rem; }
-      .fall-wrapper { height: 260px; }
-    }
+      #ghostCanvas {
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  direction: rtl;
+  text-align: right;
+}
+
+#ghostCanvas .ghost-line {
+        font-size: 3rem;      /* 전체 크기 ↓ */
+        line-height: 1.4;     /* 줄 간격 ↓ */
+        word-break: keep-all;
+        white-space: pre-line;
+      }
+
+      /* 긴 글 탭에서만 연한 아랍어를 더 크게 */
+body.longtext-ghost #ghostCanvas .ghost-line {
+  font-size: 5rem;    /* 긴 글용 확대 폰트 */
+}
+
+
+.longtext-tag {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-bottom: 2px;
+}
+
+/* 공통: 한국어/아랍어 박스 기본 스타일 (최대한 여백 축소) */
+.longtext-block-body {
+  padding: 4px 0;
+  border-radius: 0;
+  line-height: 1.6;
+  font-size: 0.9rem;
+  white-space: pre-line;
+}
+
+.longtext-block-body.ar {
+  background: #f5f5f5;
+  padding: 6px 8px;          /* 위아래, 좌우 모두 살짝 줄이기 */
+  border-radius: 8px;
+  text-align: right;
+  direction: rtl;
+  font-family: "Scheherazade New", serif;
+}
+
+
+.lt-line {
+  margin-bottom: 4px;
+}
+
+      /* 긴 글 탭에서: 연한 아랍어 토글을 오른쪽으로 밀기 */
+.selection-card.longtext-toolbar #longTextGuideToggleBtn {
+  margin-left: auto;      /* 여기서 왼쪽 그룹(발음/녹음)과 오른쪽 그룹을 분리 */
+}
+
+/* 페이지 이동 버튼은 토글 바로 오른쪽에 붙도록 살짝 간격만 */
+.selection-card.longtext-toolbar #longTextPageControls {
+  margin-left: 6px;
+}
+
+/* 🔹 긴 글 탭일 때: 왼쪽 패널은 조금 더 작게, 오른쪽 필사칸은 더 넓게 */
+body.longtext-layout .side-panel {
+  width: 220px;         /* 기본 260px → 더 좁게 */
+  min-width: 200px;
+  max-width: 240px;
+
+  /* 세로 길이도 main 전체가 아니라, 내용 높이 + max-height로 제한 */
+  align-self: flex-start;  /* 기본 stretch → 내용 높이에 맞게 */
+  max-height: 70vh;        /* 너무 길어지지 않게 상한선 */
+}
+
+/* 긴 글 탭일 때: 오른쪽 콘텐츠는 여유 있게 사용 */
+body.longtext-layout .content-panel {
+  padding-left: 10px;      /* 살짝만 줄이거나 조정 가능 */
+}
+
+
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1 class="app-title">아랍어 타자 연습</h1>
-
-    <div class="main-tabs">
-      <button class="main-tab-btn active" data-tab="word">단어</button>
-      <button class="main-tab-btn" data-tab="short">문장</button>
-      <button class="main-tab-btn" data-tab="long">긴 글</button>
-      <button class="main-tab-btn" data-tab="game">게임 모드</button>
+  <header class="app-header">
+    <div class="app-title">Arabic Practice Lab</div>
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="letters">자음</button>
+      <button class="tab-btn" data-tab="vowels">모음</button>
+      <button class="tab-btn" data-tab="words">단어</button>
+      <button class="tab-btn" data-tab="sentences">문장</button>
+      <button class="tab-btn" data-tab="longtext">긴 글</button>
     </div>
+  </header>
 
-    <!-- 연습 섹션 -->
-    <section class="tab-section active" id="practiceSection">
-      <div class="mode-title" id="modeTitle">단어</div>
-
-      <div class="center-wrap">
-        <div class="top-stats">
-          <span id="practiceTopStats">진행도: 0개 · 정확도: 100% · 0 / 0 글자</span>
-        </div>
-
-        <div class="long-selector" id="longSelector">
-          <div class="long-selector-title">긴 글 선택</div>
-          <div class="long-list" id="longList"></div>
-        </div>
-
-        <div>
-          <div class="box combined-box">
-            <div class="meaning-line" id="practiceMeaning">제 이름은 지훈입니다.</div>
-            <div class="arabic-line" id="practiceTarget">اِسْمِي جِهُون.</div>
-          </div>
-        </div>
-
-        <div>
-          <div class="info-text">타이핑 결과</div>
-          <div class="typed-display" id="practiceTypedDisplay"></div>
-        </div>
-
-        <div class="input-area">
-          <input
-            id="practiceInput"
-            class="typing-input"
-            type="text"
-            dir="rtl"
-            autocomplete="off"
-          />
-        </div>
-
-        <div class="bottom-row">
-          <button class="btn" id="practiceNextBtn">다음</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- 게임 섹션 -->
-    <section class="tab-section" id="gameSection">
-      <div class="game-title">게임 모드</div>
-      <div class="game-desc">단어 낙하 게임과 문장 타임어택으로 연습해 보세요.</div>
-
-      <div class="game-inner-tabs">
-        <button class="game-tab-btn active" data-game="fallWord">단어 게임</button>
-        <button class="game-tab-btn" data-game="timeSentence">문장 게임</button>
+  <main class="app-main">
+    <!-- 왼쪽 패널 -->
+    <aside class="side-panel">
+      <div id="panel-letters">
+        <div class="side-title">아랍어 자음</div>
+        <div class="side-sub">자음을 눌러 모양과 발음을 연습해 보세요.</div>
+        <div id="lettersList" class="letter-grid"></div>
       </div>
 
-      <!-- 단어 게임 -->
-      <div class="game-content active" id="fallWordArea">
-        <div class="game-center-wrap">
-          <div class="game-top-stats">
-            <span id="fallScoreTop">점수: 0</span>
-            <span id="fallSpeedInfo">속도: 1.5x</span>
-          </div>
-
-          <div class="fall-wrapper" id="fallWrapper"></div>
-
-          <div>
-            <div class="info-text">타이핑 결과</div>
-            <div class="game-typed-display" id="fallTypedDisplay"></div>
-          </div>
-
-          <div class="input-area">
-            <input
-              id="fallInput"
-              class="game-input"
-              type="text"
-              dir="rtl"
-              autocomplete="off"
-            />
-          </div>
-
-          <div class="game-stats-row">
-            <div id="fallStatus">준비 완료</div>
-            <div>
-              <button class="btn" id="fallStartBtn">게임 시작</button>
-            </div>
-          </div>
-        </div>
+      <div id="panel-vowels" class="hidden">
+        <div class="side-title">모음 기호</div>
+        <div class="side-sub">짧은 모음과 긴 모음을 연습해 보세요.</div>
+        <div id="vowelsList" class="letter-grid"></div>
       </div>
 
-      <!-- 문장 게임 -->
-      <div class="game-content" id="timeSentenceArea">
-        <div class="game-center-wrap">
-          <div class="game-top-stats">
-            <span id="timeLeft">남은 시간: 30초</span>
-            <span id="timeScore">완료한 문제: 0개</span>
-            <span id="timeAccuracy">정확도: 100%</span>
-          </div>
-
-          <div>
-            <div class="game-meaning-box" id="timeMeaning">한국어 뜻이 여기에 표시됩니다.</div>
-          </div>
-
-          <div>
-            <div class="info-text">아랍어</div>
-            <div class="game-arabic-box" id="timeTargetDisplay"></div>
-          </div>
-
-          <div>
-            <div class="info-text">타이핑 결과</div>
-            <div class="game-typed-display" id="timeTypedDisplay"></div>
-          </div>
-
-          <div class="input-area">
-            <input
-              id="timeInput"
-              class="game-input"
-              type="text"
-              dir="rtl"
-              autocomplete="off"
-            />
-          </div>
-
-          <div class="game-stats-row">
-            <div></div>
-            <div>
-              <button class="btn" id="timeStartBtn">시작</button>
-            </div>
-          </div>
+      <div id="panel-words" class="hidden">
+        <div class="side-title">단어 연습</div>
+        <div class="side-sub">카테고리에서 단어를 선택해 보세요.</div>
+        <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;">
+          <button class="tab-btn" style="padding:4px 10px; font-size:0.75rem;" data-wordcat="colors">색깔</button>
+          <button class="tab-btn" style="padding:4px 10px; font-size:0.75rem;" data-wordcat="weather">날씨</button>
+          <button class="tab-btn" style="padding:4px 10px; font-size:0.75rem;" data-wordcat="fruits">과일</button>
+          <button class="tab-btn" style="padding:4px 10px; font-size:0.75rem;" data-wordcat="transport">교통수단</button>
         </div>
+        <div id="wordsList" class="letter-grid"></div>
       </div>
-    </section>
+
+      <div id="panel-sentences" class="hidden">
+        <div class="side-title">문장 연습</div>
+        <div class="side-sub">기본 회화 문장을 골라 따라 써 보세요.</div>
+        <div id="sentencesList" style="display:flex; flex-direction:column; gap:6px;"></div>
+      </div>
+
+            <div id="panel-longtext" class="hidden">
+        <div class="side-title">긴 글 연습</div>
+        <div class="side-sub">짧은 동화나 일상 글을 필사해 보세요.</div>
+
+        <!-- 난이도 버튼 -->
+        <div class="difficulty-tabs" style="margin-top:8px;">
+          <button class="diff-btn active" data-level="beginner">초급</button>
+          <button class="diff-btn" data-level="intermediate">중급</button>
+          <button class="diff-btn" data-level="advanced">고급</button>
+        </div>
+
+        <!-- 긴 글 리스트 -->
+        <div id="longtextList" style="margin-top:10px; display:flex; flex-direction:column; gap:6px;"></div>
+      </div>
+
+    </aside>
+
+    <!-- 오른쪽 패널 -->
+    <section class="content-panel">
+      <!-- 선택 정보 카드 -->
+            <div class="selection-card" id="selectionCard">
+        <div class="selection-main">
+          <div class="selection-top-line">
+            <div class="selection-ar" id="selArabic">아랍어 연습 사이트</div>
+            <div class="selection-type" id="selType">안내</div>
+          </div>
+          <div class="selection-extra" id="selExtra">
+            <span>왼쪽에서 자음·모음·단어·문장을 선택하면 이곳에 정보가 나타납니다.</span>
+          </div>
+          <div class="selection-forms hidden" id="selForms">
+  <div class="form-title">자음 형태 선택</div>
+  <div class="form-buttons">
+    <button class="form-btn" data-form="isolated">단독형</button>
+    <button class="form-btn" data-form="initial">어두형</button>
+    <button class="form-btn" data-form="medial">중간형</button>
+    <button class="form-btn" data-form="final">어말형</button>
   </div>
+</div>
 
- <script>
-  // ---------- 공통 유틸 ----------
-  function stripDiacritics(str) {
-    // 아랍어 모음부호(타쉬킬) 제거
-    return str.replace(/[\u0610-\u061A\u064B-\u0652\u0670\u06D6-\u06ED]/g, "");
-  }
 
-  function shuffleArray(arr) {
-    const a = arr.slice();
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
+        </div>
 
-  function colorizeText(target, typed) {
-    const baseTarget = stripDiacritics(target);   // 자음 기준 목표
-    let html = "";
-    let correctCount = 0;
+        <!-- 오른쪽: 발음 듣기 + 녹음 버튼들 -->
+        <div class="selection-right">
+          <button class="play-btn" id="playSelectionBtn">
+            <span>🔊</span> 발음 듣기
+          </button>
 
-    for (let i = 0; i < typed.length; i++) {
-      const ch = typed[i];
-      const tgt = baseTarget[i] || "";
-      if (ch === tgt) {
-        html += '<span class="correct-char">' + ch + '</span>';
-        correctCount++;
-      } else {
-        html += '<span class="wrong-char">' + ch + '</span>';
-      }
-    }
+          <div class="record-mini">
+            <div class="record-mini-buttons">
+              <button type="button" class="record-btn" id="recordStartBtn">● 녹음</button>
+              <button type="button" class="record-btn" id="recordStopBtn">■ 정지</button>
+              <button type="button" class="record-btn" id="recordPlayBtn">▶ 재생</button>
+            </div>
+            <div class="record-mini-status" id="recordStatus">대기 중입니다.</div>
+          </div>
+        </div>
+                <!-- 🔽 새로 추가: 긴 글 전용 연한 아랍어 토글 버튼 -->
+  <button id="longTextGuideToggleBtn" class="guide-toggle-btn" style="display:none;">
+    연한 아랍어: 켜짐
+  </button>
+                <!-- 🔽 새로 추가: 긴 글 문장 넘기기 컨트롤 -->
+<div id="longTextPageControls" class="longtext-page-controls" style="display:none;">
+  <button id="longTextPrevBtn" class="page-btn">이전</button>
+  <span id="longTextPageInfo" class="page-info">1 / 1</span>
+  <button id="longTextNextBtn" class="page-btn">다음</button>
+</div>
+      </div>
 
-    const baseLen = baseTarget.length;
-    return { html, correctCount, baseLen };
-  }
+      
+      
 
-  // ---------- 문제 데이터 ----------
-  const exercises = [
-    // 단어
-    { type: "word", meaning: "책상", text: "مَكْتَبٌ" },
-    { type: "word", meaning: "학교", text: "مَدْرَسَةٌ" },
-    { type: "word", meaning: "친구", text: "صَدِيقٌ" },
+      <!-- 캔버스 영역 -->
+      <div class="canvas-section">
+        <div class="canvas-card" id="traceCard">
+          <div class="canvas-header">
+            <span>1. 따라 쓰기</span>
+            <span class="canvas-hint">연한 글자를 따라 그려 보세요.</span>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="traceCanvas"></canvas>
+          </div>
+        </div>
 
-    // 짧은 문장
-    { type: "sentence-short", meaning: "제 이름은 지훈입니다.", text: "اِسْمِي جِهُون." },
-    { type: "sentence-short", meaning: "만나서 반갑습니다.", text: "تَشَرَّفْتُ بِمَعْرِفَتِكَ." },
+        <div class="canvas-card" id="freeCard">
+          <div class="canvas-header">
+            <span>2. 직접 쓰기</span>
+            <span class="canvas-hint">자유롭게 연습해 보세요.</span>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="freeCanvas"></canvas>
+          </div>
+          <div class="bottom-bar">
+            <button class="clear-btn" id="clearBtn">모두 지우기</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-    // 긴 글 예시 1
-    {
-      type: "sentence-long",
-      title: "동화 1",
-      meaning: "여름날 학교에 가는 소년의 이야기",
-      text:
-"فِي يَوْمٍ مِنَ الأَيَّامِ ذَهَبَ وَلَدٌ صَغِيرٌ إِلَى الْمَدْرَسَةِ.\n" +
-"كَانَ يَحْمِلُ فِي حَقِيبَتِهِ كِتَابَ الْقِصَصِ الَّذِي يُحِبُّهُ جِدًّا.\n" +
-"فِي طَرِيقِهِ قَابَلَ صَدِيقَهُ فِي الْحَيِّ، وَتَحَدَّثَا عَنِ الْأَحْلَامِ وَالْمُسْتَقْبَلِ."
-    },
-    // 긴 글 예시 2
-    {
-      type: "sentence-long",
-      title: "뉴스 1",
-      meaning: "아랍어 교육 프로그램 개설에 관한 뉴스",
-      text:
-"أَعْلَنَتِ الْجَامِعَةُ الْيَوْمَ عَنْ بَرْنَامَجٍ جَدِيدٍ لِتَعْلِيمِ اللُّغَةِ الْعَرَبِيَّةِ.\n" +
-"يَهْدِفُ الْبَرْنَامَجُ إِلَى مُسَاعَدَةِ الطُّلَّابِ عَلَى التَّحَدُّثِ وَالْكِتَابَةِ بِطَلَاقَةٍ.\n" +
-"سَيَبْدَأُ التَّسْجِيلُ فِي الشَّهْرِ الْمُقْبِلِ وَسَيَكُونُ مَجَّانِيًّا لِجَمِيعِ الطُّلَّابِ."
-    }
-  ];
+  <script>
+    // ======================
+    // 데이터 정의
+    // ======================
+    const consonants = [
+      { char: "ا", name: "alif", sound: "a / ā", type: "자음", forms: { isolated: "ا", initial: "ا", medial: "ـا", final: "ـا" } },
+      { char: "ب", name: "bāʼ", sound: "b", type: "자음", forms: { isolated: "ب", initial: "بـ", medial: "ـبـ", final: "ـب" } },
+      { char: "ت", name: "tāʼ", sound: "t", type: "자음", forms: { isolated: "ت", initial: "تـ", medial: "ـتـ", final: "ـت" } },
+      { char: "ث", name: "thāʼ", sound: "th", type: "자음", forms: { isolated: "ث", initial: "ثـ", medial: "ـثـ", final: "ـث" } },
+      { char: "ج", name: "jīm", sound: "j", type: "자음", forms: { isolated: "ج", initial: "جـ", medial: "ـجـ", final: "ـج" } },
+      { char: "ح", name: "ḥāʼ", sound: "ḥ", type: "자음", forms: { isolated: "ح", initial: "حـ", medial: "ـحـ", final: "ـح" } },
+      { char: "خ", name: "khāʼ", sound: "kh", type: "자음", forms: { isolated: "خ", initial: "خـ", medial: "ـخـ", final: "ـخ" } },
+      { char: "د", name: "dāl", sound: "d", type: "자음", forms: { isolated: "د", initial: "د", medial: "ـد", final: "ـد" } },
+      { char: "ذ", name: "dhāl", sound: "dh", type: "자음", forms: { isolated: "ذ", initial: "ذ", medial: "ـذ", final: "ـذ" } },
+      { char: "ر", name: "rāʼ", sound: "r", type: "자음", forms: { isolated: "ر", initial: "ر", medial: "ـر", final: "ـر" } },
+      { char: "ز", name: "zāy", sound: "z", type: "자음", forms: { isolated: "ز", initial: "ز", medial: "ـز", final: "ـز" } },
+      { char: "س", name: "sīn", sound: "s", type: "자음", forms: { isolated: "س", initial: "سـ", medial: "ـسـ", final: "ـس" } },
+      { char: "ش", name: "shīn", sound: "sh", type: "자음", forms: { isolated: "ش", initial: "شـ", medial: "ـشـ", final: "ـش" } },
+      { char: "ص", name: "ṣād", sound: "ṣ", type: "자음", forms: { isolated: "ص", initial: "صـ", medial: "ـصـ", final: "ـص" } },
+      { char: "ض", name: "ḍād", sound: "ḍ", type: "자음", forms: { isolated: "ض", initial: "ضـ", medial: "ـضـ", final: "ـض" } },
+      { char: "ط", name: "ṭāʼ", sound: "ṭ", type: "자음", forms: { isolated: "ط", initial: "طـ", medial: "ـطـ", final: "ـط" } },
+      { char: "ظ", name: "ẓāʼ", sound: "ẓ", type: "자음", forms: { isolated: "ظ", initial: "ظـ", medial: "ـظـ", final: "ـظ" } },
+      { char: "ع", name: "ʿayn", sound: "ʿ", type: "자음", forms: { isolated: "ع", initial: "عـ", medial: "ـعـ", final: "ـع" } },
+      { char: "غ", name: "ghayn", sound: "gh", type: "자음", forms: { isolated: "غ", initial: "غـ", medial: "ـغـ", final: "ـغ" } },
+      { char: "ف", name: "fāʼ", sound: "f", type: "자음", forms: { isolated: "ف", initial: "فـ", medial: "ـفـ", final: "ـف" } },
+      { char: "ق", name: "qāf", sound: "q", type: "자음", forms: { isolated: "ق", initial: "قـ", medial: "ـقـ", final: "ـق" } },
+      { char: "ك", name: "kāf", sound: "k", type: "자음", forms: { isolated: "ك", initial: "كـ", medial: "ـكـ", final: "ـك" } },
+      { char: "ل", name: "lām", sound: "l", type: "자음", forms: { isolated: "ل", initial: "لـ", medial: "ـلـ", final: "ـل" } },
+      { char: "م", name: "mīm", sound: "m", type: "자음", forms: { isolated: "م", initial: "مـ", medial: "ـمـ", final: "ـم" } },
+      { char: "ن", name: "nūn", sound: "n", type: "자음", forms: { isolated: "ن", initial: "نـ", medial: "ـنـ", final: "ـن" } },
+      { char: "ه", name: "hāʼ", sound: "h", type: "자음", forms: { isolated: "ه", initial: "هـ", medial: "ـهـ", final: "ـه" } },
+      { char: "و", name: "wāw", sound: "w", type: "자음", forms: { isolated: "و", initial: "و", medial: "ـو", final: "ـو" } },
+      { char: "ي", name: "yāʼ", sound: "y", type: "자음", forms: { isolated: "ي", initial: "يـ", medial: "ـيـ", final: "ـي" } },
+    ];
 
-  // ---------- 상단 탭 ----------
-  const mainTabButtons = document.querySelectorAll(".main-tab-btn");
-  const practiceSection = document.getElementById("practiceSection");
-  const gameSection = document.getElementById("gameSection");
-  let currentMode = "word";
+    // 자음 형태 정보
+const arabicForms = {
+  "ا": { isolated: "ا", initial: "ا", medial: "ـا", final: "ـا" },
+  "ب": { isolated: "ب", initial: "بـ", medial: "ـبـ", final: "ـب" },
+  "ت": { isolated: "ت", initial: "تـ", medial: "ـتـ", final: "ـت" },
+  "ث": { isolated: "ث", initial: "ثـ", medial: "ـثـ", final: "ـث" },
+  "ج": { isolated: "ج", initial: "جـ", medial: "ـجـ", final: "ـج" },
+  "ح": { isolated: "ح", initial: "حـ", medial: "ـحـ", final: "ـح" },
+  "خ": { isolated: "خ", initial: "خـ", medial: "ـخـ", final: "ـخ" },
+  "د": { isolated: "د", initial: "د", medial: "ـد", final: "ـد" },
+  "ذ": { isolated: "ذ", initial: "ذ", medial: "ـذ", final: "ـذ" },
+  "ر": { isolated: "ر", initial: "ر", medial: "ـر", final: "ـر" },
+  "ز": { isolated: "ز", initial: "ز", medial: "ـز", final: "ـز" },
+  "س": { isolated: "س", initial: "سـ", medial: "ـسـ", final: "ـس" },
+  "ش": { isolated: "ش", initial: "شـ", medial: "ـشـ", final: "ـش" },
+  "ص": { isolated: "ص", initial: "صـ", medial: "ـصـ", final: "ـص" },
+  "ض": { isolated: "ض", initial: "ضـ", medial: "ـضـ", final: "ـض" },
+  "ط": { isolated: "ط", initial: "طـ", medial: "ـطـ", final: "ـط" },
+  "ظ": { isolated: "ظ", initial: "ظـ", medial: "ـظـ", final: "ـظ" },
+};
 
-  mainTabButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      mainTabButtons.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      const tab = btn.dataset.tab;
 
-      if (tab === "game") {
-        practiceSection.classList.remove("active");
-        gameSection.classList.add("active");
-      } else {
-        gameSection.classList.remove("active");
-        practiceSection.classList.add("active");
-        currentMode = tab;
-        setupPracticeMode();
-      }
-    });
-  });
+    const vowels = [
+      { char: "َ", name: "fatḥa", sound: "a", type: "모음" },
+      { char: "ِ", name: "kasra", sound: "i", type: "모음" },
+      { char: "ُ", name: "ḍamma", sound: "u", type: "모음" },
+      { char: "ً", name: "tanwīn fatḥ", sound: "an", type: "모음" },
+      { char: "ٍ", name: "tanwīn kasr", sound: "in", type: "모음" },
+      { char: "ٌ", name: "tanwīn ḍamm", sound: "un", type: "모음" }
+    ];
 
-  // ---------- 연습 모드 ----------
-  const modeTitle = document.getElementById("modeTitle");
-  const practiceMeaning = document.getElementById("practiceMeaning");
-  const practiceTarget = document.getElementById("practiceTarget");
-  const practiceTypedDisplay = document.getElementById("practiceTypedDisplay");
-  const practiceInput = document.getElementById("practiceInput");
-  const practiceTopStats = document.getElementById("practiceTopStats");
-  const longSelector = document.getElementById("longSelector");
-  const longListEl = document.getElementById("longList");
-  const practiceNextBtn = document.getElementById("practiceNextBtn");
+    const wordCategories = {
+      colors: [
+        { arabic: "لَوْن", pron: "lawn", meaning: "색" },
+  { arabic: "أَحْمَرُ", pron: "aḥmar", meaning: "빨간색" },
+  { arabic: "بُرْتُقَالِيّ", pron: "burtuqālī", meaning: "주황색" },
+  { arabic: "أَصْفَرُ", pron: "aṣfar", meaning: "노란색" },
+  { arabic: "أَخْضَرُ", pron: "aḫḍar", meaning: "초록색" },
+  { arabic: "أَزْرَقُ", pron: "azraq", meaning: "파란색" },
+  { arabic: "نِيلِيّ", pron: "nīlī", meaning: "남색" },
+  { arabic: "بَنَفْسَجِيّ", pron: "banafsajī", meaning: "보라색" },
+  { arabic: "بُنِّيّ", pron: "bunnī", meaning: "갈색" },
+  { arabic: "أَسْوَدُ", pron: "aswad", meaning: "검은색" },
+  { arabic: "أَبْيَضُ", pron: "abyaḍ", meaning: "하얀색" },
+  { arabic: "رَمَادِيّ", pron: "ramādī", meaning: "회색" },
+  { arabic: "وَرْدِيّ", pron: "wardī", meaning: "핑크색" },
+  { arabic: "ذَهَبِيّ", pron: "dhahabī", meaning: "금색" },
+  { arabic: "فِضِّيّ", pron: "fiḍḍī", meaning: "은색" }
 
-  let practiceList = [];
-  let practiceIndex = 0;
-  let practiceCurrent = null;
+      ],
+    
+      
+      weather: [
+        { arabic: "الطَّقْس", pron: "aṭ-ṭaqs", meaning: "날씨" },
+        { arabic: "مَطَرٌ", pron: "maṭar", meaning: "비" },
+  { arabic: "ثَلْجٌ", pron: "thalj", meaning: "눈(snow)" },
+  { arabic: "رِيحٌ", pron: "rīḥ", meaning: "바람" },
+  { arabic: "جَوٌّ حَارٌّ", pron: "jaww ḥārr", meaning: "더운 날씨" },
+  { arabic: "جَوٌّ بَارِدٌ", pron: "jaww bārid", meaning: "추운 날씨" },
+  { arabic: "غَائِمٌ", pron: "ġā'im", meaning: "흐림 / 구름 낀" },
+  { arabic: "مُشْمِسٌ", pron: "mushmis", meaning: "맑음" },
+  { arabic: "عاصِف", pron: "ʿāṣif", meaning: "폭풍우" },
+  { arabic: "ضَبَابٌ", pron: "ḍabāb", meaning: "안개" },
+  { arabic: "رَطِبٌ", pron: "raṭib", meaning: "습함" },
+  { arabic: "جَافٌّ", pron: "jāff", meaning: "건조함" },
+  { arabic: "رَعْدٌ", pron: "raʿd", meaning: "천둥" },
+  { arabic: "بَرْقٌ", pron: "barq", meaning: "번개" },
+  { arabic: "عاصِفَةٌ رَمْلِيَّةٌ", pron: "ʿāṣifah ramliyyah", meaning: "모래폭풍" },
+  { arabic: "إِعْصَار", pron: "iʿṣār", meaning: "태풍" }
+      ],
+     
+    
+    fruits: [
+         { arabic: "فَاكِهَةٌ", pron: "fākihah", meaning: "과일" },
+  { arabic: "تُفَّاحَةٌ", pron: "tuffāḥa", meaning: "사과" },
+  { arabic: "مَوْزَةٌ", pron: "mawza", meaning: "바나나" },
+  { arabic: "عِنَبٌ", pron: "ʿinab", meaning: "포도" },
+  { arabic: "بُرْتُقَالَةٌ", pron: "burtuqāla", meaning: "오렌지" },
+  { arabic: "فَرَاوْلَةٌ", pron: "farāwlah", meaning: "딸기" },
+  { arabic: "بِطِّيخَةٌ", pron: "biṭṭīḫa", meaning: "수박" },
+  { arabic: "كُمَّثْرَى", pron: "kummathrā", meaning: "배" },
+  { arabic: "مَانْجَا", pron: "mānjā", meaning: "망고" },
+  { arabic: "أَنَانَاس", pron: "anānās", meaning: "파인애플" },
+  { arabic: "كَرَزٌ", pron: "karaz", meaning: "체리" },
+  { arabic: "رُمَّانٌ", pron: "rummān", meaning: "석류" },
+  { arabic: "تِينٌ", pron: "tīn", meaning: "무화과" },
+  { arabic: "خَوْخٌ", pron: "khawkh", meaning: "복숭아" },
+  { arabic: "لَيْمُونٌ", pron: "laymūn", meaning: "레몬" }
 
-  function updatePracticeTopStats(accuracy, typedLen, totalLen) {
-    const progressCount = (practiceList && practiceList.length > 0)
-      ? (practiceIndex + 1)
-      : 0;
-    practiceTopStats.textContent =
-      "진행도: " + progressCount + "개 · 정확도: " +
-      accuracy + "% · " + typedLen + " / " + totalLen + " 글자";
-  }
+      ],
 
-  function buildLongList() {
-    longListEl.innerHTML = "";
-    practiceList.forEach((item, idx) => {
-      const div = document.createElement("div");
-      div.className = "long-item" + (idx === practiceIndex ? " selected" : "");
-      const title = item.title || item.meaning || ("긴 글 " + (idx + 1));
-      div.textContent = title;
-      div.addEventListener("click", () => {
-        practiceIndex = idx;
-        loadPracticeItem();
-        document.querySelectorAll(".long-item").forEach((el, i) => {
-          el.classList.toggle("selected", i === practiceIndex);
-        });
-      });
-      longListEl.appendChild(div);
-    });
-  }
-
-  function setupPracticeMode() {
-    if (currentMode === "word") {
-      modeTitle.textContent = "단어";
-      practiceList = shuffleArray(exercises.filter(ex => ex.type === "word"));
-      longSelector.classList.remove("active");
-    } else if (currentMode === "short") {
-      modeTitle.textContent = "문장";
-      practiceList = shuffleArray(exercises.filter(ex => ex.type === "sentence-short"));
-      longSelector.classList.remove("active");
-    } else {
-      modeTitle.textContent = "긴 글";
-      practiceList = exercises.filter(ex => ex.type === "sentence-long"); // 긴 글은 순서 유지
-      longSelector.classList.add("active");
-      buildLongList();
-    }
-
-    if (practiceList.length === 0) {
-      practiceMeaning.textContent = "연습할 문장이 없습니다.";
-      practiceTarget.textContent = "";
-      practiceTypedDisplay.innerHTML = "";
-      practiceInput.value = "";
-      updatePracticeTopStats(100, 0, 0);
-      return;
-    }
-
-    practiceIndex = 0;
-    loadPracticeItem();
-  }
-
-  function loadPracticeItem() {
-    practiceCurrent = practiceList[practiceIndex];
-    const targetText = practiceCurrent.text || "";
-
-    practiceMeaning.textContent = practiceCurrent.meaning || "";
-    practiceTarget.textContent = targetText;
-    practiceTypedDisplay.innerHTML = "";
-    practiceInput.value = "";
-
-    const baseLen = stripDiacritics(targetText).length;
-    updatePracticeTopStats(100, 0, baseLen);
-
-    if (currentMode === "long") {
-      document.querySelectorAll(".long-item").forEach((el, i) => {
-        el.classList.toggle("selected", i === practiceIndex);
-      });
-    }
-
-    practiceInput.focus();
-  }
-
-  function updatePracticeTyping() {
-    if (!practiceCurrent) return;
-    const typed = practiceInput.value;
-    const target = practiceCurrent.text || "";
-
-    const result = colorizeText(target, typed);
-    const html = result.html;
-    const correctCount = result.correctCount;
-    const baseLen = result.baseLen;
-
-    practiceTypedDisplay.innerHTML = html;
-
-    const totalTyped = typed.length;
-    const accuracy = totalTyped === 0
-      ? 100
-      : Math.round((correctCount / totalTyped) * 100);
-
-    updatePracticeTopStats(accuracy, totalTyped, baseLen);
-  }
-
-  function goToNextPractice() {
-    if (practiceList.length === 0) return;
-    practiceIndex = (practiceIndex + 1) % practiceList.length;
-    loadPracticeItem();
-  }
-
-  practiceInput.addEventListener("input", updatePracticeTyping);
-  // 엔터로도 다음 문제
-  practiceInput.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      goToNextPractice();
-    }
-  });
-  // 다음 버튼으로도 이동
-  practiceNextBtn.addEventListener("click", goToNextPractice);
-
-  // 최초 로딩 시 단어 모드
-  setupPracticeMode();
-
-  // ---------- 게임 탭 전환 ----------
-  const gameTabButtons = document.querySelectorAll(".game-tab-btn");
-  const fallWordArea = document.getElementById("fallWordArea");
-  const timeSentenceArea = document.getElementById("timeSentenceArea");
-
-  gameTabButtons.forEach(btn => {
-    const handler = function (e) {
-      e.preventDefault();
-      gameTabButtons.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      const gameType = btn.dataset.game;
-
-      if (gameType === "fallWord") {
-        fallWordArea.classList.add("active");
-        timeSentenceArea.classList.remove("active");
-      } else {
-        timeSentenceArea.classList.add("active");
-        fallWordArea.classList.remove("active");
-      }
+      
+      transport: [
+        { arabic: "وَسِيلَةُ نَقْلٍ", pron: "wasīlat naql", meaning: "교통수단" },
+  { arabic: "سَيَّارَةٌ", pron: "sayyāra", meaning: "자동차" },
+  { arabic: "حَافِلَةٌ", pron: "ḥāfila", meaning: "버스" },
+  { arabic: "قِطَارٌ", pron: "qiṭār", meaning: "기차" },
+  { arabic: "طَائِرَةٌ", pron: "ṭāʾira", meaning: "비행기" },
+  { arabic: "دَرَّاجَةٌ", pron: "darrāja", meaning: "자전거" },
+  { arabic: "دَرَّاجَةٌ نَارِيَّةٌ", pron: "darrāja nāriyya", meaning: "오토바이" },
+  { arabic: "سَفِينَةٌ", pron: "safīna", meaning: "배 / 선박" },
+  { arabic: "قَارِبٌ", pron: "qārib", meaning: "보트" },
+  { arabic: "مِتْرُو / قِطَارٌ أَنْفَاق", pron: "mitrū / qiṭār anfāq", meaning: "지하철" },
+  { arabic: "تَكْسِي", pron: "taksī", meaning: "택시" },
+  { arabic: "شَاحِنَةٌ", pron: "shāḥina", meaning: "트럭" },
+  { arabic: "قُطَارٌ سَرِيعٌ", pron: "quṭār sarīʿ", meaning: "고속열차" },
+  { arabic: "قِطَارُ الرُّكَّاب", pron: "qiṭāru r-rukkāb", meaning: "여객열차" },
+  { arabic: "حَافِلَةٌ صَغِيرَةٌ", pron: "ḥāfila ṣaghīra", meaning: "승합차" }
+      ]
     };
 
-    // 클릭 + 터치 모두 대응
-    btn.addEventListener("click", handler);
-    btn.addEventListener("touchstart", function (e) {
-      e.preventDefault();
-      handler(e);
-    }, { passive: false });
-  });
+    const sentences = [
+      {
+        arabic: "السَّلَامُ عَلَيْكُمْ.",
+        pron: "as-salāmu ʿalaykum",
+        meaning: "평안이 있기를(안부 인사)."
+      },
+      {
+        arabic: "كَيْفَ حَالُكَ؟",
+        pron: "kayfa ḥāluka?",
+        meaning: "잘 지내?"
+      },
+      {
+        arabic: "أَنَا طَالِبَةٌ فِي الْجَامِعَةِ.",
+        pron: "anā ṭālibatun fī al-jāmiʿa",
+        meaning: "나는 대학교 학생이야."
+      }
+    ];
+ // 긴 글 데이터 (초급 예시 1편)
+    const longTexts = [
+      {
+        id: "duck_beginner_1",
+        level: "beginner",
+        title: "오리 이야기 1 – 위삼",
+        tag: "일상 동화 · 초급",
+       arabic: [
+      "ذاتَ مَرَّةٍ كانَتْ هُناكَ بَطَّةٌ صَغيرَةٌ تَعيشُ عِندَ البُحَيْرَةِ.",
+      "كانَ اسمُها وِسام، وَكانَتْ مَبْتَهِجَةً دائِمًا.",
+      "كُلَّ صَباحٍ تَسْتَيْقِظُ مُبَكِّرًا وَتَذْهَبُ إِلى الماءِ.",
+      "تَسْبَحُ في البُحَيْرَةِ وَتَلْعَبُ مَعَ الأَسْماكِ الصَّغيرَةِ.",
+      "بَعْدَ السِّباحَةِ تَجْلِسُ تَحْتَ شَجَرَةٍ كَبيرَةٍ لِتَسْتَريحَ.",
+      "في يَومٍ مِنَ الأَيّامِ قابَلَتْ بَطَّةً أُخْرى وَأَصْبَحَتا صَديقَتَيْنِ.",
+      "كانَتا تَسْبَحانِ وَتَلْعَبانِ مَعًا كُلَّ يَومٍ.",
+      "كانَتْ وِسام تَشْكُرُ اللهَ دائِمًا عَلى هذِهِ الحَياةِ البَسيطَةِ السَّعيدَةِ."
+    ].join("\n"),
+    korean: [
+      "옛날에 작은 오리 한 마리가 호숫가에 살고 있었어요.",
+      "그 오리의 이름은 위삼이었고, 항상 명랑했어요.",
+      "매일 아침 일찍 일어나서 물가로 갔어요.",
+      "호수에서 헤엄치며 작은 물고기들과 놀았어요.",
+      "수영을 마친 후에는 큰 나무 아래에 앉아 쉬었어요.",
+      "어느 날 다른 오리를 만나 둘은 친구가 되었어요.",
+      "두 오리는 매일 함께 헤엄치고 놀았어요.",
+      "위삼은 이런 단순하지만 행복한 삶에 항상 감사했어요."
+    ].join("\n")
+      }
+    ];
+    
 
-  // ---------- 단어 게임 (위 -> 아래) ----------
-  const fallWrapper = document.getElementById("fallWrapper");
-  const fallTypedDisplay = document.getElementById("fallTypedDisplay");
-  const fallInput = document.getElementById("fallInput");
-  const fallScoreTop = document.getElementById("fallScoreTop");
-  const fallSpeedInfo = document.getElementById("fallSpeedInfo");
-  const fallStatus = document.getElementById("fallStatus");
-  const fallStartBtn = document.getElementById("fallStartBtn");
+    // ======================
+    // 상태 관리
+    // ======================
+    let currentTab = "letters";
+    let currentSelection = null; // { type, arabic, meaning, pron, forms }
+      let longTextGuideEnabled = true; // 긴 글에서 연한 아랍어 ON/OFF 상태
+      let longTextSentences = [];
+let longTextPageIndex = 0;
+const LONG_TEXT_PAGE_SIZE = 2;  // 한 번에 2문장
 
-  let fallState = {
-    active: false,
-    score: 0,
-    speed: 1.5,
-    timerId: null,
-    spawnId: null,
-    items: [],
-    lanes: [10, 30, 50, 70, 90],
-    nextLaneIndex: 0,
-    current: null
-  };
+    // ======================
+    // DOM 참조
+    // ======================
+    const tabButtons = document.querySelectorAll(".tab-btn[data-tab]");
+    const panelLetters = document.getElementById("panel-letters");
+    const panelVowels = document.getElementById("panel-vowels");
+    const panelWords = document.getElementById("panel-words");
+    const panelSentences = document.getElementById("panel-sentences");
+    const panelLongtext = document.getElementById("panel-longtext");
 
-  function getRandomWord() {
-    const wordList = exercises.filter(ex => ex.type === "word");
-    if (wordList.length === 0) return null;
-    const idx = Math.floor(Math.random() * wordList.length);
-    return wordList[idx];
-  }
+    const selectionCard = document.getElementById("selectionCard");
+    const selectionRight = document.querySelector(".selection-right");
+    const selArabic = document.getElementById("selArabic");
+    const selType = document.getElementById("selType");
+    const selExtra = document.getElementById("selExtra");
+    const selForms = document.getElementById("selForms");
+    const playSelectionBtn = document.getElementById("playSelectionBtn");
+      const longTextGuideToggleBtn = document.getElementById("longTextGuideToggleBtn");
+      const longTextPageControls = document.getElementById("longTextPageControls");
+const longTextPrevBtn = document.getElementById("longTextPrevBtn");
+const longTextNextBtn = document.getElementById("longTextNextBtn");
+const longTextPageInfo = document.getElementById("longTextPageInfo");
+        // 연한 아랍어 ON/OFF 버튼 이벤트 (긴 글 + 일반 탭 공통)
+  if (longTextGuideToggleBtn) {
+    longTextGuideToggleBtn.addEventListener("click", () => {
+      if (!currentSelection) return;
 
-  function spawnFallWord() {
-    if (!fallState.active) return;
-    const data = getRandomWord();
-    if (!data) return;
+      // 토글 상태 전환
+      longTextGuideEnabled = !longTextGuideEnabled;
+      longTextGuideToggleBtn.textContent = longTextGuideEnabled
+        ? "연한 아랍어: 켜짐"
+        : "연한 아랍어: 꺼짐";
 
-    const id = Date.now() + Math.random();
-    const lane = fallState.lanes[fallState.nextLaneIndex];
-    fallState.nextLaneIndex = (fallState.nextLaneIndex + 1) % fallState.lanes.length;
-
-    const el = document.createElement("div");
-    el.className = "fall-word";
-    el.dataset.id = id;
-    el.textContent = data.text;
-
-    let yPx = -40;
-    el.style.top = yPx + "px";
-    el.style.left = lane + "%";
-
-    fallWrapper.appendChild(el);
-
-    const item = { id: id, text: data.text, el: el, yPx: yPx, lane: lane };
-    fallState.items.push(item);
-
-    if (!fallState.current) {
-      fallState.current = item;
-      fallInput.value = "";
-      fallTypedDisplay.innerHTML = "";
-    }
-  }
-
-  function updateFallingPosition() {
-    if (!fallState.active) return;
-    const wrapperHeight = fallWrapper.clientHeight;
-
-    for (let i = 0; i < fallState.items.length; i++) {
-      const item = fallState.items[i];
-      item.yPx += fallState.speed;
-      item.el.style.top = item.yPx + "px";
-
-      const bottom = item.yPx + item.el.offsetHeight;
-      if (bottom >= wrapperHeight) {
-        stopFallGame(false);
+      // OFF면 가이드만 지움
+      if (!longTextGuideEnabled) {
+        updateTraceGuide("");
         return;
       }
-    }
-  }
 
-  function startFallGame() {
-    if (fallState.active) return;
-
-    fallState.active = true;
-    fallState.score = 0;
-    fallState.speed = 1.5;
-    fallState.items.forEach(function (i) { i.el.remove(); });
-    fallState.items = [];
-    fallState.current = null;
-    fallWrapper.innerHTML = "";
-    fallScoreTop.textContent = "점수: 0";
-    fallSpeedInfo.textContent = "속도: 1.5x";
-    fallStatus.textContent = "진행 중...";
-    fallTypedDisplay.innerHTML = "";
-    fallInput.value = "";
-    fallInput.focus();
-
-    if (fallState.timerId) clearInterval(fallState.timerId);
-    if (fallState.spawnId) clearInterval(fallState.spawnId);
-
-    fallState.timerId = setInterval(updateFallingPosition, 40);
-    fallState.spawnId = setInterval(spawnFallWord, 2200);
-
-    spawnFallWord();
-  }
-
-  function stopFallGame(cleared) {
-    fallState.active = false;
-    if (fallState.timerId) {
-      clearInterval(fallState.timerId);
-      fallState.timerId = null;
-    }
-    if (fallState.spawnId) {
-      clearInterval(fallState.spawnId);
-      fallState.spawnId = null;
-    }
-
-    if (!cleared) {
-      fallStatus.textContent = "게임 오버 · 최종 점수: " + fallState.score;
-    } else {
-      fallStatus.textContent = "게임 종료 · 점수: " + fallState.score;
-    }
-  }
-
-  function handleFallInput() {
-    if (!fallState.active || !fallState.current) return;
-
-    const typed = fallInput.value;
-    const target = fallState.current.text;
-    const result = colorizeText(target, typed);
-    const html = result.html;
-
-    fallTypedDisplay.innerHTML = html;
-
-    if (stripDiacritics(typed) === stripDiacritics(target)) {
-      fallState.score++;
-      fallScoreTop.textContent = "점수: " + fallState.score;
-
-      fallState.speed += 0.3;
-      fallSpeedInfo.textContent = "속도: " + fallState.speed.toFixed(1) + "x";
-
-      fallState.current.el.remove();
-      fallState.items = fallState.items.filter(function (it) {
-        return it.id !== fallState.current.id;
-      });
-      fallState.current = fallState.items[0] || null;
-
-      fallInput.value = "";
-      fallTypedDisplay.innerHTML = "";
-    }
-  }
-
-  // 게임 시작 버튼: 클릭 + 터치 모두 대응
-  fallStartBtn.addEventListener("click", function () {
-    startFallGame();
-  });
-  fallStartBtn.addEventListener("touchstart", function (e) {
-    e.preventDefault();
-    startFallGame();
-  }, { passive: false });
-
-  fallInput.addEventListener("input", handleFallInput);
-
-  // ---------- 문장 타임어택 ----------
-  const timeMeaning = document.getElementById("timeMeaning");
-  const timeTargetDisplay = document.getElementById("timeTargetDisplay");
-  const timeTypedDisplay = document.getElementById("timeTypedDisplay");
-  const timeInput = document.getElementById("timeInput");
-  const timeLeftEl = document.getElementById("timeLeft");
-  const timeScoreEl = document.getElementById("timeScore");
-  const timeAccuracyEl = document.getElementById("timeAccuracy");
-  const timeStartBtn = document.getElementById("timeStartBtn");
-
-  let timeState = {
-    active: false,
-    timeLeft: 30,
-    timerId: null,
-    score: 0,
-    current: null
-  };
-
-  function getRandomSentence() {
-    const list = exercises.filter(function (ex) {
-      return ex.type === "sentence-short";
-    });
-    if (list.length === 0) return null;
-    const idx = Math.floor(Math.random() * list.length);
-    return list[idx];
-  }
-
-  function loadTimeQuestion() {
-    timeState.current = getRandomSentence();
-    if (!timeState.current) return;
-
-    timeMeaning.textContent = timeState.current.meaning || "";
-    timeTargetDisplay.textContent = timeState.current.text || "";
-    timeTypedDisplay.innerHTML = "";
-    timeInput.value = "";
-    timeInput.focus();
-  }
-
-  function updateTimeTyping() {
-    if (!timeState.active || !timeState.current) return;
-
-    const typed = timeInput.value;
-    const target = timeState.current.text;
-    const result = colorizeText(target, typed);
-    const html = result.html;
-    const correctCount = result.correctCount;
-
-    timeTypedDisplay.innerHTML = html;
-
-    if (stripDiacritics(typed) === stripDiacritics(target)) {
-      timeState.score++;
-      timeScoreEl.textContent = "완료한 문제: " + timeState.score + "개";
-      loadTimeQuestion();
-    }
-
-    const totalTyped = typed.length;
-    const acc = totalTyped === 0
-      ? 100
-      : Math.round((correctCount / totalTyped) * 100);
-    timeAccuracyEl.textContent = "정확도: " + acc + "%";
-  }
-
-  function startTimeAttack() {
-    if (timeState.active) return;
-
-    timeState.active = true;
-    timeState.timeLeft = 30;
-    timeState.score = 0;
-    timeScoreEl.textContent = "완료한 문제: 0개";
-    timeLeftEl.textContent = "남은 시간: 30초";
-    timeAccuracyEl.textContent = "정확도: 100%";
-    loadTimeQuestion();
-
-    if (timeState.timerId) clearInterval(timeState.timerId);
-    timeState.timerId = setInterval(function () {
-      timeState.timeLeft--;
-      if (timeState.timeLeft <= 0) {
-        timeLeftEl.textContent = "남은 시간: 0초";
-        endTimeAttack();
-      } else {
-        timeLeftEl.textContent = "남은 시간: " + timeState.timeLeft + "초";
+      // ON이면 현재 선택에 맞춰 다시 그림
+      if (currentSelection.type === "긴 글" && currentSelection.longTextArabic) {
+        // 긴 글: 현재 선택된 긴 글의 아랍어 문장을 다시 세팅
+        prepareLongTextPages(currentSelection.longTextArabic);
+      } else if (currentSelection.arabic) {
+        // 자음/모음/단어/문장: 선택된 아랍어를 다시 가이드에 표시
+        updateTraceGuide(currentSelection.arabic);
       }
-    }, 1000);
+    });
   }
 
-  function endTimeAttack() {
-    timeState.active = false;
-    if (timeState.timerId) {
-      clearInterval(timeState.timerId);
-      timeState.timerId = null;
-    }
-    timeLeftEl.textContent = "시간 종료 · 최종 점수: " + timeState.score + "개";
-  }
+      
 
-  timeStartBtn.addEventListener("click", function () {
-    startTimeAttack();
+
+        const recordCard = document.getElementById("recordCard");
+    const recordStartBtn = document.getElementById("recordStartBtn");
+    const recordStopBtn = document.getElementById("recordStopBtn");
+    const recordPlayBtn = document.getElementById("recordPlayBtn");
+    const recordStatus = document.getElementById("recordStatus");
+
+
+    const lettersList = document.getElementById("lettersList");
+    const vowelsList = document.getElementById("vowelsList");
+    const wordsList = document.getElementById("wordsList");
+    const sentencesList = document.getElementById("sentencesList");
+    const longtextList = document.getElementById("longtextList");
+
+      const diffButtons = document.querySelectorAll(".diff-btn");
+
+diffButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    const level = btn.dataset.level;
+    if (!level) return;
+
+    diffButtons.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    currentLongLevel = level;
+    renderLongTexts();
+
+    // 긴 글 난이도 바꾸면 선택 정보 초기화
+    renderSelectionInfo(null);
   });
-  timeStartBtn.addEventListener("touchstart", function (e) {
-    e.preventDefault();
-    startTimeAttack();
-  }, { passive: false });
+});
 
-  timeInput.addEventListener("input", updateTimeTyping);
-</script>
+    const traceCanvas = document.getElementById("traceCanvas");
+    const freeCanvas = document.getElementById("freeCanvas");
+    const clearBtn = document.getElementById("clearBtn");
+      const traceCard = document.getElementById("traceCard");
+const freeCard = document.getElementById("freeCard");
+    
+      // 🔹 헤더 문구를 '따라 쓰기 & 직접 쓰기'로 변경 (선택)
+if (traceCard) {
+  const titleSpan = traceCard.querySelector(".canvas-header span");
+  if (titleSpan) {
+    titleSpan.textContent = "따라 쓰기 & 직접 쓰기";
+  }
+}
 
+
+
+    let traceCtx, freeCtx;
+    let traceDrawing = false;
+    let freeDrawing = false;
+    let traceGuideText = "";
+
+    
+
+    // ======================
+    // 탭 전환
+    // ======================
+    function setTab(tab) {
+  currentTab = tab;
+  tabButtons.forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.tab === tab);
+  });
+
+  panelLetters.classList.toggle("hidden", tab !== "letters");
+  panelVowels.classList.toggle("hidden", tab !== "vowels");
+  panelWords.classList.toggle("hidden", tab !== "words");
+  panelSentences.classList.toggle("hidden", tab !== "sentences");
+
+          panelLongtext.classList.toggle("hidden", tab !== "longtext");
+        
+          // 🔹 긴 글 탭일 때만 레이아웃(왼쪽 패널 크기)을 다르게 하기 위한 body 클래스
+  if (document.body) {
+    if (tab === "longtext") {
+      document.body.classList.add("longtext-layout");
+    } else {
+      document.body.classList.remove("longtext-layout");
+    }
+  }
+
+          // 🔹 긴 글 탭일 때만 연한 아랍어(ghost) 폰트를 키우기 위한 body 클래스
+  if (document.body) {
+    if (tab === "longtext") {
+      document.body.classList.add("longtext-ghost");
+    } else {
+      document.body.classList.remove("longtext-ghost");
+    }
+  }
+
+        
+
+  // 🔹 긴 글 탭일 때: 상단 카드 툴바(발음/녹음/연한 아랍어/이전·다음)를 한 줄로 정렬
+  if (selectionCard && selectionRight && longTextGuideToggleBtn && longTextPageControls) {
+    if (tab === "longtext") {
+      // 긴 글 모드: 툴바 구성 요소들을 selection-right 안으로 모으고, 가로 배치
+      selectionCard.classList.add("longtext-toolbar");
+      selectionRight.appendChild(longTextGuideToggleBtn);
+      selectionRight.appendChild(longTextPageControls);
+    } else {
+      // 다른 탭: 원래 구조로 복귀
+      selectionCard.classList.remove("longtext-toolbar");
+      selectionCard.appendChild(longTextGuideToggleBtn);
+      selectionCard.appendChild(longTextPageControls);
+    }
+  }
+
+
+
+          // 긴 글 탭일 때는 selection-card 레이아웃을 세로로 전환
+  if (selectionCard) {
+    if (tab === "longtext") {
+      selectionCard.classList.add("longtext-mode");
+    } else {
+      selectionCard.classList.remove("longtext-mode");
+    }
+  }
+
+
+   // 🔹 긴 글 탭일 때: 필사 모드
+  if (traceCard && freeCard) {
+    const traceHeader = traceCard.querySelector(".canvas-header");
+    const traceWrap   = traceCard.querySelector(".canvas-wrap");
+    const freeHeader  = freeCard.querySelector(".canvas-header");
+    const freeWrap    = freeCard.querySelector(".canvas-wrap");
+    const freeBottom  = freeCard.querySelector(".bottom-bar");
+
+    if (tab === "longtext") {
+      // 위 카드: '필사' 모드 문구
+      if (traceHeader) {
+        const spans = traceHeader.querySelectorAll("span");
+        if (spans[0]) spans[0].textContent = "필사";
+        if (spans[1]) spans[1].textContent = "위의 긴 글을 보고 그대로 써 보세요.";
+      }
+
+      // 🔹 긴 글 탭에서는 필사 칸을 더 크게
+      if (traceWrap) {
+        traceWrap.style.display = "block";
+        traceWrap.style.height = "360px";   // 기존 320px → 360px
+      }
+
+      traceCard.style.flex = "";
+
+      // 아래 카드(직접 쓰기)는 숨기고,
+      // '모두 지우기' 버튼은 상단 툴바(selection-right)로 올리기
+      if (freeHeader) freeHeader.style.display = "none";
+      if (freeWrap)   freeWrap.style.display = "none";
+      if (freeBottom) freeBottom.style.display = "none";
+
+      if (selectionRight && clearBtn) {
+        selectionRight.appendChild(clearBtn);
+      }
+
+      freeCard.style.flex = "0 0 auto";   // 최소 높이만 차지
+
+    } else {
+      // 🔹 자음 / 모음 / 단어 / 문장 탭: 따라쓰기 + 직접쓰기 두 칸 모두 사용
+      if (traceHeader) {
+        const spans = traceHeader.querySelectorAll("span");
+        if (spans[0]) spans[0].textContent = "1. 따라 쓰기";
+        if (spans[1]) spans[1].textContent = "연한 글자를 따라 그려 보세요.";
+      }
+
+      if (traceWrap) {
+        traceWrap.style.display = "block";
+        traceWrap.style.height = "220px";   // 다른 탭 기본 높이
+      }
+
+      if (freeHeader) freeHeader.style.display = "";
+      if (freeWrap) {
+        freeWrap.style.display = "block";
+        freeWrap.style.height = "220px";
+      }
+
+      if (freeBottom) {
+        freeBottom.style.display = "flex";
+        if (clearBtn) freeBottom.appendChild(clearBtn);  // 다시 아래로 복귀
+      }
+
+      traceCard.style.flex = "";
+      freeCard.style.flex = "";
+    }
+
+    // 🔹 탭을 바꿀 때는 오른쪽 카드와 연한 글자를 초기화
+    currentSelection = null;
+    renderSelectionInfo(null);
+    updateTraceGuide("");
+
+    if (traceCanvas && traceCtx && freeCanvas && freeCtx) {
+      resizeCanvas(traceCanvas, traceCtx, true);
+      resizeCanvas(freeCanvas, freeCtx, false);
+    }
+  }
+
+      
+  }
+
+  // 선택이 아무것도 없으면 안내 문구
+  if (!currentSelection) {
+    renderSelectionInfo(null);
+  }
+
+
+        
+
+
+    tabButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    const tab = btn.dataset.tab;
+    setTab(tab);
+
+    // 긴 글 탭에서도 이제 스크롤/레이아웃을 동일하게 사용하므로 long-mode는 쓰지 않음
+    document.body.classList.remove("long-mode");
+  });
+});
+
+
+
+    // ======================
+    // 리스트 렌더링
+    // ======================
+    function initLetters() {
+      lettersList.innerHTML = "";
+      consonants.forEach((letter) => {
+        const div = document.createElement("div");
+        div.className = "card";
+        const ar = document.createElement("div");
+        ar.className = "card-ar";
+        ar.textContent = letter.char;
+
+        const name = document.createElement("div");
+        name.className = "card-name";
+        name.textContent = letter.name;
+
+        const sound = document.createElement("div");
+        sound.className = "card-sound";
+        sound.textContent = letter.sound;
+
+        div.appendChild(ar);
+        div.appendChild(name);
+        div.appendChild(sound);
+
+        div.addEventListener("click", () => {
+          document.querySelectorAll("#lettersList .card").forEach(c => c.classList.remove("active"));
+          div.classList.add("active");
+          currentSelection = {
+            type: "자음",
+            arabic: letter.char,
+            meaning: letter.name,
+            pron: letter.sound,
+            forms: letter.forms || null
+          };
+          renderSelectionInfo(currentSelection);
+            if (longTextGuideEnabled) {
+    updateTraceGuide(letter.char);
+  } else {
+    updateTraceGuide("");
+  }
+        });
+
+        lettersList.appendChild(div);
+      });
+    }
+
+    function initVowels() {
+      vowelsList.innerHTML = "";
+      vowels.forEach((v) => {
+        const div = document.createElement("div");
+        div.className = "card";
+        const ar = document.createElement("div");
+        ar.className = "card-ar";
+        ar.textContent = v.char;
+
+        const name = document.createElement("div");
+        name.className = "card-name";
+        name.textContent = v.name;
+
+        const sound = document.createElement("div");
+        sound.className = "card-sound";
+        sound.textContent = v.sound;
+
+        div.appendChild(ar);
+        div.appendChild(name);
+        div.appendChild(sound);
+
+        div.addEventListener("click", () => {
+          document.querySelectorAll("#vowelsList .card").forEach(c => c.classList.remove("active"));
+          div.classList.add("active");
+          currentSelection = {
+            type: "모음",
+            arabic: v.char,
+            meaning: v.name,
+            pron: v.sound,
+            forms: null
+          };
+          renderSelectionInfo(currentSelection);
+          if (longTextGuideEnabled) {
+  updateTraceGuide(v.char);
+} else {
+  updateTraceGuide("");
+}
+        });
+
+        vowelsList.appendChild(div);
+      });
+    }
+
+    let currentWordCategory = "colors";
+
+    function setWordCategory(cat) {
+      currentWordCategory = cat;
+      document.querySelectorAll("button[data-wordcat]").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.wordcat === cat);
+      });
+      renderWordList();
+    }
+
+    function renderWordList() {
+      const list = wordCategories[currentWordCategory] || [];
+      wordsList.innerHTML = "";
+      list.forEach((w) => {
+        const div = document.createElement("div");
+        div.className = "card";
+        const ar = document.createElement("div");
+        ar.className = "card-ar";
+        ar.textContent = w.arabic;
+
+        const name = document.createElement("div");
+        name.className = "card-name";
+        name.textContent = w.meaning;
+
+        const sound = document.createElement("div");
+        sound.className = "card-sound";
+        sound.textContent = w.pron;
+
+        div.appendChild(ar);
+        div.appendChild(name);
+        div.appendChild(sound);
+
+        div.addEventListener("click", () => {
+          document.querySelectorAll("#wordsList .card").forEach(c => c.classList.remove("active"));
+          div.classList.add("active");
+          currentSelection = {
+            type: "단어",
+            arabic: w.arabic,
+            meaning: w.meaning,
+            pron: w.pron,
+            forms: null
+          };
+          renderSelectionInfo(currentSelection);
+          if (longTextGuideEnabled) {
+  updateTraceGuide(w.arabic);
+} else {
+  updateTraceGuide("");
+}
+          speakArabic(w.arabic);
+        });
+
+        wordsList.appendChild(div);
+      });
+    }
+
+    function initWordCategoryButtons() {
+      document.querySelectorAll("button[data-wordcat]").forEach(btn => {
+        btn.addEventListener("click", () => setWordCategory(btn.dataset.wordcat));
+      });
+      setWordCategory("colors");
+    }
+
+    function initSentences() {
+      sentencesList.innerHTML = "";
+      sentences.forEach((s, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.style.padding = "6px 8px";
+        btn.style.fontSize = "0.8rem";
+        btn.style.borderRadius = "10px";
+        btn.style.border = "1px solid #e5e7eb";
+        btn.style.background = "white";
+        btn.style.cursor = "pointer";
+        btn.style.textAlign = "left";
+        btn.textContent = (idx + 1) + ". " + s.meaning;
+
+        btn.addEventListener("click", () => {
+          document.querySelectorAll("#sentencesList button").forEach(b => {
+            b.style.borderColor = "#e5e7eb";
+            b.style.background = "white";
+          });
+          btn.style.borderColor = "#f97316";
+          btn.style.background = "#fff7ed";
+          currentSelection = {
+            type: "문장",
+            arabic: s.arabic,
+            meaning: s.meaning,
+            pron: s.pron,
+            forms: null
+          };
+          renderSelectionInfo(currentSelection);
+          if (longTextGuideEnabled) {
+  updateTraceGuide(s.arabic);
+} else {
+  updateTraceGuide("");
+}
+
+          speakArabic(s.arabic);
+        });
+
+        sentencesList.appendChild(btn);
+      });
+    }
+
+        function initLongTexts() {
+      renderLongTexts();
+    }
+
+    let currentLongLevel = "beginner";
+
+    function renderLongTexts() {
+      if (!longtextList) return;
+      longtextList.innerHTML = "";
+
+      const filtered = longTexts.filter(t => t.level === currentLongLevel);
+
+      filtered.forEach(text => {
+        const div = document.createElement("div");
+        div.className = "longtext-item";
+        div.dataset.id = text.id;
+
+        const title = document.createElement("div");
+        title.className = "longtext-item-title";
+        title.textContent = text.title;
+
+        const meta = document.createElement("div");
+        meta.className = "longtext-item-meta";
+        meta.textContent = text.tag || "";
+
+        div.appendChild(title);
+        div.appendChild(meta);
+
+        div.addEventListener("click", () => {
+          // active 표시
+          longtextList.querySelectorAll(".longtext-item").forEach(i => i.classList.remove("active"));
+          div.classList.add("active");
+
+          // 선택 정보 업데이트
+          currentSelection = {
+  type: "긴 글",
+  arabic: text.title,         // 카드 상단에는 제목만
+  meaning: text.tag || "",
+  pron: "",
+  forms: null,
+  longTextArabic: text.arabic,
+  longTextKorean: text.korean,
+  // 🔹 한국어도 줄 단위로 쪼개서 저장
+  longTextKoreanSentences: (text.korean || "")
+    .split("\n")
+    .map(s => s.trim())
+    .filter(s => s.length > 0)
+};
+
+renderSelectionInfo(currentSelection);
+
+
+         // 🔹 긴 글: 연한 아랍어 ON/OFF 상태에 따라 가이드 적용
+      if (longTextGuideEnabled) {
+        // 🔹 긴 글: 페이지 단위로 준비 (한 번에 3문장씩)
+        prepareLongTextPages(text.arabic);
+      } else {
+        // 🔹 연한 아랍어 OFF일 때: 가이드/페이지 정보 초기화
+        updateTraceGuide("");
+        longTextSentences = [];
+        longTextPageIndex = 0;
+        updateLongTextPageControls();
+      }
+
+
+
+        });
+
+        longtextList.appendChild(div);
+      });
+    }
+
+      // 🔹 긴 글 아랍어 본문을 줄 단위로 쪼개고, 첫 페이지로 초기화
+function prepareLongTextPages(arabicText) {
+  longTextSentences = (arabicText || "")
+    .split("\n")
+    .map(s => s.trim())
+    .filter(s => s.length > 0);
+  longTextPageIndex = 0;
+  updateLongTextGuidePage();
+  updateLongTextPageControls();
+}
+
+// 🔹 현재 페이지에 해당하는 3문장만 연한 글자로 그리기
+function updateLongTextGuidePage() {
+  if (!currentSelection || !currentSelection.longTextArabic) return;
+
+  const start = longTextPageIndex * LONG_TEXT_PAGE_SIZE;
+
+  const arPage = longTextSentences.slice(start, start + LONG_TEXT_PAGE_SIZE);
+  const krPage = currentSelection.longTextKoreanSentences
+    ? currentSelection.longTextKoreanSentences.slice(start, start + LONG_TEXT_PAGE_SIZE)
+    : [];
+
+  // 아랍어 (위쪽) – 문장들을 한 덩어리로 이어 붙이기
+  const arBody = document.getElementById("lt-ar-body");
+  if (arBody) {
+    if (longTextGuideEnabled) {
+      const arText = arPage.join(" ");   // 문장 사이를 공백으로 이어서 하나의 문단으로
+      arBody.textContent = arText;
+    } else {
+      arBody.textContent = "";
+    }
+  }
+
+  // 한국어 (아래쪽) – 마찬가지로 한 덩어리로
+  const krBody = document.getElementById("lt-kr-body");
+  if (krBody) {
+    const krText = krPage.join(" ");
+    krBody.textContent = krText;
+  }
+      // 🔹 필사 칸용 연한 아랍어 가이드: 문장마다 줄바꿈해서 캔버스에 표시
+  if (longTextGuideEnabled) {
+    const guideText = arPage.join("\n");   // 문장 사이를 줄바꿈으로 연결
+    updateTraceGuide(guideText);
+  } else {
+    updateTraceGuide("");
+  }
+
+  updateLongTextPageControls();
+}
+
+
+
+
+// 🔹 페이지 번호 / 버튼 활성화 상태 갱신
+function updateLongTextPageControls() {
+  if (!longTextPageControls) return;
+
+  // 긴 글 탭이 아니거나, 문장이 없으면 숨김
+  if (currentTab !== "longtext" || !longTextSentences.length) {
+    longTextPageControls.style.display = "none";
+    return;
+  }
+
+  const totalPages = Math.ceil(longTextSentences.length / LONG_TEXT_PAGE_SIZE);
+  if (totalPages <= 1) {
+    longTextPageControls.style.display = "none";
+    return;
+  }
+
+  longTextPageControls.style.display = "inline-flex";
+  longTextPageInfo.textContent = `${longTextPageIndex + 1} / ${totalPages}`;
+  longTextPrevBtn.disabled = (longTextPageIndex === 0);
+  longTextNextBtn.disabled = (longTextPageIndex >= totalPages - 1);
+}
+
+
+    
+// ======================
+// 선택 정보 카드 렌더링
+// ======================
+function renderSelectionInfo(sel) {
+  if (!sel) {
+    selArabic.textContent = "아랍어 연습 사이트";
+    selType.textContent = "안내";
+    selExtra.innerHTML =
+      "<span>왼쪽에서 자음·모음·단어·문장을 선택하면 이곳에 정보가 나타납니다.</span>";
+    selForms.classList.add("hidden");
+    playSelectionBtn.style.display = "inline-flex";
+    if (longTextGuideToggleBtn) {
+      longTextGuideToggleBtn.style.display = "none";
+    }
+    return;
+  }
+
+  selArabic.textContent = sel.arabic;
+  selType.textContent = sel.type;
+
+  const extraParts = [];
+  if (sel.meaning) {
+    extraParts.push(`<span>뜻: ${sel.meaning}</span>`);
+  }
+  if (sel.pron) {
+    extraParts.push(`<span>발음: ${sel.pron}</span>`);
+  }
+// 🔹 긴 글인 경우: 상단 구조 재정의 (위: 아랍어 / 아래: 한국어)
+if (sel.longTextArabic) {
+  // 태그(예: "일상 동화 · 초급")
+  let tagHtml = "";
+  if (sel.meaning) {
+    tagHtml = `
+      <div class="longtext-tag">
+        ${sel.meaning}
+      </div>
+    `;
+  }
+
+  // 라벨 박스 없이, 본문만 위아래로 배치
+  selExtra.innerHTML = `
+    ${tagHtml}
+
+    <!-- 아랍어 본문 (위쪽) -->
+    <div id="lt-ar-body" class="longtext-block-body ar"></div>
+
+    <!-- 한국어 본문 (아래쪽) -->
+    <div id="lt-kr-body" class="longtext-block-body" style="margin-top: 10px;"></div>
+  `;
+
+  // 연한 아랍어 on/off 버튼 표시
+  if (longTextGuideToggleBtn) {
+    longTextGuideToggleBtn.style.display = "inline-flex";
+    longTextGuideToggleBtn.textContent = longTextGuideEnabled
+      ? "연한 아랍어: 켜짐"
+      : "연한 아랍어: 꺼짐";
+  }
+
+  return;
+}
+
+
+  
+
+      // 연한 아랍어 on/off 버튼 표시
+  if (longTextGuideToggleBtn) {
+    longTextGuideToggleBtn.style.display = "inline-flex";
+    longTextGuideToggleBtn.textContent = longTextGuideEnabled
+      ? "연한 아랍어: 켜짐"
+      : "연한 아랍어: 꺼짐";
+  }
+
+  return;
+}
+
+
+
+        function selectFormVariant(which) {
+      if (!currentSelection || !currentSelection.forms) return;
+      const formText = currentSelection.forms[which];
+      if (!formText) return;
+
+      // 선택한 형태로 따라쓰기 가이드 변경
+     if (longTextGuideEnabled) {
+    updateTraceGuide(formText);
+  } else {
+    updateTraceGuide("");
+  }
+
+      // 선택한 형태 발음도 듣고 싶으면 유지
+      speakArabic(formText);
+    }
+
+
+    // ======================
+    // TTS (발음) - 아랍어 보이스 우선
+    // ======================
+    let availableVoices = [];
+    function loadVoices() {
+      availableVoices = window.speechSynthesis ? speechSynthesis.getVoices() : [];
+    }
+    if (window.speechSynthesis) {
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    function speakArabic(text) {
+      if (!window.speechSynthesis || !text) return;
+      const utter = new SpeechSynthesisUtterance(text);
+
+      // 아랍어 보이스 우선 선택
+      let arVoices = availableVoices.filter(v => v.lang && v.lang.toLowerCase().startsWith("ar"));
+      if (arVoices.length > 0) {
+        utter.voice = arVoices[0];
+        utter.lang = arVoices[0].lang;
+      } else {
+        // 폴백: 아랍어 코드만 지정 (브라우저가 알아서 선택)
+        utter.lang = "ar-SA";
+      }
+
+      // 말하기 속도/톤 튜닝 (조금 천천히, 또렷하게)
+      utter.rate = 0.9;
+      utter.pitch = 1.0;
+
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utter);
+    }
+
+  playSelectionBtn.addEventListener("click", () => {
+  if (!currentSelection) return;
+  // 자음/모음은 발음 버튼 사용 안 함
+  if (currentSelection.type === "자음" || currentSelection.type === "모음") return;
+
+  let textToSpeak = currentSelection.arabic;
+
+  // 🔹 긴 글 탭일 때: 현재 페이지의 3문장만 읽기
+  if (currentSelection.type === "긴 글") {
+    if (longTextGuideEnabled && longTextSentences.length) {
+      const start = longTextPageIndex * LONG_TEXT_PAGE_SIZE;
+      textToSpeak = longTextSentences
+        .slice(start, start + LONG_TEXT_PAGE_SIZE)
+        .join("\n");
+    } else if (currentSelection.longTextArabic) {
+      // 연한 글자 OFF 상태거나 페이지 정보가 없으면 전체 본문
+      textToSpeak = currentSelection.longTextArabic;
+    }
+  }
+
+  speakArabic(textToSpeak);
+});
+
+
+
+
+    // ======================
+    // 캔버스 초기화 및 그리기
+    // ======================
+    function resizeCanvas(canvas, ctx, keepGuide) {
+      const rect = canvas.getBoundingClientRect();
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = rect.width * ratio;
+      canvas.height = rect.height * ratio;
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = "#111827";
+
+      if (keepGuide) {
+        drawTraceGuide();
+      }
+    }
+
+    function initCanvases() {
+      traceCtx = traceCanvas.getContext("2d");
+      freeCtx = freeCanvas.getContext("2d");
+      resizeCanvas(traceCanvas, traceCtx, true);
+      resizeCanvas(freeCanvas, freeCtx, false);
+
+      // 따라쓰기 캔버스 그리기
+      initDrawing(traceCanvas, traceCtx, () => { traceDrawing = true; }, () => { traceDrawing = false; });
+      // 직접 쓰기 캔버스 그리기
+      initDrawing(freeCanvas, freeCtx, () => { freeDrawing = true; }, () => { freeDrawing = false; });
+
+      window.addEventListener("resize", () => {
+        resizeCanvas(traceCanvas, traceCtx, true);
+        resizeCanvas(freeCanvas, freeCtx, false);
+      });
+    }
+
+    function initDrawing(canvas, ctx, onStart, onEnd) {
+      let drawing = false;
+
+      function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const x = (e.clientX - rect.left);
+        const y = (e.clientY - rect.top);
+        return { x, y };
+      }
+
+      canvas.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        drawing = true;
+        onStart();
+        const { x, y } = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+      });
+
+      canvas.addEventListener("pointermove", (e) => {
+        if (!drawing) return;
+        e.preventDefault();
+        const { x, y } = getPos(e);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      });
+
+      const stop = (e) => {
+        if (!drawing) return;
+        drawing = false;
+        onEnd();
+      };
+      canvas.addEventListener("pointerup", stop);
+      canvas.addEventListener("pointerleave", stop);
+      window.addEventListener("pointerup", stop);
+    }
+
+    // 따라쓰기 가이드 텍스트
+    // 따라쓰기 가이드 텍스트
+function updateTraceGuide(text) {
+  // 1) 새로운 가이드 텍스트 설정
+  traceGuideText = text || "";
+
+  // 2) 따라쓰기 캔버스 전체를 지우고, 연한 글자로 가이드 다시 그림
+  drawTraceGuide();
+
+  // 3) 직접 쓰기 캔버스도 같이 초기화 (사용자가 쓴 글씨만 지움)
+  if (freeCtx && freeCanvas) {
+    freeCtx.clearRect(0, 0, freeCanvas.width, freeCanvas.height);
+  }
+}
+
+
+    function drawTraceGuide() {
+  if (!traceCtx || !traceCanvas) return;
+
+  const canvas = traceCanvas;
+  const ctx = traceCtx;
+
+  // 캔버스 전체 지우기
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (!traceGuideText) return;
+
+  ctx.save();
+  ctx.globalAlpha = 0.12;
+  ctx.fillStyle = "#9ca3af";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.direction = "rtl";
+
+  // 디바이스 픽셀 비율 고려해서 "화면 기준 크기"로 계산
+  const ratio = window.devicePixelRatio || 1;
+  const cw = canvas.width / ratio;   // 화면 기준 가로
+  const ch = canvas.height / ratio;  // 화면 기준 세로
+
+  // 여러 줄/한 줄 처리
+  const rawLines = (traceGuideText || "").split("\n");
+  let lines = rawLines.map(l => l.trim()).filter(l => l.length > 0);
+  if (lines.length === 0) {
+    ctx.restore();
+    return;
+  }
+
+  const isLong = (currentTab === "longtext");
+
+  // 🔹 1) 자음/모음/단어/문장 탭: "한 줄" 크게, 캔버스에 딱 맞게
+  if (!isLong) {
+    const text = lines[0];   // 한 줄만 사용
+    let fontSize = Math.min(cw, ch) * 0.7;  // 꽉 차게 시작
+
+    // 캔버스 안에 들어갈 때까지 줄이기
+    while (fontSize > 10) {
+      ctx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
+      const w = ctx.measureText(text).width;
+      const h = fontSize; // 대략 한 줄 높이로 사용
+
+      const fitsWidth  = w <= cw * 0.9;  // 좌우 10% 여백
+      const fitsHeight = h <= ch * 0.8;  // 위아래 20% 여백
+
+      if (fitsWidth && fitsHeight) break;
+      fontSize *= 0.9;
+    }
+
+    ctx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
+
+    // 화면 기준 좌표로 그리기 (resizeCanvas에서 이미 ratio로 스케일함)
+    const x = cw / 2;
+    const y = ch / 2;
+    ctx.fillText(text, x, y);
+
+    ctx.restore();
+    return;
+  }
+  // 🔹 2) 긴 글 탭: 세로 높이 기준으로 크게 그리기
+  const lineCount = lines.length || 1;
+        
+   // 먼저 세로 높이를 기준으로 "충분히 크게" 시작
+  let fontSize = ch / (lineCount * 1.3);    // 줄 수가 적을수록 더 크게
+  if (fontSize > 140) fontSize = 140;       // 너무 커지지 않게 상한
+  if (fontSize < 40)  fontSize = 40;        // 너무 작지 않게 하한
+
+        // 폭·높이가 모두 캔버스 안에 들어갈 때까지 조금씩 줄이기
+  while (fontSize > 10) {
+    ctx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
+
+      // 한 줄 중 가장 긴 폭 계산
+    let maxLineWidth = 0;
+    for (const line of lines) {
+      const w = ctx.measureText(line).width;
+      if (w > maxLineWidth) maxLineWidth = w;
+    }
+
+       const lineHeight = fontSize * 1.4;
+    const totalHeight = lineHeight * (lineCount - 1);
+
+    const fitsWidth  = maxLineWidth <= cw * 0.94;   // 좌우 10% 정도 여백
+    const fitsHeight = totalHeight  <= ch * 0.85;   // 위아래 20% 정도 여백
+
+    if (fitsWidth && fitsHeight) break;   // 둘 다 만족하면 이 크기로 확정
+    fontSize *= 0.94;                     // 조금씩 줄이면서 다시 체크
+  }
+        
+         // 긴 글 탭은 연한 글씨를 조금 더 진하게
+  ctx.globalAlpha = 0.17;
+
+
+
+  ctx.font = `${fontSize}px "Scheherazade New", "Noto Naskh Arabic", system-ui, sans-serif`;
+  const lineHeightFinal = fontSize * 1.6;
+  const totalHeightFinal = lineHeightFinal * (lines.length - 1);
+  const centerY = ch / 2;
+
+  lines.forEach((line, idx) => {
+    const y = centerY - totalHeightFinal / 2 + idx * lineHeightFinal;
+    ctx.fillText(line, cw / 2, y);
+  });
+
+  ctx.restore();
+}
+
+
+
+
+
+    // 지우기 버튼: 유저가 그린 부분만 삭제, 가이드는 다시 그림
+    clearBtn.addEventListener("click", () => {
+      // 따라쓰기 캔버스: 전체 지우고 가이드 다시 그리기
+      drawTraceGuide();
+      // 직접 쓰기 캔버스: 전체 클리어
+      freeCtx.clearRect(0, 0, freeCanvas.width, freeCanvas.height);
+    });
+
+        // ======================
+    // 녹음 기능 (MediaRecorder)
+    // ======================
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let recordedAudioUrl = null;
+    let playbackAudio = null;
+
+        function setRecordUi(state) {
+      // state: 'idle' | 'recording' | 'ready'
+      if (!recordStartBtn || !recordStopBtn || !recordPlayBtn || !recordStatus) return;
+
+      if (state === "recording") {
+        recordStartBtn.disabled = true;
+        recordStopBtn.disabled = false;
+        recordPlayBtn.disabled = true;
+        // 재생 버튼은 아직 사용 불가 + 기본 텍스트로 유지
+        recordPlayBtn.textContent = "▶ 재생";
+        recordStatus.textContent = "녹음 중… 읽고 싶은 문장을 말해 보세요.";
+      } else if (state === "ready") {
+        recordStartBtn.disabled = false;
+        recordStopBtn.disabled = true;
+        recordPlayBtn.disabled = false;
+        // 녹음은 끝났고, 재생 대기 상태이므로 ▶ 재생으로 돌려두기
+        recordPlayBtn.textContent = "▶ 재생";
+        recordStatus.textContent = "녹음 완료! 재생 버튼을 눌러 들어보세요.";
+      } else {
+        // idle
+        recordStartBtn.disabled = false;
+        recordStopBtn.disabled = true;
+        recordPlayBtn.disabled = true;
+        recordPlayBtn.textContent = "▶ 재생";
+        recordStatus.textContent = "대기 중입니다.";
+      }
+    }
+
+
+    async function startRecording() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert("이 브라우저에서는 녹음 기능을 사용할 수 없습니다.");
+        return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        recordedChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) {
+            recordedChunks.push(e.data);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: "audio/webm" });
+          if (recordedAudioUrl) {
+            URL.revokeObjectURL(recordedAudioUrl);
+          }
+          recordedAudioUrl = URL.createObjectURL(blob);
+          setRecordUi("ready");
+        };
+
+        mediaRecorder.start();
+        setRecordUi("recording");
+      } catch (err) {
+        console.error(err);
+        alert("마이크 접근이 거부되었습니다. 브라우저 설정에서 마이크 권한을 허용해 주세요.");
+      }
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+      }
+    }
+
+            function playRecording() {
+      if (!recordedAudioUrl) return;
+
+      // 이미 재생 중이면 → 멈추고, 버튼 텍스트를 다시 "▶ 재생"으로
+      if (playbackAudio) {
+        playbackAudio.pause();
+        playbackAudio.currentTime = 0;
+        playbackAudio = null;
+        recordPlayBtn.textContent = "▶ 재생";
+        recordStatus.textContent = "재생을 멈췄습니다.";
+        return;
+      }
+
+      // 새로 재생 시작
+      playbackAudio = new Audio(recordedAudioUrl);
+      playbackAudio.onended = () => {
+        playbackAudio = null;
+        // 재생이 자연스럽게 끝났을 때도 버튼을 다시 ▶ 재생으로
+        recordPlayBtn.textContent = "▶ 재생";
+        recordStatus.textContent = "재생이 끝났습니다.";
+      };
+
+      playbackAudio.play();
+      // 재생 시작 시 버튼을 ⏹ 멈춤으로 변경
+      recordPlayBtn.textContent = "⏹ 멈춤";
+      recordStatus.textContent = "녹음된 소리를 재생 중입니다.";
+    }
+
+
+
+    // 녹음 버튼 이벤트 연결
+    if (recordStartBtn && recordStopBtn && recordPlayBtn) {
+      setRecordUi("idle");
+      recordStartBtn.addEventListener("click", startRecording);
+      recordStopBtn.addEventListener("click", stopRecording);
+      recordPlayBtn.addEventListener("click", playRecording);
+    }
+
+// ======================
+// 긴 글 탭: 페이지 넘기기 버튼 이벤트
+// ======================
+if (longTextPrevBtn) {
+  longTextPrevBtn.addEventListener("click", () => {
+    if (longTextPageIndex > 0) {
+      longTextPageIndex--;
+      updateLongTextGuidePage();
+      updateLongTextPageControls();
+    }
+  });
+}
+
+if (longTextNextBtn) {
+  longTextNextBtn.addEventListener("click", () => {
+    const totalPages = Math.ceil(longTextSentences.length / LONG_TEXT_PAGE_SIZE);
+    if (longTextPageIndex < totalPages - 1) {
+      longTextPageIndex++;
+      updateLongTextGuidePage();
+      updateLongTextPageControls();
+    }
+  });
+}
+
+
+      
+    // ======================
+    // 초기 실행
+    // ======================
+    initLetters();
+    initVowels();
+    initWordCategoryButtons();
+    renderWordList();
+    initSentences();
+    initCanvases();
+    initLongTexts();
+    renderSelectionInfo(null);
+  </script>
 </body>
 </html>
