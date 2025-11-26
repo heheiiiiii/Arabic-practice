@@ -630,34 +630,120 @@
     });
   }
 
-  function setupPracticeMode() {
-    if (currentMode === "word") {
-      modeTitle.textContent = "단어";
-      practiceList = shuffleArray(exercises.filter(ex => ex.type === "word"));
-      longSelector.classList.remove("active");
-    } else if (currentMode === "short") {
-      modeTitle.textContent = "문장";
-      practiceList = shuffleArray(exercises.filter(ex => ex.type === "sentence-short"));
-      longSelector.classList.remove("active");
-    } else {
-      modeTitle.textContent = "긴 글";
-      practiceList = exercises.filter(ex => ex.type === "sentence-long"); // 긴 글은 순서 유지
-      longSelector.classList.add("active");
-      buildLongList();
+      function setupPracticeMode() {
+      if (currentMode === "word") {
+        modeTitle.textContent = "단어";
+        practiceList = shuffleArray(exercises.filter(ex => ex.type === "word"));
+        longSelector.classList.remove("active");
+      } else if (currentMode === "short") {
+        modeTitle.textContent = "문장";
+        practiceList = shuffleArray(exercises.filter(ex => ex.type === "sentence-short"));
+        longSelector.classList.remove("active");
+      } else {
+        modeTitle.textContent = "긴 글";
+        practiceList = shuffleArray(exercises.filter(ex => ex.type === "sentence-long"));
+        longSelector.classList.add("active");
+        buildLongList();
+      }
+
+      if (practiceList.length === 0) {
+        practiceMeaning.textContent = "연습할 문장이 없습니다.";
+        practiceTarget.textContent = "";
+        practiceTypedDisplay.innerHTML = "";
+        practiceInput.value = "";
+        updatePracticeTopStats(100, 0, 0);
+        return;
+      }
+
+      practiceIndex = 0;
+      loadPracticeItem();
     }
 
-    if (practiceList.length === 0) {
-      practiceMeaning.textContent = "연습할 문장이 없습니다.";
-      practiceTarget.textContent = "";
+    function loadPracticeItem() {
+      practiceCurrent = practiceList[practiceIndex];
+      const targetText = practiceCurrent.text || "";
+
+      practiceMeaning.textContent = practiceCurrent.meaning || "";
+      practiceTarget.textContent = targetText;
       practiceTypedDisplay.innerHTML = "";
       practiceInput.value = "";
-      updatePracticeTopStats(100, 0, 0);
-      return;
+
+      const baseLen = stripDiacritics(targetText).length;
+      updatePracticeTopStats(100, 0, baseLen);
+
+      if (currentMode === "long") {
+        document.querySelectorAll(".long-item").forEach((el, i) => {
+          el.classList.toggle("selected", i === practiceIndex);
+        });
+      }
+
+      practiceInput.focus();
     }
 
-    practiceIndex = 0;
-    loadPracticeItem();
-  }
+    function updatePracticeTyping() {
+      if (!practiceCurrent) return;
+      const typed = practiceInput.value;
+      const target = practiceCurrent.text || "";
+
+      const { html, correctCount, baseLen } = colorizeText(target, typed);
+      practiceTypedDisplay.innerHTML = html;
+
+      const totalTyped = typed.length;
+      const accuracy = totalTyped === 0
+        ? 100
+        : Math.round((correctCount / totalTyped) * 100);
+
+      updatePracticeTopStats(accuracy, totalTyped, baseLen);
+    }
+
+    // 입력할 때마다 색 표시
+    practiceInput.addEventListener("input", updatePracticeTyping);
+
+    // 공통으로 쓰는 "다음 문제" 함수
+    function goToNextPractice() {
+      if (practiceList.length === 0) return;
+      practiceIndex = (practiceIndex + 1) % practiceList.length;
+      loadPracticeItem();
+    }
+
+    // 엔터로도 다음 문제 이동
+    practiceInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        goToNextPractice();
+      }
+    });
+
+    // 버튼 클릭으로 다음 문제 이동
+    practiceNextBtn.addEventListener("click", goToNextPractice);
+
+    // 페이지 로드시 한 번 초기화
+    setupPracticeMode();
+
+    // ---------- 게임 탭 전환 ----------
+    const gameTabButtons = document.querySelectorAll(".game-tab-btn");
+    const fallWordArea = document.getElementById("fallWordArea");
+    const timeSentenceArea = document.getElementById("timeSentenceArea");
+
+    gameTabButtons.forEach(btn => {
+      const handler = () => {
+        gameTabButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const gameType = btn.dataset.game;
+
+        if (gameType === "fallWord") {
+          fallWordArea.classList.add("active");
+          timeSentenceArea.classList.remove("active");
+        } else {
+          timeSentenceArea.classList.add("active");
+          fallWordArea.classList.remove("active");
+        }
+      };
+
+      // 클릭만 써도 PC + 모바일 둘 다 동작합니다.
+      btn.addEventListener("click", handler);
+    });
+
 
   function loadPracticeItem() {
     practiceCurrent = practiceList[practiceIndex];
@@ -897,13 +983,9 @@
   }
 
   // 게임 시작 버튼: 클릭 + 터치 모두 대응
-  fallStartBtn.addEventListener("click", function () {
-    startFallGame();
-  });
-  fallStartBtn.addEventListener("touchstart", function (e) {
-    e.preventDefault();
-    startFallGame();
-  }, { passive: false });
+     fallStartBtn.addEventListener("click", startFallGame);
+    fallInput.addEventListener("input", handleFallInput);
+
 
   fallInput.addEventListener("input", handleFallInput);
 
