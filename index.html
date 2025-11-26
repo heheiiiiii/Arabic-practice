@@ -349,25 +349,26 @@
 
     /* 떨어지는 단어용 영역 */
     .fall-wrapper {
-      position: relative;
-      height: 320px;
-      overflow: hidden;
-      border-radius: 12px;
-      background: #fafafa;
-      margin-top: 6px;
-      margin-bottom: 4px;
-    }
+  position: relative;
+  height: 320px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #fafafa;
+  margin-top: 6px;
+  margin-bottom: 4px;
+  direction: ltr;          /* ★ 게임 박스는 왼→오 기준 */
+}
 
-    .fall-word {
-      position: absolute;
-      top: 50%;
-      left: 0;                  /* 항상 왼쪽에서 출발 */
-      transform: translateY(-50%);
-      font-size: 1.9rem;
-      direction: rtl;
-      text-align: center;
-      white-space: nowrap;
-    }
+   .fall-word {
+  position: absolute;
+  top: 50%;
+  left: 0;                 /* ★ 항상 왼쪽에서 출발 */
+  transform: translateY(-50%);
+  font-size: 1.9rem;
+  direction: ltr;          /* ★ 박스 기준도 왼→오 */
+  text-align: center;
+  white-space: nowrap;
+}
 
     /* 문장 게임에서 아랍어 표시용 */
     .game-arabic-box {
@@ -580,6 +581,7 @@
       { type: "word", meaning: "책상", text: "مَكْتَبٌ" },
       { type: "word", meaning: "학교", text: "مَدْرَسَةٌ" },
       { type: "word", meaning: "친구", text: "صَدِيقٌ" },
+      
 
       { type: "sentence-short", meaning: "제 이름은 지훈입니다.", text: "اِسْمِي جِهُون." },
       { type: "sentence-short", meaning: "만나서 반갑습니다.", text: "تَشَرَّفْتُ بِمَعْرِفَتِكَ." },
@@ -836,8 +838,8 @@
       el.dataset.id = id;
       el.textContent = data.text;
 
-      const xPx = -el.offsetWidth || 0;  // 거의 0에서 시작
-      el.style.left = xPx + "px";
+      const xPx = 0;              // ★ 화면 가장 왼쪽에서 시작
+el.style.left = xPx + "px";
       el.style.top = lane + "%";
 
       fallWrapper.appendChild(el);
