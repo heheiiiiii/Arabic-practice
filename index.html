@@ -568,6 +568,12 @@
   </div>
 
   <script>
+// 아랍어 모음부호(타쉬킬)를 제거
+function stripDiacritics(str) {
+  return str.replace(/[\u0610-\u061A\u064B-\u0652\u0670\u06D6-\u06ED]/g, "");
+}
+
+    
     function shuffleArray(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -581,6 +587,29 @@
       { type: "word", meaning: "책상", text: "مَكْتَبٌ" },
       { type: "word", meaning: "학교", text: "مَدْرَسَةٌ" },
       { type: "word", meaning: "친구", text: "صَدِيقٌ" },
+      { type: "word", meaning: "비", text: "مَطَرٌ" },
+{ type: "word", meaning: "눈", text: "ثَلْجٌ" },
+{ type: "word", meaning: "바람", text: "رِيحٌ" },
+{ type: "word", meaning: "구름", text: "سَحَابٌ" },
+{ type: "word", meaning: "태양, 해", text: "شَمْسٌ" },
+      { type: "word", meaning: "빨간색", text: "أَحْمَرُ" },
+{ type: "word", meaning: "파란색", text: "أَزْرَقُ" },
+{ type: "word", meaning: "초록색", text: "أَخْضَرُ" },
+{ type: "word", meaning: "노란색", text: "أَصْفَرُ" },
+{ type: "word", meaning: "검정색", text: "أَسْوَدُ" },
+      { type: "word", meaning: "자동차", text: "سَيَّارَةٌ" },
+{ type: "word", meaning: "버스", text: "حَافِلَةٌ" },
+{ type: "word", meaning: "기차", text: "قِطَارٌ" },
+{ type: "word", meaning: "비행기", text: "طَائِرَةٌ" },
+{ type: "word", meaning: "배", text: "سَفِينَةٌ" },
+      { type: "word", meaning: "사과", text: "تُفَّاحَةٌ" },
+{ type: "word", meaning: "바나나", text: "مَوْزٌ" },
+{ type: "word", meaning: "포도", text: "عِنَبٌ" },
+{ type: "word", meaning: "딸기", text: "فَرَاوِلَةٌ" },
+{ type: "word", meaning: "오렌지", text: "بُرْتُقَالَةٌ" },
+
+
+
       
 
       { type: "sentence-short", meaning: "제 이름은 지훈입니다.", text: "اِسْمِي جِهُون." },
@@ -607,25 +636,27 @@
     ];
 
     function colorizeText(target, typed) {
-      const maxLen = Math.max(target.length, typed.length);
-      let html = "";
-      let correctCount = 0;
+  const baseTarget = stripDiacritics(target); // 모음부호 제거된 목표 텍스트
+  let html = "";
+  let correctCount = 0;
 
-      for (let i = 0; i < maxLen; i++) {
-        const targetChar = target[i] || "";
-        const typedChar = typed[i] || "";
+  for (let i = 0; i < typed.length; i++) {
+    const ch = typed[i];            // 사용자가 실제로 친 글자
+    const tgt = baseTarget[i] || ""; // 목표(자음 기준)
 
-        if (!typedChar) continue;
+    if (!ch) continue;
 
-        if (typedChar === targetChar) {
-          html += `<span class="correct-char">${typedChar}</span>`;
-          correctCount++;
-        } else {
-          html += `<span class="wrong-char">${typedChar}</span>`;
-        }
-      }
-      return { html, correctCount };
+    if (ch === tgt) {
+      html += `<span class="correct-char">${ch}</span>`;
+      correctCount++;
+    } else {
+      html += `<span class="wrong-char">${ch}</span>`;
     }
+  }
+  // baseLen: 자음 기준 전체 길이
+  return { html, correctCount, baseLen: baseTarget.length };
+}
+
 
     // 메인 탭
     const mainTabButtons = document.querySelectorAll(".main-tab-btn");
@@ -741,7 +772,9 @@
       practiceTypedDisplay.innerHTML = "";
       practiceInput.value = "";
 
-      updatePracticeTopStats(100, 0, targetText.length);
+      const baseLen = stripDiacritics(targetText).length;
+updatePracticeTopStats(100, 0, baseLen);
+
       updatePracticeProgress();
       practiceInput.focus();
 
@@ -761,7 +794,7 @@
 
       const totalTyped = typed.length;
       const accuracy = totalTyped === 0 ? 100 : Math.round((correctCount / totalTyped) * 100);
-      updatePracticeTopStats(accuracy, typed.length, target.length);
+      updatePracticeTopStats(accuracy, typed.length, target. baseLen);
     }
 
     practiceInput.addEventListener("input", updatePracticeTyping);
@@ -921,7 +954,7 @@ el.style.left = xPx + "px";
       const { html } = colorizeText(target, typed);
       fallTypedDisplay.innerHTML = html;
 
-      if (typed === target) {
+     if (stripDiacritics(typed) === stripDiacritics(target)) {
         fallState.score++;
         fallScoreTop.textContent = `점수: ${fallState.score}`;
 
@@ -985,7 +1018,7 @@ el.style.left = xPx + "px";
       const { html, correctCount } = colorizeText(target, typed);
       timeTypedDisplay.innerHTML = html;
 
-      if (typed === target) {
+      if (stripDiacritics(typed) === stripDiacritics(target)) {
         timeState.score++;
         timeScoreEl.textContent = `완료한 문제: ${timeState.score}개`;
         loadTimeQuestion();
